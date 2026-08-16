@@ -33,6 +33,8 @@
         <input type="text" placeholder="Search updates, items, monsters&hellip;" value="{{ search }}" onChange="{{ setSearch }}" style="background:oklch(0.225 0.016 55); border:1px solid oklch(0.32 0.02 55); color:oklch(0.95 0.01 60); border-radius:8px; padding:9px 14px; font-size:14px; font-family:'IBM Plex Sans',sans-serif; width:250px; outline:none;" />
         <button onClick="{{ toggleOnlyStarred }}" style="{{ starBtnStyle }}" style-hover="{{ chipHoverStyle }}">&#9733; Starred only</button>
         <button onClick="{{ toggleIcons }}" style="{{ iconBtnStyle }}" style-hover="{{ chipHoverStyle }}">Icons</button>
+        <button onClick="{{ toggleNotes }}" style="{{ notesBtnStyle }}" style-hover="{{ chipHoverStyle }}">Patch notes</button>
+        <button onClick="{{ toggleChanges }}" style="{{ changesBtnStyle }}" style-hover="{{ chipHoverStyle }}">Changes</button>
         <button onClick="{{ toggleCollapse }}" style="{{ collapseBtnStyle }}" style-hover="{{ chipHoverStyle }}">{{ collapseLabel }}</button>
       </div>
 
@@ -94,6 +96,8 @@
                 <span style="{{ item.starStyle }}">&#9733;</span>
                 <span style="{{ item.titleStyle }}">{{ item.title }}</span>
                 <span style="{{ item.countStyle }}">{{ item.countLabel }}</span>
+                <span style="{{ item.noteDotStyle }}">&#9679;</span>
+                <span style="{{ item.changeCountStyle }}">{{ item.changeCount }}</span>
                 <span style="flex:1;"></span>
                 <span style="font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:oklch(0.48 0.015 60); flex:none;">{{ item.metaLabel }}</span>
               </div>
@@ -102,8 +106,12 @@
                 <div style="font-size:13px; color:oklch(0.72 0.14 145); margin:6px 0 0 26px; font-family:'IBM Plex Mono',monospace;">{{ item.note }}</div>
               </sc-if>
 
-              <sc-if value="{{ item.open }}" hint-placeholder-val="{{ false }}">
+              <sc-if value="{{ item.showChips }}" hint-placeholder-val="{{ false }}">
                 <div style="margin:11px 0 2px 26px;">{{ item.chipsEl }}</div>
+              </sc-if>
+
+              <sc-if value="{{ item.showDetail }}" hint-placeholder-val="{{ false }}">
+                <div>{{ item.detailEl }}</div>
               </sc-if>
             </div>
           </sc-for>
@@ -130,6 +138,26 @@ const TYPE_COLORS = {
 };
 const TYPE_ORDER = ['Quest','Miniquest','Skill','Activity','Location','Monster','NPC','Item','Spell','Prayer','Emote','Shop','Currency','Game mechanic','Organisation','Scenery','Music track'];
 const ICON_TYPES = new Set(['Item', 'Currency']);
+// Tone for a change's heuristic `kinds` tag. Only the first recognised tag is
+// shown — a change routinely carries three, and painting them all is noise.
+const KIND_COLORS = {
+  combat: 'oklch(0.7 0.15 25)', value: 'oklch(0.8 0.11 85)',
+  obtainability: 'oklch(0.75 0.16 145)', members: 'oklch(0.78 0.13 95)',
+  requirement: 'oklch(0.78 0.09 250)', drop: 'oklch(0.7 0.13 285)',
+  added: 'oklch(0.74 0.13 168)', bugfix: 'oklch(0.72 0.09 130)',
+  graphics: 'oklch(0.68 0.09 320)', sound: 'oklch(0.62 0.05 300)',
+  examine: 'oklch(0.62 0.03 60)', rename: 'oklch(0.62 0.03 60)',
+  interface: 'oklch(0.68 0.06 200)', location: 'oklch(0.72 0.1 210)',
+  poll: 'oklch(0.68 0.03 60)', other: 'oklch(0.55 0.015 60)',
+};
+// Ranked: the tag shown is the most consequential one present, not the first
+// one the classifier happened to match.
+const KIND_RANK = ['combat', 'value', 'obtainability', 'requirement', 'drop', 'members',
+  'added', 'location', 'bugfix', 'interface', 'graphics', 'sound', 'rename', 'examine', 'poll', 'other'];
+function topKind(kinds) {
+  for (const k of KIND_RANK) if (kinds.includes(k)) return k;
+  return kinds[0] || 'other';
+}
 // Name shapes whose wiki image filename is never the plain page name — never requested.
 const NO_ICON_RE = /(seed|seedling|sapling)s?$|^Clue scroll|^Casket|^Challenge scroll|^Puzzle box|\((?:[^)]*)\)$|\b(brutal|tome|spice|points)$|^(Antidote\+|Bananas|Onions|Oranges|Apples|Tomatoes|Cabbages|Strawberries|Potatoes|Granite|Broad arrows|Trading sticks|Saradomin brew|Guthix rest|Guthix balance|Ecto-token|Minecart ticket|Acorn|Bird's egg|Bolt rack|Fishbowl|Proboscis|Sandstone|Tacks|Whoopsie|Sine wave|Square stone|Stone head|Canopic jar|Compost potion|Mushroom spore|Waste disposal|Animals' bones|Bucket of rubble|Mobile phone|9mm revolver|Hex edit detected|Tax relief|Blessed pot|Herb tea mix|Mouth grip|Sliding button|Broken vane part|Dwarven battleaxe|Dwarven rock cake|Monkey Madness helper|Sphinx baby|Cooked giant crab meat|Relicym's balm|\?\?\? mixture|.*lantern)$/i;
 const WIKI = 'https://oldschool.runescape.wiki';
@@ -150,6 +178,11 @@ class Component extends DCLogic {
     packages: [], currentBuild: null, hiddenTypes: new Set(),
     search: '', onlyStarred: false, showIcons: true, allClosed: false,
     overrides: {}, badIcons: new Set(), noIconSet: new Set(), pinned: new Set(), activeBuild: null,
+    notes: {}, changes: {}, changesByBuild: {}, showNotes: true, showChanges: true,
+    // The change rows are a two-column grid that collapses below this width.
+    // Tracked in state because this page styles inline only — no stylesheet
+    // exists to hold a media query. See CLAUDE.md conventions.
+    narrow: typeof window !== 'undefined' && window.innerWidth < 720,
   };
 
   // Built as elements, not template markup: this runtime cannot placeholder-render a
@@ -196,6 +229,130 @@ class Component extends DCLogic {
     return h('div', { style: { display: 'flex', flexDirection: 'column', gap: '8px' } }, rows);
   }
 
+  // Also elements rather than markup, for the same reason as buildChips: this
+  // runtime cannot placeholder-render a nested sc-for. See CLAUDE.md trap 1.
+  buildNote(note) {
+    const h = React.createElement;
+    const blocks = [];
+    note.sections.forEach((sec, i) => {
+      if (sec.heading) blocks.push(h('div', {
+        key: 'h' + i,
+        style: {
+          fontFamily: "'Space Grotesk',sans-serif", fontSize: '13.5px', fontWeight: 600,
+          color: 'oklch(0.84 0.05 75)', marginTop: i ? '10px' : 0, marginBottom: '3px',
+        },
+      }, sec.heading));
+      sec.text.split('\n\n').forEach((para, j) => {
+        if (para.trim()) blocks.push(h('p', {
+          key: 'p' + i + '_' + j,
+          style: {
+            margin: '0 0 6px', fontSize: '13.5px', lineHeight: 1.62,
+            color: 'oklch(0.76 0.012 60)', textWrap: 'pretty',
+          },
+        }, para.trim()));
+      });
+    });
+    return h('div', {
+      key: 'note',
+      style: {
+        borderLeft: '2px solid oklch(0.78 0.15 75 / 0.45)', paddingLeft: '12px',
+        background: 'oklch(0.78 0.15 75 / 0.04)', borderRadius: '0 7px 7px 0',
+        padding: '9px 12px 4px', display: 'flex', flexDirection: 'column',
+      },
+    }, [
+      h('div', {
+        key: 'lbl',
+        style: {
+          fontFamily: "'IBM Plex Mono',monospace", fontSize: '10.5px', fontWeight: 600,
+          letterSpacing: '0.06em', textTransform: 'uppercase',
+          color: 'oklch(0.7 0.09 75)', marginBottom: '6px',
+        },
+      }, [
+        h('span', { key: 't' }, 'Patch note'),
+        note.url ? h('a', {
+          key: 'a', href: note.url, target: '_blank', rel: 'noopener',
+          style: { marginLeft: '8px', color: 'oklch(0.66 0.08 210)', textDecoration: 'none', fontWeight: 400 },
+        }, 'wiki ↗') : null,
+      ]),
+      ...blocks,
+    ]);
+  }
+
+  buildChanges(list) {
+    const h = React.createElement;
+    const rows = list.map((c, i) => {
+      const kind = topKind(c.kinds);
+      const kc = KIND_COLORS[kind] || KIND_COLORS.other;
+      const tc = TYPE_COLORS[c.type] || 'oklch(0.7 0.02 60)';
+      const bullets = c.bullets.length === 1
+        ? h('span', { style: { color: 'oklch(0.78 0.012 60)' } }, c.bullets[0])
+        : h('ul', {
+            style: { margin: '2px 0 0', paddingLeft: '16px', color: 'oklch(0.78 0.012 60)' },
+          }, c.bullets.map((b, j) => h('li', { key: j, style: { marginBottom: '2px' } }, b)));
+      const narrow = this.state.narrow;
+      return h('div', {
+        key: c.entity + i,
+        style: narrow
+          ? { display: 'flex', flexDirection: 'column', gap: '1px', fontSize: '13px', lineHeight: 1.55 }
+          : {
+              display: 'grid', gridTemplateColumns: '150px 1fr', gap: '10px',
+              alignItems: 'baseline', fontSize: '13px', lineHeight: 1.55,
+            },
+      }, [
+        h('div', {
+          key: 'l',
+          style: {
+            textAlign: narrow ? 'left' : 'right', display: 'flex',
+            flexDirection: narrow ? 'row' : 'column',
+            alignItems: narrow ? 'baseline' : 'flex-end',
+            gap: narrow ? '7px' : '1px', flexWrap: 'wrap',
+          },
+        }, [
+          h('a', {
+            key: 'e', href: WIKI + '/w/' + wikiPath(c.entity), target: '_blank', rel: 'noopener',
+            style: { color: tc, textDecoration: 'none', fontWeight: 600, fontSize: '12.5px' },
+          }, c.entity),
+          h('span', {
+            key: 'k',
+            style: {
+              fontFamily: "'IBM Plex Mono',monospace", fontSize: '9.5px', fontWeight: 600,
+              letterSpacing: '0.05em', textTransform: 'uppercase', color: kc,
+            },
+          }, kind + (c.game ? ' · ' + c.game : '')),
+        ]),
+        h('div', { key: 'b' }, bullets),
+      ]);
+    });
+    return h('div', {
+      key: 'changes',
+      style: {
+        borderLeft: '2px solid oklch(0.7 0.15 25 / 0.35)', padding: '9px 12px',
+        background: 'oklch(0.7 0.15 25 / 0.035)', borderRadius: '0 7px 7px 0',
+        display: 'flex', flexDirection: 'column', gap: '7px',
+      },
+    }, [
+      h('div', {
+        key: 'lbl',
+        style: {
+          fontFamily: "'IBM Plex Mono',monospace", fontSize: '10.5px', fontWeight: 600,
+          letterSpacing: '0.06em', textTransform: 'uppercase', color: 'oklch(0.68 0.1 25)',
+        },
+      }, 'Changes to existing content · ' + list.length),
+      ...rows,
+    ]);
+  }
+
+  buildDetail(note, changes) {
+    const h = React.createElement;
+    const kids = [];
+    if (note && this.state.showNotes) kids.push(this.buildNote(note));
+    if (changes && changes.length && this.state.showChanges) kids.push(this.buildChanges(changes));
+    if (!kids.length) return null;
+    return h('div', {
+      style: { display: 'flex', flexDirection: 'column', gap: '9px', margin: '11px 0 2px 26px' },
+    }, kids);
+  }
+
   noIcon(name) {
     return NO_ICON_RE.test(name) || this.state.noIconSet.has(name);
   }
@@ -210,10 +367,31 @@ class Component extends DCLogic {
         pinned: new Set((mod.PINNED || []).map((n) => n.toLowerCase())),
       });
     });
+    // Patch-note prose and per-entity changes are separate modules, loaded
+    // independently: if either is absent the roadmap still renders in full.
+    import('./update-notes-data.js')
+      .then((mod) => this.setState({ notes: mod.UPDATE_NOTES || {} }))
+      .catch(() => {});
+    import('./changes-data.js')
+      .then((mod) => this.setState({
+        changes: mod.CHANGES || {}, changesByBuild: mod.CHANGES_BY_BUILD || {},
+      }))
+      .catch(() => {});
     this._onScroll = () => this.handleScroll();
     window.addEventListener('scroll', this._onScroll, { passive: true });
+    this._onResize = () => {
+      const narrow = window.innerWidth < 720;
+      if (narrow !== this.state.narrow) this.setState({ narrow });
+    };
+    window.addEventListener('resize', this._onResize, { passive: true });
+    // The state initialiser runs before the layout settles, so the constructor's
+    // reading of innerWidth is unreliable. Re-measure once mounted.
+    this._onResize();
   }
-  componentWillUnmount() { window.removeEventListener('scroll', this._onScroll); }
+  componentWillUnmount() {
+    window.removeEventListener('scroll', this._onScroll);
+    window.removeEventListener('resize', this._onResize);
+  }
 
   stickyHeight() {
     const el = document.querySelector('[data-sticky]');
@@ -306,23 +484,37 @@ class Component extends DCLogic {
           })
           .filter((g) => g.names.length > 0);
 
+        const note = s.showNotes ? s.notes[it.title] : null;
+        const changes = s.showChanges ? (s.changes[it.title] || []) : [];
+        // Search reaches into the patch-note prose and the change text, because
+        // content like "more hellhounds in the Taverley dungeon" exists only
+        // there — it created no entity, so no chip can ever match it.
+        const noteHit = !!term && (
+          (note && note.sections.some((sec) =>
+            sec.heading.toLowerCase().includes(term) || sec.text.toLowerCase().includes(term)))
+          || changes.some((c) => c.entity.toLowerCase().includes(term)
+            || c.bullets.some((b) => b.toLowerCase().includes(term)))
+        );
         const titleHit = !term || it.title.toLowerCase().includes(term) || String(pkg.build).includes(term);
-        if (term && !titleHit && groups.length === 0) continue;
+        if (term && !titleHit && !noteHit && groups.length === 0) continue;
 
         const count = groups.reduce((a, g) => a + g.names.length, 0);
         pkgCount += count;
         const key = pkg.build + '|' + it.title;
-        const open = this.isOpen(key) && groups.length > 0;
+        const detailEl = this.buildDetail(note, changes);
+        const hasDetail = !!detailEl;
+        const expandable = groups.length > 0 || hasDetail;
+        const open = this.isOpen(key) && expandable;
 
         displayItems.push({
           title: it.title,
           star: !!it.star,
           hasNote: !!it.note,
           note: it.note || '',
-          caret: groups.length ? (open ? '\u2013' : '+') : '\u00b7',
+          caret: expandable ? (open ? '\u2013' : '+') : '\u00b7',
           caretStyle: {
             fontFamily: "'IBM Plex Mono',monospace", fontSize: '13px', width: '14px', flex: 'none',
-            color: groups.length ? 'oklch(0.55 0.015 60)' : 'oklch(0.35 0.015 60)', textAlign: 'center',
+            color: expandable ? 'oklch(0.55 0.015 60)' : 'oklch(0.35 0.015 60)', textAlign: 'center',
           },
           starStyle: {
             fontSize: '12px', flex: 'none', display: it.star ? 'inline' : 'none', color: gold,
@@ -345,10 +537,68 @@ class Component extends DCLogic {
           },
           headStyle: {
             display: 'flex', alignItems: 'center', gap: '8px',
-            cursor: groups.length ? 'pointer' : 'default', userSelect: 'none',
+            cursor: expandable ? 'pointer' : 'default', userSelect: 'none',
           },
           open,
+          showChips: open && groups.length > 0,
+          showDetail: open && hasDetail,
+          noteDot: !!note,
+          changeCount: changes.length ? changes.length + ' changed' : '',
+          changeCountStyle: {
+            fontFamily: "'IBM Plex Mono',monospace", fontSize: '11px', flex: 'none',
+            color: 'oklch(0.68 0.1 25)', display: changes.length ? 'inline' : 'none',
+          },
+          noteDotStyle: {
+            fontSize: '10px', flex: 'none', color: 'oklch(0.7 0.09 75)',
+            display: note ? 'inline' : 'none',
+          },
           chipsEl: this.buildChips(groups),
+          detailEl,
+        });
+      }
+
+      // Changes whose originating update is not itemised on this page still
+      // belong to the build. They get one collapsed entry per package rather
+      // than being dropped — losing them would misrepresent what the build did.
+      let loose = s.showChanges && !s.onlyStarred ? (s.changesByBuild[pkg.build] || []) : [];
+      if (term && loose.length) {
+        loose = loose.filter((c) => c.entity.toLowerCase().includes(term)
+          || c.bullets.some((b) => b.toLowerCase().includes(term))
+          || (c.update || '').toLowerCase().includes(term));
+      }
+      if (loose.length) {
+        const key = pkg.build + '|__loose_changes';
+        const open = this.isOpen(key);
+        displayItems.push({
+          title: 'Other changes this build', star: false, hasNote: false, note: '',
+          caret: open ? '–' : '+',
+          caretStyle: {
+            fontFamily: "'IBM Plex Mono',monospace", fontSize: '13px', width: '14px',
+            flex: 'none', color: 'oklch(0.55 0.015 60)', textAlign: 'center',
+          },
+          starStyle: { display: 'none' },
+          titleStyle: {
+            fontSize: '15px', fontWeight: 600, color: 'oklch(0.74 0.02 60)',
+            fontFamily: "'Space Grotesk',sans-serif", fontStyle: 'italic',
+          },
+          countStyle: { display: 'none' }, countLabel: '',
+          noteDotStyle: { display: 'none' },
+          changeCount: loose.length + ' changed',
+          changeCountStyle: {
+            fontFamily: "'IBM Plex Mono',monospace", fontSize: '11px', flex: 'none',
+            color: 'oklch(0.68 0.1 25)',
+          },
+          metaLabel: '', onToggle: () => this.toggleItem(key),
+          wrapStyle: {
+            background: 'oklch(0.2 0.014 55)', border: '1px dashed oklch(0.29 0.016 55)',
+            borderRadius: '10px', padding: '11px 13px',
+          },
+          headStyle: {
+            display: 'flex', alignItems: 'center', gap: '8px',
+            cursor: 'pointer', userSelect: 'none',
+          },
+          open, showChips: false, showDetail: open,
+          chipsEl: null, detailEl: this.buildDetail(null, loose),
         });
       }
 
@@ -392,6 +642,10 @@ class Component extends DCLogic {
       starBtnStyle: this.btn(s.onlyStarred, gold),
       toggleIcons: () => this.setState((st) => ({ showIcons: !st.showIcons })),
       iconBtnStyle: this.btn(s.showIcons, blue),
+      toggleNotes: () => this.setState((st) => ({ showNotes: !st.showNotes })),
+      notesBtnStyle: this.btn(s.showNotes, gold),
+      toggleChanges: () => this.setState((st) => ({ showChanges: !st.showChanges })),
+      changesBtnStyle: this.btn(s.showChanges, 'oklch(0.7 0.15 25)'),
       toggleCollapse: () => this.setState((st) => ({ allClosed: !st.allClosed, overrides: {} })),
       collapseBtnStyle: this.btn(false, blue),
       collapseLabel: s.allClosed ? 'Expand all' : 'Collapse all',

@@ -16,7 +16,8 @@ under the hood — `style="…"` compiles to a style object, `{{ path }}` holes 
 (no expressions), and `<sc-for>` / `<sc-if>` handle repetition and conditionals.
 
 `updates-data.js` is a plain ES module, imported dynamically in `componentDidMount`. Data changes
-need no page changes.
+need no page changes. `update-notes-data.js` and `changes-data.js` are imported the same way but
+with `.catch(() => {})` — if either is missing the roadmap still renders in full. Keep it that way.
 
 ## Conventions to keep
 
@@ -47,6 +48,16 @@ need no page changes.
 4. **`updates-data.js` is generated but hand-maintained.** It was produced from
    `uploads/runescape_release_timeline.xlsx` via the extracts in `scraps/`. There is no generator
    script in the repo — do not regenerate and clobber hand edits (`PINNED`, `star`, `note`, `hide`).
+   `tools/build-changes-data.py` writes **only** `update-notes-data.js` and `changes-data.js`;
+   it reads `updates-data.js` but never writes it. Keep that boundary.
+5. **`state.narrow` cannot be trusted from the state initialiser.** The class-property
+   initialiser runs before layout settles, so `window.innerWidth` reads small and every change
+   row renders in its stacked mobile form at desktop width. `componentDidMount` calls
+   `this._onResize()` once to re-measure — do not remove that call. This exists because the page
+   is inline-styles-only and has no stylesheet to hold a media query.
+6. **Change `kinds` tags are derived, not sourced.** They come from regex over the change
+   wording in `tools/build-changes-data.py` / the research extractor. Never present them as
+   wiki-sourced fact, and expect unusual phrasing to be mis-tagged.
 
 ## Roadmap of the roadmap
 

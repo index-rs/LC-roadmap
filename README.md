@@ -13,10 +13,45 @@ Live page: `Update Roadmap.dc.html` (or `index.html`, which redirects to it).
 | --- | --- |
 | `Update Roadmap.dc.html` | The whole page: markup + logic. Self-contained, opens in a browser. |
 | `updates-data.js` | All roadmap content. **This is the file you edit.** |
+| `update-notes-data.js` | Patch-note prose per update. **Generated — do not hand-edit.** |
+| `changes-data.js` | Post-release changes per update/build. **Generated — do not hand-edit.** |
+| `tools/build-changes-data.py` | Regenerates the two files above. Never touches `updates-data.js`. |
+| `tools/check-data.mjs` | Sanity-checks that the generated data joins cleanly. |
 | `support.js` | Runtime for the `.dc.html` format. Don't edit. |
 | `index.html` | Redirect so GitHub Pages serves the roadmap at the repo root. |
 | `uploads/runescape_release_timeline.xlsx` | Source spreadsheet the data was generated from. |
 | `scraps/` | Intermediate extracts (`build-numbers.json`, `osrs-window.json`). |
+
+## Patch notes and changes
+
+Two extra layers sit under each update, both toggleable from the filter bar:
+
+- **Patch note** (gold block) — the prose Jagex actually published, split into its
+  sub-sections. 107 of 112 updates have one. This is the only place content that created
+  *no entity* can live: "There are now more hellhounds in the Taverley dungeon and some
+  south of the Wilderness axe hut" adds no row to the release timeline, but it is
+  absolutely something the build shipped.
+- **Changes to existing content** (red block) — what happened to things already in the
+  game: value changes, rebalances, graphical updates. 1,582 entries across 86 updates,
+  plus 581 under "Other changes this build" where the originating update is not itemised
+  on this page.
+
+Search covers both, so searching `hellhound` finds the Fenkenstrain note even though no
+entity chip matches it.
+
+Each change carries a `kinds` tag (`combat`, `value`, `graphics`, …). **These tags are
+derived from the change wording by regex, not sourced from the wiki** — treat them as a
+filter, not as fact. Only the most consequential tag is shown.
+
+### Regenerating
+
+```bash
+python tools/build-changes-data.py && node tools/check-data.mjs
+```
+
+Reads `jsonl/entity_changes.jsonl` and `jsonl/update_notes.jsonl` from the
+`runescape-research` project (`--research DIR` to point elsewhere). `--check` reports the
+join without writing. It writes only the two generated files.
 
 ## Scope
 
@@ -113,7 +148,14 @@ affiliated with Jagex or Weird Gloop.
 
 - Two updates named `Other content — <date>` (builds 330 and 355) hold entities whose wiki page
   records no originating update. Rename or prune them.
-- Per-item *changes* (nerfs, price adjustments, spec rebalances) are not in the dataset — the wiki
-  release timeline only knows original release dates. Patch-note detail is a manual addition.
 - Some entities are dated by wiki editorial convention rather than by the update that introduced
   them, so a handful sit in a neighbouring build.
+- **Change coverage is thin: only ~20% of entities released in this window have any change
+  entry on the wiki at all.** An entity with no change listed is almost never an entity that
+  never changed — it is one nobody documented. Absence carries no information here.
+- 5 of 112 updates have no patch-note prose: the four synthetic `Other content — <date>`
+  entries (correct — they are not real updates) and `Halloween & Death Mechanics`, which has
+  no matching `Update:` page on either wiki under that name.
+- Change rows sourced from the RS3 wiki are marked `· RS3` on the tag line. They are used only
+  to fill entities the OSRS wiki does not cover; RS3's own change history for this period is
+  92% "Added to game." restatements, which are filtered out.
