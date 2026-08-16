@@ -78,6 +78,40 @@ def strip_release_bullets(bullets: list[str]) -> list[str]:
     return kept
 
 
+def group_identical(records: list[dict]) -> list[dict]:
+    """Merge records whose change is word-for-word the same into one entry.
+
+    One update routinely applies the same change to a whole equipment set -- 35
+    items "graphically updated" in In Aid of the Myreque, 90 NPCs reworked in
+    New Female Bodykit. Listing those separately is 35 identical sentences, so
+    the entities are rolled into a single entry instead.
+
+    The grouping key deliberately includes type, game and date as well as the
+    text: two items sharing wording but not a date are two different events, and
+    collapsing them would misdate one of them.
+    """
+    groups: dict[tuple, dict] = {}
+    for r in records:
+        key = (
+            r.get("type", ""), r.get("game", ""), r["date"], r.get("dateEnd", ""),
+            r.get("update", ""), tuple(r["kinds"]), tuple(r["bullets"]),
+        )
+        g = groups.get(key)
+        if g is None:
+            g = dict(r)
+            g["entities"] = []
+            g.pop("entity", None)
+            groups[key] = g
+        for name in ([r["entity"]] if "entity" in r else r.get("entities", [])):
+            if name not in g["entities"]:
+                g["entities"].append(name)
+    out = list(groups.values())
+    for g in out:
+        g["entities"].sort(key=str.casefold)
+    out.sort(key=lambda g: (g["date"], g["entities"][0].casefold()))
+    return out
+
+
 def norm_title(s: str) -> str:
     """Join key: case/apostrophe/dash-insensitive update title."""
     s = unicodedata.normalize("NFKC", s or "")
@@ -205,11 +239,14 @@ def main() -> int:
         else:
             unplaced += 1
 
-    for lst in list(by_update.values()) + list(by_build.values()):
-        lst.sort(key=lambda r: (r["date"], r["entity"]))
+    raw_total = sum(len(v) for v in by_update.values()) + sum(len(v) for v in by_build.values())
+    for d in (by_update, by_build):
+        for k, lst in list(d.items()):
+            d[k] = group_identical(lst)
 
     placed = sum(len(v) for v in by_update.values())
     bucketed = sum(len(v) for v in by_build.values())
+    print(f"  identical changes rolled up  : {raw_total} rows -> {placed + bucketed} entries")
     print(f"  attached to a named update : {placed} across {len(by_update)} updates")
     print(f"  bucketed onto a build      : {bucketed} across {len(by_build)} builds")
     print(f"  unplaced (dropped)         : {unplaced}")
@@ -245,8 +282,8 @@ def main() -> int:
            "export const CHANGES = {\n"]
 
     def emit(rec: dict) -> str:
-        parts = [f"entity: {js_string(rec['entity'])}", f"type: {js_string(rec['type'])}",
-                 f"date: {js_string(rec['date'])}"]
+        parts = ["entities: [" + ", ".join(js_string(e) for e in rec["entities"]) + "]",
+                 f"type: {js_string(rec['type'])}", f"date: {js_string(rec['date'])}"]
         if rec.get("dateEnd"):
             parts.append(f"dateEnd: {js_string(rec['dateEnd'])}")
         if rec.get("game"):

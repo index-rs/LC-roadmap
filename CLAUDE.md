@@ -58,6 +58,12 @@ with `.catch(() => {})` — if either is missing the roadmap still renders in fu
 6. **Change `kinds` tags are derived, not sourced.** They come from regex over the change
    wording in `tools/build-changes-data.py` / the research extractor. Never present them as
    wiki-sourced fact, and expect unusual phrasing to be mis-tagged.
+7. **The detail blocks use `subOpen`, not `overrides`.** `isOpen`/`overrides` default to
+   *open* via `allClosed`; the patch-note and changes blocks must default to *closed*, so
+   they have their own `subOpen` map and `isSubOpen`/`toggleSub`. Do not merge the two.
+8. **A change entry holds `entities` (array), never `entity`.** Identical changes are
+   rolled up by `group_identical()`, so any count of "what changed" must sum
+   `entities.length` — counting entries under-reports. Search must scan all of them.
 
 ## Roadmap of the roadmap
 

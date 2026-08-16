@@ -23,12 +23,17 @@ const orphanB = Object.keys(CHANGES_BY_BUILD).filter((b) => !pageBuilds.has(Numb
 console.log(`\nkeys not matching any page update  : CHANGES ${orphanC.length}, NOTES ${orphanN.length}`);
 console.log(`build keys not matching a package  : ${orphanB.length} ${orphanB.slice(0, 8).join(', ')}`);
 
-const noType = [...chg, ...bucket].filter((c) => !c.type || c.type === 'Item').length;
+const all = [...chg, ...bucket];
+const entities = all.reduce((a, c) => a + c.entities.length, 0);
+const grouped = all.filter((c) => c.entities.length > 1);
+console.log(`\nentries: ${all.length}, entities: ${entities} `
+  + `(${grouped.length} entries roll up ${grouped.reduce((a, c) => a + c.entities.length, 0)} entities)`);
+console.log(`entries missing .entities: ${all.filter((c) => !Array.isArray(c.entities) || !c.entities.length).length}`);
 const kinds = {};
 for (const c of [...chg, ...bucket]) for (const k of c.kinds) kinds[k] = (kinds[k] || 0) + 1;
 console.log(`\nkind tags:`, Object.entries(kinds).sort((a, b) => b[1] - a[1]).map(([k, v]) => `${k}:${v}`).join('  '));
 
-const noBullets = [...chg, ...bucket].filter((c) => !c.bullets.length);
+const noBullets = all.filter((c) => !c.bullets.length);
 console.log(`\nentries with no bullets: ${noBullets.length}`);
 const covered = [...pageTitles].filter((t) => CHANGES[t] || UPDATE_NOTES[t]).length;
 console.log(`page updates with notes and/or changes: ${covered}/${pageTitles.size}`);

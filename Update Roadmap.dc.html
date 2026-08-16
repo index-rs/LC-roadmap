@@ -179,6 +179,7 @@ class Component extends DCLogic {
     search: '', onlyStarred: false, showIcons: true, allClosed: false,
     overrides: {}, badIcons: new Set(), noIconSet: new Set(), pinned: new Set(), activeBuild: null,
     notes: {}, changes: {}, changesByBuild: {}, showNotes: true, showChanges: true,
+    subOpen: {},
     // The change rows are a two-column grid that collapses below this width.
     // Tracked in state because this page styles inline only — no stylesheet
     // exists to hold a media query. See CLAUDE.md conventions.
@@ -231,8 +232,32 @@ class Component extends DCLogic {
 
   // Also elements rather than markup, for the same reason as buildChips: this
   // runtime cannot placeholder-render a nested sc-for. See CLAUDE.md trap 1.
-  buildNote(note) {
+  // Reddit-style collapse for the detail blocks. Separate from `overrides` /
+  // isOpen because those default to open via `allClosed`; these default to
+  // closed, so the page opens as a roadmap and not as a wall of prose.
+  isSubOpen(key) { return !!this.state.subOpen[key]; }
+  toggleSub(key) {
+    this.setState((s) => ({ subOpen: { ...s.subOpen, [key]: !s.subOpen[key] } }));
+  }
+  subHeader(key, open, label, color) {
+    return React.createElement('div', {
+      key: 'hdr',
+      onClick: () => this.toggleSub(key),
+      style: {
+        display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer',
+        userSelect: 'none', fontFamily: "'IBM Plex Mono',monospace", fontSize: '10.5px',
+        fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color,
+      },
+    }, [
+      React.createElement('span', { key: 'c', style: { fontSize: '9px', width: '9px' } },
+        open ? '▾' : '▸'),
+      React.createElement('span', { key: 'l' }, label),
+    ]);
+  }
+
+  buildNote(note, key) {
     const h = React.createElement;
+    const open = this.isSubOpen(key);
     const blocks = [];
     note.sections.forEach((sec, i) => {
       if (sec.heading) blocks.push(h('div', {
@@ -252,34 +277,45 @@ class Component extends DCLogic {
         }, para.trim()));
       });
     });
+    const body = open ? [
+      h('div', { key: 'body', style: { marginTop: '6px' } }, [
+        ...blocks,
+        note.url ? h('a', {
+          key: 'a', href: note.url, target: '_blank', rel: 'noopener',
+          style: {
+            color: 'oklch(0.66 0.08 210)', textDecoration: 'none',
+            fontFamily: "'IBM Plex Mono',monospace", fontSize: '11px',
+          },
+        }, 'read on the wiki ↗') : null,
+      ]),
+    ] : [];
     return h('div', {
       key: 'note',
       style: {
-        borderLeft: '2px solid oklch(0.78 0.15 75 / 0.45)', paddingLeft: '12px',
+        borderLeft: '2px solid oklch(0.78 0.15 75 / 0.45)',
         background: 'oklch(0.78 0.15 75 / 0.04)', borderRadius: '0 7px 7px 0',
-        padding: '9px 12px 4px', display: 'flex', flexDirection: 'column',
+        padding: open ? '9px 12px 10px' : '7px 12px', display: 'flex', flexDirection: 'column',
       },
     }, [
-      h('div', {
-        key: 'lbl',
-        style: {
-          fontFamily: "'IBM Plex Mono',monospace", fontSize: '10.5px', fontWeight: 600,
-          letterSpacing: '0.06em', textTransform: 'uppercase',
-          color: 'oklch(0.7 0.09 75)', marginBottom: '6px',
-        },
-      }, [
-        h('span', { key: 't' }, 'Patch note'),
-        note.url ? h('a', {
-          key: 'a', href: note.url, target: '_blank', rel: 'noopener',
-          style: { marginLeft: '8px', color: 'oklch(0.66 0.08 210)', textDecoration: 'none', fontWeight: 400 },
-        }, 'wiki ↗') : null,
-      ]),
-      ...blocks,
+      this.subHeader(key, open, 'Patch note', 'oklch(0.7 0.09 75)'),
+      ...body,
     ]);
   }
 
-  buildChanges(list) {
+  buildChanges(list, key) {
     const h = React.createElement;
+    const open = this.isSubOpen(key);
+    const entityCount = list.reduce((a, c) => a + c.entities.length, 0);
+    if (!open) {
+      return h('div', {
+        key: 'changes',
+        style: {
+          borderLeft: '2px solid oklch(0.7 0.15 25 / 0.35)', padding: '7px 12px',
+          background: 'oklch(0.7 0.15 25 / 0.035)', borderRadius: '0 7px 7px 0',
+        },
+      }, [this.subHeader(key, false,
+        'Changes to existing content · ' + entityCount, 'oklch(0.68 0.1 25)')]);
+    }
     const rows = list.map((c, i) => {
       const kind = topKind(c.kinds);
       const kc = KIND_COLORS[kind] || KIND_COLORS.other;
@@ -290,10 +326,39 @@ class Component extends DCLogic {
             style: { margin: '2px 0 0', paddingLeft: '16px', color: 'oklch(0.78 0.012 60)' },
           }, c.bullets.map((b, j) => h('li', { key: j, style: { marginBottom: '2px' } }, b)));
       const narrow = this.state.narrow;
+      // One entity keeps the compact two-column form. Several share one wording,
+      // so the names run inline above the text instead — a 35-name list squeezed
+      // into a 150px gutter is unreadable.
+      const wide = c.entities.length > 1 || narrow;
+      const links = [];
+      c.entities.forEach((name, k) => {
+        if (k) links.push(h('span', {
+          key: 's' + k, style: { color: 'oklch(0.45 0.015 60)' },
+        }, ', '));
+        links.push(h('a', {
+          key: 'e' + k, href: WIKI + '/w/' + wikiPath(name), target: '_blank', rel: 'noopener',
+          style: { color: tc, textDecoration: 'none', fontWeight: 600, fontSize: '12.5px' },
+        }, name));
+      });
+      // No game label on the tag. `c.game` records which *wiki* the text came
+      // from, not the game version — and "RS3" on a 2005 row reads as an
+      // anachronism (RuneScape 3 launched in 2013). "RS2" would be no better:
+      // the unlabelled OSRS-sourced rows are equally RS2-era, so tagging only
+      // these would imply a distinction that does not exist. Provenance moves
+      // to the tooltip; the `game` field stays in changes-data.js.
+      const tag = h('span', {
+        key: 'k',
+        title: c.game === 'RS3' ? 'Text sourced from the RuneScape Wiki (runescape.wiki)' : undefined,
+        style: {
+          fontFamily: "'IBM Plex Mono',monospace", fontSize: '9.5px', fontWeight: 600,
+          letterSpacing: '0.05em', textTransform: 'uppercase', color: kc, whiteSpace: 'nowrap',
+        },
+      }, kind + (c.entities.length > 1 ? ' ×' + c.entities.length : ''));
+
       return h('div', {
-        key: c.entity + i,
-        style: narrow
-          ? { display: 'flex', flexDirection: 'column', gap: '1px', fontSize: '13px', lineHeight: 1.55 }
+        key: c.entities[0] + i,
+        style: wide
+          ? { display: 'flex', flexDirection: 'column', gap: '2px', fontSize: '13px', lineHeight: 1.55 }
           : {
               display: 'grid', gridTemplateColumns: '150px 1fr', gap: '10px',
               alignItems: 'baseline', fontSize: '13px', lineHeight: 1.55,
@@ -301,26 +366,17 @@ class Component extends DCLogic {
       }, [
         h('div', {
           key: 'l',
-          style: {
-            textAlign: narrow ? 'left' : 'right', display: 'flex',
-            flexDirection: narrow ? 'row' : 'column',
-            alignItems: narrow ? 'baseline' : 'flex-end',
-            gap: narrow ? '7px' : '1px', flexWrap: 'wrap',
-          },
-        }, [
-          h('a', {
-            key: 'e', href: WIKI + '/w/' + wikiPath(c.entity), target: '_blank', rel: 'noopener',
-            style: { color: tc, textDecoration: 'none', fontWeight: 600, fontSize: '12.5px' },
-          }, c.entity),
-          h('span', {
-            key: 'k',
-            style: {
-              fontFamily: "'IBM Plex Mono',monospace", fontSize: '9.5px', fontWeight: 600,
-              letterSpacing: '0.05em', textTransform: 'uppercase', color: kc,
-            },
-          }, kind + (c.game ? ' · ' + c.game : '')),
-        ]),
-        h('div', { key: 'b' }, bullets),
+          style: wide
+            ? { display: 'flex', alignItems: 'baseline', gap: '7px', flexWrap: 'wrap' }
+            : {
+                textAlign: 'right', display: 'flex', flexDirection: 'column',
+                alignItems: 'flex-end', gap: '1px', flexWrap: 'wrap',
+              },
+        }, wide ? [h('span', { key: 'n' }, links), tag] : [h('span', { key: 'n' }, links), tag]),
+        h('div', {
+          key: 'b',
+          style: wide ? { paddingLeft: '10px', borderLeft: '1px solid oklch(0.3 0.016 55)' } : null,
+        }, bullets),
       ]);
     });
     return h('div', {
@@ -331,22 +387,19 @@ class Component extends DCLogic {
         display: 'flex', flexDirection: 'column', gap: '7px',
       },
     }, [
-      h('div', {
-        key: 'lbl',
-        style: {
-          fontFamily: "'IBM Plex Mono',monospace", fontSize: '10.5px', fontWeight: 600,
-          letterSpacing: '0.06em', textTransform: 'uppercase', color: 'oklch(0.68 0.1 25)',
-        },
-      }, 'Changes to existing content · ' + list.length),
+      this.subHeader(key, true,
+        'Changes to existing content · ' + entityCount, 'oklch(0.68 0.1 25)'),
       ...rows,
     ]);
   }
 
-  buildDetail(note, changes) {
+  buildDetail(note, changes, keyBase) {
     const h = React.createElement;
     const kids = [];
-    if (note && this.state.showNotes) kids.push(this.buildNote(note));
-    if (changes && changes.length && this.state.showChanges) kids.push(this.buildChanges(changes));
+    if (note && this.state.showNotes) kids.push(this.buildNote(note, keyBase + '|note'));
+    if (changes && changes.length && this.state.showChanges) {
+      kids.push(this.buildChanges(changes, keyBase + '|chg'));
+    }
     if (!kids.length) return null;
     return h('div', {
       style: { display: 'flex', flexDirection: 'column', gap: '9px', margin: '11px 0 2px 26px' },
@@ -465,7 +518,10 @@ class Component extends DCLogic {
       };
     });
 
-    const renderPackages = s.packages.map((pkg) => {
+    // Build 274 is already live, so the roadmap starts at the next package.
+    // It stays in `updates-data.js` as history — this is a display rule, not a
+    // data deletion — and the "you are here" divider still names it.
+    const renderPackages = s.packages.filter((pkg) => pkg.build > s.currentBuild).map((pkg) => {
       let items = pkg.items.filter((it) => !it.hidden);
       if (s.onlyStarred) items = items.filter((it) => it.star);
       items = [...items].sort((a, b) => (b.star ? 1 : 0) - (a.star ? 1 : 0));
@@ -492,7 +548,7 @@ class Component extends DCLogic {
         const noteHit = !!term && (
           (note && note.sections.some((sec) =>
             sec.heading.toLowerCase().includes(term) || sec.text.toLowerCase().includes(term)))
-          || changes.some((c) => c.entity.toLowerCase().includes(term)
+          || changes.some((c) => c.entities.some((e) => e.toLowerCase().includes(term))
             || c.bullets.some((b) => b.toLowerCase().includes(term)))
         );
         const titleHit = !term || it.title.toLowerCase().includes(term) || String(pkg.build).includes(term);
@@ -501,7 +557,7 @@ class Component extends DCLogic {
         const count = groups.reduce((a, g) => a + g.names.length, 0);
         pkgCount += count;
         const key = pkg.build + '|' + it.title;
-        const detailEl = this.buildDetail(note, changes);
+        const detailEl = this.buildDetail(note, changes, key);
         const hasDetail = !!detailEl;
         const expandable = groups.length > 0 || hasDetail;
         const open = this.isOpen(key) && expandable;
@@ -543,7 +599,10 @@ class Component extends DCLogic {
           showChips: open && groups.length > 0,
           showDetail: open && hasDetail,
           noteDot: !!note,
-          changeCount: changes.length ? changes.length + ' changed' : '',
+          // Counts entities, not entries: identical changes are rolled into one
+          // entry, so entry count would under-report what actually changed.
+          changeCount: changes.length
+            ? changes.reduce((a, c) => a + c.entities.length, 0) + ' changed' : '',
           changeCountStyle: {
             fontFamily: "'IBM Plex Mono',monospace", fontSize: '11px', flex: 'none',
             color: 'oklch(0.68 0.1 25)', display: changes.length ? 'inline' : 'none',
@@ -562,7 +621,7 @@ class Component extends DCLogic {
       // than being dropped — losing them would misrepresent what the build did.
       let loose = s.showChanges && !s.onlyStarred ? (s.changesByBuild[pkg.build] || []) : [];
       if (term && loose.length) {
-        loose = loose.filter((c) => c.entity.toLowerCase().includes(term)
+        loose = loose.filter((c) => c.entities.some((e) => e.toLowerCase().includes(term))
           || c.bullets.some((b) => b.toLowerCase().includes(term))
           || (c.update || '').toLowerCase().includes(term));
       }
@@ -583,7 +642,7 @@ class Component extends DCLogic {
           },
           countStyle: { display: 'none' }, countLabel: '',
           noteDotStyle: { display: 'none' },
-          changeCount: loose.length + ' changed',
+          changeCount: loose.reduce((a, c) => a + c.entities.length, 0) + ' changed',
           changeCountStyle: {
             fontFamily: "'IBM Plex Mono',monospace", fontSize: '11px', flex: 'none',
             color: 'oklch(0.68 0.1 25)',
@@ -598,7 +657,7 @@ class Component extends DCLogic {
             cursor: 'pointer', userSelect: 'none',
           },
           open, showChips: false, showDetail: open,
-          chipsEl: null, detailEl: this.buildDetail(null, loose),
+          chipsEl: null, detailEl: this.buildDetail(null, loose, key),
         });
       }
 
@@ -618,7 +677,9 @@ class Component extends DCLogic {
       };
     }).filter((p) => p.displayItems.length > 0);
 
-    const navItems = s.packages.map((pkg) => {
+    // Same filter as renderPackages: a rail chip for a package that no longer
+    // renders would scroll to nothing.
+    const navItems = s.packages.filter((pkg) => pkg.build > s.currentBuild).map((pkg) => {
       const active = s.activeBuild === pkg.build;
       return {
         label: '' + pkg.build,

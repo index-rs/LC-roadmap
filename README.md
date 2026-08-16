@@ -24,7 +24,8 @@ Live page: `Update Roadmap.dc.html` (or `index.html`, which redirects to it).
 
 ## Patch notes and changes
 
-Two extra layers sit under each update, both toggleable from the filter bar:
+Two extra layers sit under each update, both **collapsed by default** and individually
+expandable (click the header), and both toggleable wholesale from the filter bar:
 
 - **Patch note** (gold block) — the prose Jagex actually published, split into its
   sub-sections. 107 of 112 updates have one. This is the only place content that created
@@ -32,9 +33,21 @@ Two extra layers sit under each update, both toggleable from the filter bar:
   south of the Wilderness axe hut" adds no row to the release timeline, but it is
   absolutely something the build shipped.
 - **Changes to existing content** (red block) — what happened to things already in the
-  game: value changes, rebalances, graphical updates. 1,582 entries across 86 updates,
-  plus 581 under "Other changes this build" where the originating update is not itemised
-  on this page.
+  game: value changes, rebalances, graphical updates. 2,163 changed entities, shown as
+  1,265 entries across 86 updates plus 25 "Other changes this build" buckets for changes
+  whose originating update is not itemised on this page.
+
+**Identical changes are rolled up.** When one update applies the same change word-for-word
+to a whole set — 5 Fremennik shirts graphically updated, 12 d'hide items getting the same
+examine fix — they render as a single entry listing every entity, tagged `×5` / `×12`,
+rather than as 5 or 12 repetitions of the same sentence. The grouping key includes type,
+date and source as well as the wording, so two items sharing phrasing but not a date stay
+separate; collapsing them would misdate one.
+
+Rows sourced from the RuneScape (RS3) wiki carry no visible game label. `game` is still in
+the data and surfaces as a tooltip, but "RS3" on a 2005 row reads as an anachronism —
+RuneScape 3 launched in 2013 — and "RS2" would be no better, since the unlabelled
+OSRS-sourced rows are equally RS2-era.
 
 Search covers both, so searching `hellhound` finds the Fenkenstrain note even though no
 entity chip matches it.
@@ -55,8 +68,10 @@ join without writing. It writes only the two generated files.
 
 ## Scope
 
-- **Builds 275–377** (2004-11-29 → 2006-05-02). Build 274 is the last shipped package and is
-  included as history; everything at or below it is out of scope.
+- **Builds 275–377** (2004-11-29 → 2006-05-02). Build 274 is the last shipped package. It
+  stays in `updates-data.js` as history but is **not rendered** — the page filters out any
+  package at or below `CURRENT_BUILD`, so the roadmap opens at #275–289 and the build rail
+  starts at 289. The "you are here — build 274" divider still marks the boundary.
 - **43 packages**, matching the boundaries published on the live Lost City roadmap.
 - **112 updates**, ~4,150 entities.
 
@@ -120,8 +135,8 @@ Spell, Prayer, Emote, Shop, Currency, Game mechanic, Organisation, Scenery, Musi
 Pruning is still there when you need it: `hidden: true` drops a whole update, `hide: [...]` drops
 individual entity names, and deleting entries from `entities` works fine.
 
-`NPC` and `Scenery` are hidden by default via `HIDDEN_TYPES` (1,600+ rows of mostly-noise); every
-type is toggleable from the filter bar at runtime.
+`NPC`, `Scenery`, `Location` and `Music track` are hidden by default via `HIDDEN_TYPES`
+(2,000+ rows of mostly-noise); every type is toggleable from the filter bar at runtime.
 
 ## Publishing to GitHub Pages
 

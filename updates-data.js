@@ -43,7 +43,7 @@ export const PINNED = [
   "Barrows",
 ];
 
-export const HIDDEN_TYPES = ["NPC", "Scenery"];
+export const HIDDEN_TYPES = ["NPC", "Scenery", "Location", "Music track"];
 
 
 // Names whose wiki icon URL can't be guessed from the page name — no image is requested for these.
