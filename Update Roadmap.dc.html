@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: oklch(0.17 0.014 55); }
+  a { color: oklch(0.72 0.1 210); text-decoration: none; }
+  a:hover { color: oklch(0.78 0.15 75); text-decoration: underline; }
+  ::selection { background: oklch(0.78 0.15 75 / 0.35); }
+</style>
+</helmet>
+
+<div style="min-height:100vh; background:oklch(0.17 0.014 55); color:oklch(0.95 0.01 60); font-family:'IBM Plex Sans',sans-serif;">
+
+  <div data-sticky="1" style="position:sticky; top:0; z-index:20;">
+  <div style="background:oklch(0.17 0.014 55 / 0.97); backdrop-filter:blur(6px); border-bottom:1px solid oklch(0.32 0.02 55); padding:20px 28px 13px;">
+    <div style="max-width:1060px; margin:0 auto; display:flex; flex-direction:column; gap:11px;">
+      <div style="display:flex; align-items:baseline; gap:14px; flex-wrap:wrap;">
+        <h1 style="font-family:'Space Grotesk',sans-serif; font-size:26px; font-weight:700; margin:0; letter-spacing:-0.01em;">Lost City Update Roadmap</h1>
+        <span style="font-family:'IBM Plex Mono',monospace; font-size:13px; color:oklch(0.62 0.015 60);">build {{ currentBuild }} &rarr; 377 &middot; Nov 2004 &rarr; May 2006</span>
+      </div>
+      <p style="margin:0; color:oklch(0.7 0.015 60); font-size:14.5px; max-width:680px; text-wrap:pretty;">Every update ahead, with the content each one actually brought. Quests, gear, monsters and locations come from the wiki release timeline, so a build shows what shipped that week rather than just its patch-note headline.</p>
+
+      <div style="display:flex; align-items:center; gap:9px; flex-wrap:wrap;">
+        <input type="text" placeholder="Search updates, items, monsters&hellip;" value="{{ search }}" onChange="{{ setSearch }}" style="background:oklch(0.225 0.016 55); border:1px solid oklch(0.32 0.02 55); color:oklch(0.95 0.01 60); border-radius:8px; padding:9px 14px; font-size:14px; font-family:'IBM Plex Sans',sans-serif; width:250px; outline:none;" />
+        <button onClick="{{ toggleOnlyStarred }}" style="{{ starBtnStyle }}" style-hover="{{ chipHoverStyle }}">&#9733; Starred only</button>
+        <button onClick="{{ toggleIcons }}" style="{{ iconBtnStyle }}" style-hover="{{ chipHoverStyle }}">Icons</button>
+        <button onClick="{{ toggleCollapse }}" style="{{ collapseBtnStyle }}" style-hover="{{ chipHoverStyle }}">{{ collapseLabel }}</button>
+      </div>
+
+      <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
+        <span style="font-size:11px; color:oklch(0.5 0.015 60); font-family:'IBM Plex Mono',monospace; letter-spacing:0.06em; margin-right:2px;">SHOW</span>
+        <sc-for list="{{ typeFilters }}" as="tf" hint-placeholder-count="10">
+          <button onClick="{{ tf.onClick }}" style="{{ tf.style }}" style-hover="{{ chipHoverStyle }}">{{ tf.label }}</button>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+
+  <div style="background:oklch(0.2 0.015 55); border-bottom:1px solid oklch(0.32 0.02 55); overflow-x:auto; white-space:nowrap; padding:9px 28px;">
+    <div style="display:inline-flex; gap:6px;">
+      <sc-for list="{{ navItems }}" as="nav" hint-placeholder-count="16">
+        <button onClick="{{ nav.onClick }}" style="{{ nav.chipStyle }}" style-hover="{{ chipHoverStyle }}">{{ nav.label }}</button>
+      </sc-for>
+    </div>
+  </div>
+  </div>
+
+  <div style="max-width:1060px; margin:0 auto; padding:28px 28px 100px;">
+
+    <sc-if value="{{ loading }}" hint-placeholder-val="{{ false }}">
+      <p style="color:oklch(0.6 0.015 60); font-family:'IBM Plex Mono',monospace;">loading roadmap&hellip;</p>
+    </sc-if>
+
+    <sc-if value="{{ noResults }}" hint-placeholder-val="{{ false }}">
+      <p style="color:oklch(0.55 0.015 60); font-size:15px; padding:40px 0; text-align:center;">Nothing matches your filters.</p>
+    </sc-if>
+
+    <sc-for list="{{ renderPackages }}" as="pkg" hint-placeholder-count="6">
+
+      <sc-if value="{{ pkg.showDivider }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex; align-items:center; gap:14px; margin:32px 0;">
+          <div style="flex:1; height:1px; background:oklch(0.72 0.1 210 / 0.4);"></div>
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:oklch(0.72 0.1 210); font-weight:600; letter-spacing:0.04em;">YOU ARE HERE &mdash; BUILD {{ currentBuild }}</span>
+          <div style="flex:1; height:1px; background:oklch(0.72 0.1 210 / 0.4);"></div>
+        </div>
+      </sc-if>
+
+      <section data-build="{{ pkg.build }}" data-screen-label="{{ pkg.buildLabel }}" style="background:oklch(0.225 0.016 55); border:1px solid oklch(0.32 0.02 55); border-radius:14px; padding:18px 20px; margin-bottom:18px;">
+        <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:13px;">
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:15px; font-weight:600; background:oklch(0.27 0.016 55); border:1px solid oklch(0.32 0.02 55); padding:3px 9px; border-radius:6px;">{{ pkg.buildLabel }}</span>
+          <span style="font-size:14px; color:oklch(0.7 0.015 60);">{{ pkg.dateLabel }}</span>
+          <span style="font-size:11.5px; font-weight:600; letter-spacing:0.03em; padding:2px 8px; border-radius:20px; text-transform:uppercase; color:{{ pkg.statusTextColor }}; background:{{ pkg.statusBgColor }};">{{ pkg.statusLabel }}</span>
+          <sc-if value="{{ pkg.uncertain }}" hint-placeholder-val="{{ false }}">
+            <span title="Wide date range — limited archived cache data for this revision" style="font-size:11px; color:oklch(0.62 0.015 60); cursor:help; border:1px solid oklch(0.4 0.02 55); border-radius:50%; width:16px; height:16px; display:inline-flex; align-items:center; justify-content:center; flex:none;">i</span>
+          </sc-if>
+          <span style="flex:1;"></span>
+          <span style="font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:oklch(0.52 0.015 60);">{{ pkg.countLabel }}</span>
+        </div>
+
+        <div style="display:flex; flex-direction:column; gap:9px;">
+          <sc-for list="{{ pkg.displayItems }}" as="item" hint-placeholder-count="3">
+            <div style="{{ item.wrapStyle }}">
+              <div onClick="{{ item.onToggle }}" style="{{ item.headStyle }}">
+                <span style="{{ item.caretStyle }}">{{ item.caret }}</span>
+                <span style="{{ item.starStyle }}">&#9733;</span>
+                <span style="{{ item.titleStyle }}">{{ item.title }}</span>
+                <span style="{{ item.countStyle }}">{{ item.countLabel }}</span>
+                <span style="flex:1;"></span>
+                <span style="font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:oklch(0.48 0.015 60); flex:none;">{{ item.metaLabel }}</span>
+              </div>
+
+              <sc-if value="{{ item.hasNote }}" hint-placeholder-val="{{ false }}">
+                <div style="font-size:13px; color:oklch(0.72 0.14 145); margin:6px 0 0 26px; font-family:'IBM Plex Mono',monospace;">{{ item.note }}</div>
+              </sc-if>
+
+              <sc-if value="{{ item.open }}" hint-placeholder-val="{{ false }}">
+                <div style="margin:11px 0 2px 26px;">{{ item.chipsEl }}</div>
+              </sc-if>
+            </div>
+          </sc-for>
+        </div>
+      </section>
+    </sc-for>
+
+    <p style="text-align:center; color:oklch(0.5 0.015 60); font-size:13px; margin-top:22px; line-height:1.75;">End of current roadmap &mdash; build 377, May 2006.<br />Content data derived from the <a href="https://oldschool.runescape.wiki" target="_blank" rel="noopener">Old School RuneScape Wiki</a> and <a href="https://runescape.wiki/w/Build_number" target="_blank" rel="noopener">RuneScape Wiki</a>, CC BY-NC-SA 3.0.</p>
+  </div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{}">
+const TYPE_COLORS = {
+  Quest: 'oklch(0.78 0.15 75)', Miniquest: 'oklch(0.78 0.13 95)',
+  Skill: 'oklch(0.75 0.16 145)', Activity: 'oklch(0.74 0.13 168)',
+  Location: 'oklch(0.72 0.1 210)', Monster: 'oklch(0.7 0.15 25)',
+  NPC: 'oklch(0.68 0.09 320)', Item: 'oklch(0.8 0.09 95)',
+  Spell: 'oklch(0.7 0.13 285)', Prayer: 'oklch(0.78 0.09 250)',
+  Emote: 'oklch(0.7 0.1 340)', Shop: 'oklch(0.72 0.09 130)',
+  Currency: 'oklch(0.8 0.11 85)', 'Game mechanic': 'oklch(0.68 0.03 60)',
+  Organisation: 'oklch(0.68 0.06 200)', Scenery: 'oklch(0.58 0.02 60)',
+  'Music track': 'oklch(0.62 0.05 300)',
+};
+const TYPE_ORDER = ['Quest','Miniquest','Skill','Activity','Location','Monster','NPC','Item','Spell','Prayer','Emote','Shop','Currency','Game mechanic','Organisation','Scenery','Music track'];
+const ICON_TYPES = new Set(['Item', 'Currency']);
+// Name shapes whose wiki image filename is never the plain page name — never requested.
+const NO_ICON_RE = /(seed|seedling|sapling)s?$|^Clue scroll|^Casket|^Challenge scroll|^Puzzle box|\((?:[^)]*)\)$|\b(brutal|tome|spice|points)$|^(Antidote\+|Bananas|Onions|Oranges|Apples|Tomatoes|Cabbages|Strawberries|Potatoes|Granite|Broad arrows|Trading sticks|Saradomin brew|Guthix rest|Guthix balance|Ecto-token|Minecart ticket|Acorn|Bird's egg|Bolt rack|Fishbowl|Proboscis|Sandstone|Tacks|Whoopsie|Sine wave|Square stone|Stone head|Canopic jar|Compost potion|Mushroom spore|Waste disposal|Animals' bones|Bucket of rubble|Mobile phone|9mm revolver|Hex edit detected|Tax relief|Blessed pot|Herb tea mix|Mouth grip|Sliding button|Broken vane part|Dwarven battleaxe|Dwarven rock cake|Monkey Madness helper|Sphinx baby|Cooked giant crab meat|Relicym's balm|\?\?\? mixture|.*lantern)$/i;
+const WIKI = 'https://oldschool.runescape.wiki';
+
+function fmtDate(iso) {
+  if (!iso) return '';
+  return new Date(iso + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+}
+function wikiPath(name) { return encodeURIComponent(name.replace(/ /g, '_')); }
+function iconUrl(name) {
+  const t = name.charAt(0).toUpperCase() + name.slice(1);
+  return WIKI + '/images/' + wikiPath(t) + '.png';
+}
+function alpha(color, a) { return color.replace(/\)$/, ' / ' + a + ')'); }
+
+class Component extends DCLogic {
+  state = {
+    packages: [], currentBuild: null, hiddenTypes: new Set(),
+    search: '', onlyStarred: false, showIcons: true, allClosed: false,
+    overrides: {}, badIcons: new Set(), noIconSet: new Set(), pinned: new Set(), activeBuild: null,
+  };
+
+  // Built as elements, not template markup: this runtime cannot placeholder-render a
+  // sc-for whose list comes from an outer loop's alias.
+  buildChips(groups) {
+    const h = React.createElement;
+    const rows = groups.map((g) => {
+      const color = TYPE_COLORS[g.type] || 'oklch(0.7 0.02 60)';
+      const pinnedFirst = [...g.names].sort((a, b) => (this.isPinned(b) ? 1 : 0) - (this.isPinned(a) ? 1 : 0));
+      const chips = pinnedFirst.map((n) => {
+        const pin = this.isPinned(n);
+        const showIcon = this.state.showIcons && ICON_TYPES.has(g.type) && !this.state.badIcons.has(n) && !this.noIcon(n);
+        const kids = [];
+        if (showIcon) kids.push(h('img', {
+          key: 'i', src: iconUrl(n), alt: '',
+          onError: () => this.setState((st) => { const b = new Set(st.badIcons); b.add(n); return { badIcons: b }; }),
+          style: { width: '15px', height: '15px', objectFit: 'contain', imageRendering: 'pixelated', flex: 'none' },
+        }));
+        kids.push(h('span', { key: 't' }, n));
+        return h('a', {
+          key: n, href: WIKI + '/w/' + wikiPath(n), target: '_blank', rel: 'noopener',
+          title: pin ? 'Pinned' : undefined,
+          style: {
+            display: 'inline-flex', alignItems: 'center', gap: '5px',
+            fontSize: pin ? '13.5px' : '13px', fontWeight: pin ? 600 : 400,
+            color: pin ? 'oklch(0.88 0.09 85)' : 'oklch(0.82 0.012 60)', textDecoration: 'none',
+            background: pin ? 'oklch(0.78 0.15 75 / 0.14)' : 'oklch(0.255 0.016 55)',
+            border: '1px solid ' + (pin ? 'oklch(0.78 0.15 75 / 0.5)' : 'oklch(0.3 0.016 55)'),
+            borderRadius: '6px', padding: '2px 7px', lineHeight: 1.55,
+          },
+        }, kids);
+      });
+      return h('div', { key: g.type, style: { display: 'grid', gridTemplateColumns: '92px 1fr', gap: '12px', alignItems: 'baseline' } }, [
+        h('span', {
+          key: 'l',
+          style: {
+            fontFamily: "'IBM Plex Mono',monospace", fontSize: '10.5px', fontWeight: 600,
+            letterSpacing: '0.06em', textTransform: 'uppercase', color, textAlign: 'right',
+          },
+        }, g.type + ' ' + g.names.length),
+        h('div', { key: 'c', style: { display: 'flex', flexWrap: 'wrap', gap: '5px 6px' } }, chips),
+      ]);
+    });
+    return h('div', { style: { display: 'flex', flexDirection: 'column', gap: '8px' } }, rows);
+  }
+
+  noIcon(name) {
+    return NO_ICON_RE.test(name) || this.state.noIconSet.has(name);
+  }
+  isPinned(name) { return this.state.pinned.has(name.toLowerCase()); }
+
+  componentDidMount() {
+    import('./updates-data.js').then((mod) => {
+      this.setState({
+        packages: mod.packages, currentBuild: mod.CURRENT_BUILD,
+        hiddenTypes: new Set(mod.HIDDEN_TYPES || []),
+        noIconSet: new Set(mod.NO_ICON || []),
+        pinned: new Set((mod.PINNED || []).map((n) => n.toLowerCase())),
+      });
+    });
+    this._onScroll = () => this.handleScroll();
+    window.addEventListener('scroll', this._onScroll, { passive: true });
+  }
+  componentWillUnmount() { window.removeEventListener('scroll', this._onScroll); }
+
+  stickyHeight() {
+    const el = document.querySelector('[data-sticky]');
+    return (el ? el.getBoundingClientRect().height : 150) + 14;
+  }
+  handleScroll() {
+    const off = this.stickyHeight() + 20;
+    let cur = null;
+    document.querySelectorAll('[data-build]').forEach((el) => {
+      if (el.getBoundingClientRect().top - off <= 0) cur = el.getAttribute('data-build');
+    });
+    if (cur && String(this.state.activeBuild) !== cur) this.setState({ activeBuild: Number(cur) });
+  }
+  scrollToBuild(build) {
+    const el = document.querySelector('[data-build="' + build + '"]');
+    if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - this.stickyHeight(), behavior: 'instant' });
+  }
+
+  isOpen(key) {
+    const o = this.state.overrides[key];
+    return o === undefined ? !this.state.allClosed : o;
+  }
+  toggleItem(key) {
+    this.setState((s) => {
+      const cur = s.overrides[key] === undefined ? !s.allClosed : s.overrides[key];
+      return { overrides: { ...s.overrides, [key]: !cur } };
+    });
+  }
+  toggleType(t) {
+    this.setState((s) => { const n = new Set(s.hiddenTypes); n.has(t) ? n.delete(t) : n.add(t); return { hiddenTypes: n }; });
+  }
+  btn(active, color) {
+    return {
+      fontSize: '13px', fontWeight: 600, padding: '8px 13px', borderRadius: '7px', cursor: 'pointer',
+      fontFamily: "'IBM Plex Sans',sans-serif",
+      border: '1px solid ' + (active ? color : 'oklch(0.32 0.02 55)'),
+      background: active ? alpha(color, 0.18) : 'oklch(0.225 0.016 55)',
+      color: active ? color : 'oklch(0.72 0.015 60)',
+    };
+  }
+
+  renderVals() {
+    const s = this.state;
+    const term = s.search.trim().toLowerCase();
+    const gold = 'oklch(0.78 0.15 75)';
+    const blue = 'oklch(0.72 0.1 210)';
+
+    const totals = {};
+    s.packages.forEach((p) => p.items.forEach((it) => {
+      if (it.hidden) return;
+      const hide = new Set(it.hide || []);
+      (it.entities || []).forEach((g) => {
+        const c = g.names.filter((n) => !hide.has(n)).length;
+        totals[g.type] = (totals[g.type] || 0) + c;
+      });
+    }));
+
+    const typeFilters = TYPE_ORDER.filter((t) => totals[t]).map((t) => {
+      const on = !s.hiddenTypes.has(t);
+      const color = TYPE_COLORS[t];
+      return {
+        label: t + ' ' + totals[t],
+        onClick: () => this.toggleType(t),
+        style: {
+          fontSize: '12px', fontWeight: 600, padding: '4px 9px', borderRadius: '20px', cursor: 'pointer',
+          fontFamily: "'IBM Plex Sans',sans-serif", whiteSpace: 'nowrap',
+          border: '1px solid ' + (on ? alpha(color, 0.55) : 'oklch(0.29 0.015 55)'),
+          background: on ? alpha(color, 0.14) : 'transparent',
+          color: on ? color : 'oklch(0.45 0.015 60)',
+        },
+      };
+    });
+
+    const renderPackages = s.packages.map((pkg) => {
+      let items = pkg.items.filter((it) => !it.hidden);
+      if (s.onlyStarred) items = items.filter((it) => it.star);
+      items = [...items].sort((a, b) => (b.star ? 1 : 0) - (a.star ? 1 : 0));
+
+      let pkgCount = 0;
+      const displayItems = [];
+
+      for (const it of items) {
+        const hide = new Set(it.hide || []);
+        const groups = (it.entities || [])
+          .filter((g) => !s.hiddenTypes.has(g.type))
+          .map((g) => {
+            let names = g.names.filter((n) => !hide.has(n));
+            if (term) names = names.filter((n) => n.toLowerCase().includes(term));
+            return { type: g.type, names };
+          })
+          .filter((g) => g.names.length > 0);
+
+        const titleHit = !term || it.title.toLowerCase().includes(term) || String(pkg.build).includes(term);
+        if (term && !titleHit && groups.length === 0) continue;
+
+        const count = groups.reduce((a, g) => a + g.names.length, 0);
+        pkgCount += count;
+        const key = pkg.build + '|' + it.title;
+        const open = this.isOpen(key) && groups.length > 0;
+
+        displayItems.push({
+          title: it.title,
+          star: !!it.star,
+          hasNote: !!it.note,
+          note: it.note || '',
+          caret: groups.length ? (open ? '\u2013' : '+') : '\u00b7',
+          caretStyle: {
+            fontFamily: "'IBM Plex Mono',monospace", fontSize: '13px', width: '14px', flex: 'none',
+            color: groups.length ? 'oklch(0.55 0.015 60)' : 'oklch(0.35 0.015 60)', textAlign: 'center',
+          },
+          starStyle: {
+            fontSize: '12px', flex: 'none', display: it.star ? 'inline' : 'none', color: gold,
+          },
+          titleStyle: {
+            fontSize: it.star ? '16.5px' : '15.5px', fontWeight: it.star ? 700 : 600,
+            color: it.star ? gold : 'oklch(0.93 0.01 60)', fontFamily: "'Space Grotesk',sans-serif",
+          },
+          countStyle: {
+            fontFamily: "'IBM Plex Mono',monospace", fontSize: '11.5px', color: 'oklch(0.52 0.015 60)',
+            flex: 'none', display: count ? 'inline' : 'none',
+          },
+          countLabel: count ? count + '' : '',
+          metaLabel: it.build && it.build !== pkg.build ? '#' + it.build : '',
+          onToggle: () => this.toggleItem(key),
+          wrapStyle: {
+            background: it.star ? alpha(gold, 0.07) : 'oklch(0.2 0.014 55)',
+            border: '1px solid ' + (it.star ? alpha(gold, 0.3) : 'oklch(0.29 0.016 55)'),
+            borderRadius: '10px', padding: '11px 13px',
+          },
+          headStyle: {
+            display: 'flex', alignItems: 'center', gap: '8px',
+            cursor: groups.length ? 'pointer' : 'default', userSelect: 'none',
+          },
+          open,
+          chipsEl: this.buildChips(groups),
+        });
+      }
+
+      const statusTextColor = pkg.status === 'done' ? 'oklch(0.2 0.03 155)' : pkg.status === 'next' ? 'oklch(0.2 0.05 75)' : 'oklch(0.85 0.01 60)';
+      const statusBgColor = pkg.status === 'done' ? 'oklch(0.7 0.12 155)' : pkg.status === 'next' ? gold : 'oklch(0.32 0.02 55)';
+      const statusLabel = pkg.status === 'done' ? 'Released' : pkg.status === 'next' ? 'In development' : 'Planned';
+      const buildLabel = pkg.from && pkg.from < pkg.build ? '#' + pkg.from + '\u2013' + pkg.build : '#' + pkg.build;
+
+      return {
+        build: pkg.build, buildLabel,
+        dateLabel: fmtDate(pkg.date),
+        uncertain: !!pkg.uncertain,
+        statusLabel, statusTextColor, statusBgColor,
+        showDivider: pkg.build === 289,
+        countLabel: pkgCount ? pkgCount + ' things' : '',
+        displayItems,
+      };
+    }).filter((p) => p.displayItems.length > 0);
+
+    const navItems = s.packages.map((pkg) => {
+      const active = s.activeBuild === pkg.build;
+      return {
+        label: '' + pkg.build,
+        onClick: () => this.scrollToBuild(pkg.build),
+        chipStyle: {
+          fontFamily: "'IBM Plex Mono',monospace", fontSize: '12px', fontWeight: 600,
+          padding: '5px 10px', borderRadius: '20px', cursor: 'pointer',
+          border: '1px solid ' + (active ? gold : 'oklch(0.32 0.02 55)'),
+          background: active ? alpha(gold, 0.18) : 'oklch(0.225 0.016 55)',
+          color: active ? gold : 'oklch(0.72 0.015 60)',
+        },
+      };
+    });
+
+    return {
+      loading: s.packages.length === 0,
+      currentBuild: s.currentBuild,
+      search: s.search,
+      setSearch: (e) => this.setState({ search: e.target.value }),
+      toggleOnlyStarred: () => this.setState((st) => ({ onlyStarred: !st.onlyStarred })),
+      starBtnStyle: this.btn(s.onlyStarred, gold),
+      toggleIcons: () => this.setState((st) => ({ showIcons: !st.showIcons })),
+      iconBtnStyle: this.btn(s.showIcons, blue),
+      toggleCollapse: () => this.setState((st) => ({ allClosed: !st.allClosed, overrides: {} })),
+      collapseBtnStyle: this.btn(false, blue),
+      collapseLabel: s.allClosed ? 'Expand all' : 'Collapse all',
+      chipHoverStyle: { filter: 'brightness(1.2)' },
+      entHoverStyle: { background: 'oklch(0.3 0.02 55)', color: 'oklch(0.95 0.01 60)' },
+      typeFilters, navItems, renderPackages,
+      noResults: s.packages.length > 0 && renderPackages.length === 0,
+    };
+  }
+}
+
+</script>
+</body>
+</html>
