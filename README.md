@@ -205,7 +205,29 @@ affiliated with Jagex or Weird Gloop.
 - Two updates named `Other content — <date>` (builds 330 and 355) hold entities whose wiki page
   records no originating update. Rename or prune them.
 - Some entities are dated by wiki editorial convention rather than by the update that introduced
-  them, so a handful sit in a neighbouring build.
+  them, so a handful sit in a neighbouring build. Two known tails, both left as-is because the
+  update itself is correctly placed: 28 of Farming's farm-patch plants (`Barley (plant)`,
+  `Redberry bush`, …) are dated 2005-06-06 to the seed prep update, and one Keldagrim music
+  track sits in Fight Pits. Neither is duplicated elsewhere.
+- `New fishing skill and more cooking` appears in two packages. Both fishing spots cite a wiki
+  update page of that name from **2001**, while the spots themselves were released 2005-05-31
+  and 2006-05-02. The title is the wiki's; the placement follows the entities' own dates.
+
+### Verifying package assignment
+
+`updates-data.js` places each update in a package; a package labelled `#322–325` covers
+everything released *after* the previous package's build up to and including its own — window
+`(previous package date, own date]`. Two checks are worth re-running after any data edit:
+
+1. Every update the [live roadmap](https://2004.lostcity.rs/roadmap) names under a revision
+   should sit in that package. This is currently **0 mismatches**.
+2. Every entity's own release date (from `csv/osrs_raw.csv` in the research project) should
+   fall inside its package window, cross-checked against
+   [Build number](https://runescape.wiki/w/Build_number).
+
+That pair caught four real errors: `Farming` sitting in #316 with Barrows when it belongs at
+build 322 in #325, `Massive minigame - Fight Pits` in #330 instead of #336, and two single
+entities stranded a year from their build.
 - **Change coverage is thin: only ~20% of entities released in this window have any change
   entry on the wiki at all.** An entity with no change listed is almost never an entity that
   never changed — it is one nobody documented. Absence carries no information here.

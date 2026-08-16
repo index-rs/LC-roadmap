@@ -31,6 +31,75 @@ export const CURRENT_BUILD = 274;
 export const PINNED_TYPES = ["Quest", "Skill", "Miniquest", "Activity", "Spell", "Emote", "Prayer"];
 
 export const PINNED = [
+  // Farming seeds (Seeds, Bankspace And Advisors)
+  "Apple tree seed",
+  "Asgarnian seed",
+  "Avantoe seed",
+  "Banana tree seed",
+  "Barley seed",
+  "Belladonna seed",
+  "Cabbage seed",
+  "Cactus seed",
+  "Cadantine seed",
+  "Cadavaberry seed",
+  "Calquat tree seed",
+  "Curry tree seed",
+  "Dwarf weed seed",
+  "Dwellberry seed",
+  "Guam seed",
+  "Hammerstone seed",
+  "Harralander seed",
+  "Irit seed",
+  "Jangerberry seed",
+  "Jute seed",
+  "Krandorian seed",
+  "Kwuarm seed",
+  "Lantadyme seed",
+  "Limpwurt seed",
+  "Magic seed",
+  "Maple seed",
+  "Marigold seed",
+  "Marrentill seed",
+  "Nasturtium seed",
+  "Onion seed",
+  "Orange tree seed",
+  "Palm tree seed",
+  "Papaya tree seed",
+  "Pineapple seed",
+  "Poison ivy seed",
+  "Potato seed",
+  "Ranarr seed",
+  "Redberry seed",
+  "Rosemary seed",
+  "Snapdragon seed",
+  "Spirit seed",
+  "Strawberry seed",
+  "Sweetcorn seed",
+  "Tarromin seed",
+  "Toadflax seed",
+  "Tomato seed",
+  "Torstol seed",
+  "Watermelon seed",
+  "Whiteberry seed",
+  "Wildblood seed",
+  "Willow seed",
+  "Woad seed",
+  "Yanillian seed",
+  "Yew seed",
+
+  // Rune pouches (RuneCraft Update and Tweaks / Abyss)
+  "Small pouch",
+  "Medium pouch",
+  "Large pouch",
+  "Giant pouch",
+
+  // Ghostly robes (The Forgettable Tale...)
+  "Ghostly boots",
+  "Ghostly cloak",
+  "Ghostly gloves",
+  "Ghostly hood",
+  "Ghostly robe (bottom)",
+  "Ghostly robe (top)",
   "Mystic hat",
   "Mystic boots",
   "Mystic robe bottom",
@@ -340,7 +409,7 @@ export const packages = [
         { type: "Monster", names: ["Big frog", "Cave bug", "Cave goblin (monster)", "Cave slime", "Giant frog", "Wall beast"] },
         { type: "NPC", names: ["Candle seller", "Cave bug larva"] },
         { type: "Item", names: ["Bullseye lantern", "Bullseye lantern (empty)", "Bullseye lantern (unf)", "Candle lantern", "Empty candle lantern", "Empty oil lamp", "Empty oil lantern", "Giant frog legs", "Lantern lens", "Oil lamp", "Oil lantern", "Oil lantern frame", "Spiny helmet"] },
-        { type: "Scenery", names: ["Connected stalagmites", "Dark hole (A Soul's Bane)", "Dark hole (Lumbridge Swamp)", "Gas hole (Lumbridge Swamp Caves)", "Lamp oil still", "Large stalagmite", "Stepping stone (Lumbridge Swamp Caves)"] },
+        { type: "Scenery", names: ["Connected stalagmites", "Dark hole (Lumbridge Swamp)", "Gas hole (Lumbridge Swamp Caves)", "Lamp oil still", "Large stalagmite", "Stepping stone (Lumbridge Swamp Caves)"] },
         { type: "Music track", names: ["Cave of the Goblins"] },
       ] },
       { title: "Magic and Wilderness Updates", build: 303, date: "2005-03-14", entities: [
@@ -482,17 +551,7 @@ export const packages = [
         { type: "Emote", names: ["Goblin Bow", "Goblin Salute", "Headbang", "Jig", "Jump for Joy", "Panic", "Raspberry", "Salute", "Shrug", "Spin", "Yawn"] },
       ] },
       { title: "New fishing skill and more cooking", build: 314, date: "2005-05-31", entities: [
-        { type: "NPC", names: ["Fishing spot (frogspawn)", "Fishing spot (Piscatoris Fishing Colony)"] },
-      ] },
-      { title: "Farming", build: 316, star: true, entities: [
-        { type: "Skill", names: ["Farming"] },
-        { type: "Activity", names: ["Brewing"] },
-        { type: "Location", names: ["Alice's farm"] },
-        { type: "NPC", names: ["Alain", "Alice", "Blandebir", "Bolongo", "Dantaera", "Dreven", "Ellena", "Elstan", "Fayeth", "Francis", "Gardener (unused)", "Garth", "Gileth", "Heskel", "Iago", "Kragen", "Lyra", "Metarialus", "Rhazien", "Rhonen", "Richard (Ardougne)", "Rooster (South Falador Farm)", "Sarah", "Selena", "Taria", "Torrell", "Treznor", "Treznor (unused)", "Vanessa", "Vasquen"] },
-        { type: "Item", names: ["Ale yeast", "Amulet of nature", "Antidote+", "Antidote+ (unf)", "Antidote++", "Antidote++ (unf)", "Apple mush", "Apple sapling", "Apple seedling", "Apples", "Asgarnian ale (keg)", "Asgarnian ale(m)", "Asgarnian ale(m) (keg)", "Asgarnian hops", "Axeman's folly", "Axeman's folly (keg)", "Axeman's folly(m)", "Axeman's folly(m) (keg)", "Banana sapling", "Banana seedling", "Bananas", "Barley", "Barley malt", "Basket", "Burnt sweetcorn", "Cabbages", "Cactus spine", "Calquat fruit", "Calquat keg", "Calquat sapling", "Calquat seedling", "Chef's delight", "Chef's delight (keg)", "Chef's delight(m)", "Chef's delight(m) (keg)", "Cider", "Cider (keg)", "Cider(m) (keg)", "Coconut", "Coconut milk", "Coconut shell", "Compost", "Cooked sweetcorn", "Curry leaf", "Curry sapling", "Curry seedling", "Dragon bitter (keg)", "Dragon bitter(m)", "Dragon bitter(m) (keg)", "Dwarven stout (keg)", "Dwarven stout(m)", "Dwarven stout(m) (keg)", "Empty plant pot", "Empty sack", "Filled plant pot", "Gardening trowel", "Greenman's ale(m)", "Greenmans ale (keg)", "Greenmans ale(m) (keg)", "Grimy snapdragon", "Grimy toadflax", "Half coconut", "Hammerstone hops", "Hay sack", "Jute fibre", "Krandorian hops", "Leaves", "Magic leaves", "Magic roots", "Magic sapling", "Magic seedling", "Magic string", "Maple leaves", "Maple roots", "Maple sapling", "Maple seedling", "Marigolds", "Mature cider", "Mature wmb", "Mind bomb (keg)", "Mind bomb(m) (keg)", "Moonlight mead (keg)", "Moonlight mead(m)", "Moonlight mead(m) (keg)", "Mushroom", "Nasturtiums", "Oak leaves", "Oak roots", "Oak sapling", "Oak seedling", "Onions", "Orange sapling", "Orange seedling", "Oranges", "Palm sapling", "Palm seedling", "Papaya fruit", "Papaya sapling", "Papaya seedling", "Pineapple sapling", "Pineapple seedling", "Plant cure", "Poison ivy berries", "Potatoes", "Pre-nature amulet", "Rake handle", "Rake head", "Rosemary", "Rotten potato", "Scarecrow", "Shaikahan bonemeal", "Slayer's respite", "Slayer's respite (keg)", "Slayer's respite(m)", "Slayer's respite(m) (keg)", "Spade handle", "Spade head", "Spirit roots", "Spirit sapling", "Spirit seedling", "Stool (animation item)", "Strawberries", "Strawberry", "Supercompost", "Sweetcorn", "Tomatoes", "Unfired plant pot", "Watermelon", "Watermelon slice", "Weapon poison(+)", "Weapon poison(++)", "Weapon poison+ (unf)", "Weapon poison++ (unf)", "Weeds", "Wildblood hops", "Willow branch", "Willow leaves", "Willow roots", "Willow sapling", "Willow seedling", "Yanillian hops", "Yew leaves", "Yew roots", "Yew sapling", "Yew seedling"] },
-        { type: "Shop", names: ["Alice's Farming shop.", "Richard's Farming shop.", "Sarah's Farming shop.", "Vanessa's Farming shop."] },
-        { type: "Scenery", names: ["Apple Press", "Apple tree", "Asgarnian Ale (barrel)", "Asgarnian Hops (plant)", "Avantoe (plant)", "Axeman's Folly (barrel)", "Banana tree (Farming)", "Barley (plant)", "Barrel (brewing)", "Belladonna", "Bittercap Mushrooms", "Cabbages (plant)", "Cactus (Farming)", "Cadantine (plant)", "Cadavaberry bush", "Calquat tree", "Chef's Delight (barrel)", "Cider (barrel)", "Compost Bin", "Dead herbs", "Diseased herbs (historical)", "Dragon Bitter (barrel)", "Dwarf weed (plant)", "Dwarven Stout (barrel)", "Dwellberry bush", "Fermenting Vat", "Fermenting Vat (asgarnian ale)", "Fermenting Vat (axeman's folly)", "Fermenting Vat (chef's delight)", "Fermenting Vat (cider)", "Fermenting Vat (dragon bitter)", "Fermenting Vat (dwarven stout)", "Fermenting Vat (greenman's ale)", "Fermenting Vat (moonlight mead)", "Fermenting Vat (slayer's respite)", "Fermenting Vat (wizard's mind bomb)", "Greenmans Ale (barrel)", "Guam leaf (plant)", "Hammerstone Hops (plant)", "Harralander (plant)", "Irit leaf (plant)", "Jangerberry bush", "Jute (plant)", "Krandorian Hops (plant)", "Kwuarm (plant)", "Lantadyme (plant)", "Limpwurt plant", "Magic tree (Farming)", "Maple tree (Farming)", "Marigold", "Marrentill (plant)", "Mature Asgarnian Ale (barrel)", "Mature Axeman's Folly (barrel)", "Mature Chef's Delight (barrel)", "Mature Cider (barrel)", "Mature Dragon Bitter (barrel)", "Mature Dwarven Stout (barrel)", "Mature Greenmans Ale (barrel)", "Mature Moonlight Mead (barrel)", "Mature Slayer's Respite (barrel)", "Mature Wizards Mind Bomb (barrel)", "Moonlight Mead (barrel)", "Oak tree (Farming)", "Onion plant", "Orange tree", "Palm tree", "Papaya tree", "Pineapple plant", "Poison Ivy bush", "Potato plant", "Ranarr weed (plant)", "Redberry bush", "Rosemary (plant)", "Slayer's Respite (barrel)", "Snapdragon (plant)", "Spirit Tree (Farming)", "Sweetcorn plant", "Tarromin (plant)", "Toadflax (plant)", "Tomato plant", "Torstol (plant)", "Valve (brewing)", "Watermelons", "Whiteberry bush", "Wildblood Hops (plant)", "Willow tree (Farming)", "Wizards Mind Bomb (barrel)", "Woad plant", "Yanillian Hops (plant)", "Yew tree (Farming)"] },
-        { type: "Music track", names: ["A Healthy Cactus", "Audience of Nature", "Farming Level Up!", "Farming Level Up! (Unlocks)", "Scape Ground"] },
+        { type: "NPC", names: ["Fishing spot (frogspawn)"] },
       ] },
       { title: "Seeds, Bankspace And Advisors", build: 316, entities: [
         { type: "Activity", names: ["Wise Old Man tasks"] },
@@ -563,6 +622,16 @@ export const packages = [
   {
     build: 325, from: 322, date: "2005-07-19", status: "planned",
     items: [
+      { title: "Farming", build: 322, date: "2005-07-11", star: true, entities: [
+        { type: "Skill", names: ["Farming"] },
+        { type: "Activity", names: ["Brewing"] },
+        { type: "Location", names: ["Alice's farm"] },
+        { type: "NPC", names: ["Alain", "Alice", "Blandebir", "Bolongo", "Dantaera", "Dreven", "Ellena", "Elstan", "Fayeth", "Francis", "Gardener (unused)", "Garth", "Gileth", "Heskel", "Iago", "Kragen", "Lyra", "Metarialus", "Rhazien", "Rhonen", "Richard (Ardougne)", "Rooster (South Falador Farm)", "Sarah", "Selena", "Taria", "Torrell", "Treznor", "Treznor (unused)", "Vanessa", "Vasquen"] },
+        { type: "Item", names: ["Ale yeast", "Amulet of nature", "Antidote+", "Antidote+ (unf)", "Antidote++", "Antidote++ (unf)", "Apple mush", "Apple sapling", "Apple seedling", "Apples", "Asgarnian ale (keg)", "Asgarnian ale(m)", "Asgarnian ale(m) (keg)", "Asgarnian hops", "Axeman's folly", "Axeman's folly (keg)", "Axeman's folly(m)", "Axeman's folly(m) (keg)", "Banana sapling", "Banana seedling", "Bananas", "Barley", "Barley malt", "Basket", "Burnt sweetcorn", "Cabbages", "Cactus spine", "Calquat fruit", "Calquat keg", "Calquat sapling", "Calquat seedling", "Chef's delight", "Chef's delight (keg)", "Chef's delight(m)", "Chef's delight(m) (keg)", "Cider", "Cider (keg)", "Cider(m) (keg)", "Coconut", "Coconut milk", "Coconut shell", "Compost", "Cooked sweetcorn", "Curry leaf", "Curry sapling", "Curry seedling", "Dragon bitter (keg)", "Dragon bitter(m)", "Dragon bitter(m) (keg)", "Dwarven stout (keg)", "Dwarven stout(m)", "Dwarven stout(m) (keg)", "Empty plant pot", "Empty sack", "Filled plant pot", "Gardening trowel", "Greenman's ale(m)", "Greenmans ale (keg)", "Greenmans ale(m) (keg)", "Grimy snapdragon", "Grimy toadflax", "Half coconut", "Hammerstone hops", "Hay sack", "Jute fibre", "Krandorian hops", "Leaves", "Magic leaves", "Magic roots", "Magic sapling", "Magic seedling", "Magic string", "Maple leaves", "Maple roots", "Maple sapling", "Maple seedling", "Marigolds", "Mature cider", "Mature wmb", "Mind bomb (keg)", "Mind bomb(m) (keg)", "Moonlight mead (keg)", "Moonlight mead(m)", "Moonlight mead(m) (keg)", "Mushroom", "Nasturtiums", "Oak leaves", "Oak roots", "Oak sapling", "Oak seedling", "Onions", "Orange sapling", "Orange seedling", "Oranges", "Palm sapling", "Palm seedling", "Papaya fruit", "Papaya sapling", "Papaya seedling", "Pineapple sapling", "Pineapple seedling", "Plant cure", "Poison ivy berries", "Potatoes", "Pre-nature amulet", "Rake handle", "Rake head", "Rosemary", "Rotten potato", "Scarecrow", "Shaikahan bonemeal", "Slayer's respite", "Slayer's respite (keg)", "Slayer's respite(m)", "Slayer's respite(m) (keg)", "Spade handle", "Spade head", "Spirit roots", "Spirit sapling", "Spirit seedling", "Stool (animation item)", "Strawberries", "Strawberry", "Supercompost", "Sweetcorn", "Tomatoes", "Unfired plant pot", "Watermelon", "Watermelon slice", "Weapon poison(+)", "Weapon poison(++)", "Weapon poison+ (unf)", "Weapon poison++ (unf)", "Weeds", "Wildblood hops", "Willow branch", "Willow leaves", "Willow roots", "Willow sapling", "Willow seedling", "Yanillian hops", "Yew leaves", "Yew roots", "Yew sapling", "Yew seedling"] },
+        { type: "Shop", names: ["Alice's Farming shop.", "Richard's Farming shop.", "Sarah's Farming shop.", "Vanessa's Farming shop."] },
+        { type: "Scenery", names: ["Apple Press", "Apple tree", "Asgarnian Ale (barrel)", "Asgarnian Hops (plant)", "Avantoe (plant)", "Axeman's Folly (barrel)", "Banana tree (Farming)", "Barley (plant)", "Barrel (brewing)", "Belladonna", "Bittercap Mushrooms", "Cabbages (plant)", "Cactus (Farming)", "Cadantine (plant)", "Cadavaberry bush", "Calquat tree", "Chef's Delight (barrel)", "Cider (barrel)", "Compost Bin", "Dead herbs", "Diseased herbs (historical)", "Dragon Bitter (barrel)", "Dwarf weed (plant)", "Dwarven Stout (barrel)", "Dwellberry bush", "Fermenting Vat", "Fermenting Vat (asgarnian ale)", "Fermenting Vat (axeman's folly)", "Fermenting Vat (chef's delight)", "Fermenting Vat (cider)", "Fermenting Vat (dragon bitter)", "Fermenting Vat (dwarven stout)", "Fermenting Vat (greenman's ale)", "Fermenting Vat (moonlight mead)", "Fermenting Vat (slayer's respite)", "Fermenting Vat (wizard's mind bomb)", "Greenmans Ale (barrel)", "Guam leaf (plant)", "Hammerstone Hops (plant)", "Harralander (plant)", "Irit leaf (plant)", "Jangerberry bush", "Jute (plant)", "Krandorian Hops (plant)", "Kwuarm (plant)", "Lantadyme (plant)", "Limpwurt plant", "Magic tree (Farming)", "Maple tree (Farming)", "Marigold", "Marrentill (plant)", "Mature Asgarnian Ale (barrel)", "Mature Axeman's Folly (barrel)", "Mature Chef's Delight (barrel)", "Mature Cider (barrel)", "Mature Dragon Bitter (barrel)", "Mature Dwarven Stout (barrel)", "Mature Greenmans Ale (barrel)", "Mature Moonlight Mead (barrel)", "Mature Slayer's Respite (barrel)", "Mature Wizards Mind Bomb (barrel)", "Moonlight Mead (barrel)", "Oak tree (Farming)", "Onion plant", "Orange tree", "Palm tree", "Papaya tree", "Pineapple plant", "Poison Ivy bush", "Potato plant", "Ranarr weed (plant)", "Redberry bush", "Rosemary (plant)", "Slayer's Respite (barrel)", "Snapdragon (plant)", "Spirit Tree (Farming)", "Sweetcorn plant", "Tarromin (plant)", "Toadflax (plant)", "Tomato plant", "Torstol (plant)", "Valve (brewing)", "Watermelons", "Whiteberry bush", "Wildblood Hops (plant)", "Willow tree (Farming)", "Wizards Mind Bomb (barrel)", "Woad plant", "Yanillian Hops (plant)", "Yew tree (Farming)"] },
+        { type: "Music track", names: ["A Healthy Cactus", "Audience of Nature", "Farming Level Up!", "Farming Level Up! (Unlocks)", "Scape Ground"] },
+      ] },
       { title: "Plague City Series Continued", build: 325, entities: [
         { type: "Quest", names: ["Mourning's End Part I"] },
         { type: "Location", names: ["Lletya", "Lletya bank", "Lletya shrine", "Mourner Tunnels"] },
@@ -607,16 +676,6 @@ export const packages = [
   {
     build: 330, from: 328, date: "2005-08-23", status: "planned", uncertain: true,
     items: [
-      { title: "Massive minigame - Fight Pits", build: 328, date: "2005-08-09", star: true, entities: [
-        { type: "Activity", names: ["TzHaar Fight Pit"] },
-        { type: "Location", names: ["Mor Ul Rek", "Mor Ul Rek north bank", "North Mor Ul Rek mine"] },
-        { type: "Monster", names: ["Tok-Xil", "Tz-Kek", "Tz-Kih", "TzHaar-Hur", "TzHaar-Ket", "TzHaar-Mej", "TzHaar-Xil"] },
-        { type: "NPC", names: ["TzHaar-Hur-Koz", "TzHaar-Hur-Lek", "TzHaar-Hur-Tel", "TzHaar-Ket-Zuh", "TzHaar-Mej-Jal", "TzHaar-Mej-Kah", "TzHaar-Mej-Roh"] },
-        { type: "Item", names: ["Tokkul", "Toktz-ket-xil", "Toktz-mej-tal", "Toktz-xil-ak", "Toktz-xil-ek", "Toktz-xil-ul", "Tzhaar-ket-em", "Tzhaar-ket-om"] },
-        { type: "Shop", names: ["TzHaar-Hur-Lek's Ore and Gem Store", "TzHaar-Hur-Tel's Equipment Store", "TzHaar-Mej-Roh's Rune Store"] },
-        { type: "Scenery", names: ["Cave entrance (to Mor Ul Rek)", "Cave exit (Mor Ul Rek)", "Egg (TzHaar)", "Hot vent door", "Lava forge", "Sulphur vent", "TzHaar statue", "Viewing orb (TzHaar Fight Pit)"] },
-        { type: "Music track", names: ["Fire and Brimstone", "In the Pits", "Last Man Standing! (Fight Pits)", "Loss (Keldagrim Trading)", "Profit (Keldagrim Trading)", "TzHaar!"] },
-      ] },
       { title: "Tai Bwo Wannai Clean-Up", build: 328, date: "2005-08-09", entities: [
         { type: "Activity", names: ["Capt' Arnav's Chest", "Certer", "Jekyll and Hyde", "Tai Bwo Wannai Cleanup"] },
         { type: "Location", names: ["Hardwood Grove", "ScapeRune"] },
@@ -671,6 +730,16 @@ export const packages = [
   {
     build: 336, from: 334, date: "2005-09-19", status: "planned",
     items: [
+      { title: "Massive minigame - Fight Pits", build: 336, date: "2005-09-19", star: true, entities: [
+        { type: "Activity", names: ["TzHaar Fight Pit"] },
+        { type: "Location", names: ["Mor Ul Rek", "Mor Ul Rek north bank", "North Mor Ul Rek mine"] },
+        { type: "Monster", names: ["Tok-Xil", "Tz-Kek", "Tz-Kih", "TzHaar-Hur", "TzHaar-Ket", "TzHaar-Mej", "TzHaar-Xil"] },
+        { type: "NPC", names: ["TzHaar-Hur-Koz", "TzHaar-Hur-Lek", "TzHaar-Hur-Tel", "TzHaar-Ket-Zuh", "TzHaar-Mej-Jal", "TzHaar-Mej-Kah", "TzHaar-Mej-Roh"] },
+        { type: "Item", names: ["Tokkul", "Toktz-ket-xil", "Toktz-mej-tal", "Toktz-xil-ak", "Toktz-xil-ek", "Toktz-xil-ul", "Tzhaar-ket-em", "Tzhaar-ket-om"] },
+        { type: "Shop", names: ["TzHaar-Hur-Lek's Ore and Gem Store", "TzHaar-Hur-Tel's Equipment Store", "TzHaar-Mej-Roh's Rune Store"] },
+        { type: "Scenery", names: ["Cave entrance (to Mor Ul Rek)", "Cave exit (Mor Ul Rek)", "Egg (TzHaar)", "Hot vent door", "Lava forge", "Sulphur vent", "TzHaar statue", "Viewing orb (TzHaar Fight Pit)"] },
+        { type: "Music track", names: ["Fire and Brimstone", "In the Pits", "Last Man Standing! (Fight Pits)", "Loss (Keldagrim Trading)", "Profit (Keldagrim Trading)", "TzHaar!"] },
+      ] },
       { title: "Cook-X", build: 334, date: "2005-09-12" },
       { title: "Security feature - Bank PIN", build: 336, star: true, entities: [
         { type: "Scenery", names: ["Bank Deposit Box"] },
@@ -1008,7 +1077,7 @@ export const packages = [
         { type: "Monster", names: ["Angry bear", "Angry giant rat", "Angry goblin", "Angry unicorn", "Confusion beast", "Fear reaper", "Hopeless creature"] },
         { type: "NPC", names: ["Brana", "Launa", "Tolna"] },
         { type: "Item", names: ["Ancient mjolnir", "Anger battleaxe", "Anger mace", "Anger spear", "Anger sword"] },
-        { type: "Scenery", names: ["Confusing door", "Grass (Tolna's rift)", "Rift (Tolna's rift)", "Warning sign (Tolna's rift)", "Weapon rack (Tolna's rift)"] },
+        { type: "Scenery", names: ["Dark hole (A Soul's Bane)", "Confusing door", "Grass (Tolna's rift)", "Rift (Tolna's rift)", "Warning sign (Tolna's rift)", "Weapon rack (Tolna's rift)"] },
         { type: "Music track", names: ["A Monster (A Soul's Bane)", "Angry (A Soul's Bane)", "Confused (A Soul's Bane)", "Fear (A Soul's Bane)", "Fear and Loathing", "Hopeless (A Soul's Bane)", "Method of Madness", "No Way Out", "Wrath and Ruin"] },
       ] },
     ],
@@ -1075,6 +1144,11 @@ export const packages = [
   {
     build: 377, from: 377, date: "2006-05-02", status: "planned",
     items: [
+      { title: "New fishing skill and more cooking", build: 377, date: "2006-05-02",
+        note: "Wiki quirk: this page cites a 2001 update of the same name; the fishing spot itself is dated 2006-05-02.",
+        entities: [
+        { type: "NPC", names: ["Fishing spot (Piscatoris Fishing Colony)"] },
+      ] },
       { title: "Return of the Wise Old Man!", build: 377, entities: [
         { type: "Quest", names: ["Swan Song"] },
         { type: "Location", names: ["Piscatoris bank", "Piscatoris falconry area", "Piscatoris Fishing Colony", "Piscatoris mine"] },
