@@ -147,7 +147,7 @@ export const PINNED = [
   "Draynor Seed Market",
 ];
 
-export const HIDDEN_TYPES = ["NPC", "Scenery", "Location", "Music track", "Organisation", "Currency"];
+export const HIDDEN_TYPES = ["NPC", "Scenery", "Music track", "Organisation", "Currency"];
 
 
 // Names whose wiki icon URL can't be guessed from the page name — no image is requested for these.
