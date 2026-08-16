@@ -182,7 +182,8 @@ class Component extends DCLogic {
   state = {
     packages: [], currentBuild: null, hiddenTypes: new Set(),
     search: '', onlyStarred: false, showIcons: true, allClosed: false,
-    overrides: {}, badIcons: new Set(), noIconSet: new Set(), pinned: new Set(), activeBuild: null,
+    overrides: {}, badIcons: new Set(), noIconSet: new Set(), pinned: new Set(),
+    pinnedTypes: new Set(), activeBuild: null,
     notes: {}, changes: {}, changesByBuild: {}, showNotes: true, showChanges: true,
     subOpen: {}, onlyPinned: false, allNotesOpen: false, allChangesOpen: false,
     // The build rail is sticky *below* the header, so it needs the header's
@@ -197,9 +198,10 @@ class Component extends DCLogic {
     const h = React.createElement;
     const rows = groups.map((g) => {
       const color = TYPE_COLORS[g.type] || 'oklch(0.7 0.02 60)';
-      const pinnedFirst = [...g.names].sort((a, b) => (this.isPinned(b) ? 1 : 0) - (this.isPinned(a) ? 1 : 0));
+      const pinnedFirst = [...g.names].sort(
+        (a, b) => (this.pinnedIn(g.type, b) ? 1 : 0) - (this.pinnedIn(g.type, a) ? 1 : 0));
       const chips = pinnedFirst.map((n) => {
-        const pin = this.isPinned(n);
+        const pin = this.pinnedIn(g.type, n);
         const showIcon = this.state.showIcons && ICON_TYPES.has(g.type) && !this.state.badIcons.has(n) && !this.noIcon(n);
         const kids = [];
         if (showIcon) kids.push(h('img', {
@@ -364,7 +366,7 @@ class Component extends DCLogic {
         if (k) links.push(h('span', {
           key: 's' + k, style: { color: 'oklch(0.45 0.015 60)' },
         }, ', '));
-        const p = this.isPinned(name);
+        const p = this.pinnedIn(c.type, name);
         links.push(h('a', {
           key: 'e' + k, href: WIKI + '/w/' + wikiPath(name), target: '_blank', rel: 'noopener',
           title: p ? 'Pinned' : undefined,
@@ -444,10 +446,17 @@ class Component extends DCLogic {
     return NO_ICON_RE.test(name) || this.state.noIconSet.has(name);
   }
   isPinned(name) { return this.state.pinned.has(name.toLowerCase()); }
+  // Pinning has two sources: an explicit name in PINNED, or the entity's whole
+  // type being in PINNED_TYPES (quests and skills, which always lead a build).
+  // Type context is required, so prefer this over bare isPinned wherever the
+  // type is known.
+  pinnedIn(type, name) { return this.state.pinnedTypes.has(type) || this.isPinned(name); }
   // A grouped change is pinned when ANY of its entities is. The entry is kept
   // whole rather than split: the change genuinely applied to all of them, and
   // showing only the pinned member would make the "×N" count a lie.
-  hasPinned(c) { return c.entities.some((n) => this.isPinned(n)); }
+  hasPinned(c) {
+    return this.state.pinnedTypes.has(c.type) || c.entities.some((n) => this.isPinned(n));
+  }
 
   componentDidMount() {
     import('./updates-data.js').then((mod) => {
@@ -456,6 +465,7 @@ class Component extends DCLogic {
         hiddenTypes: new Set(mod.HIDDEN_TYPES || []),
         noIconSet: new Set(mod.NO_ICON || []),
         pinned: new Set((mod.PINNED || []).map((n) => n.toLowerCase())),
+        pinnedTypes: new Set(mod.PINNED_TYPES || []),
       });
     });
     // Patch-note prose and per-entity changes are separate modules, loaded
@@ -631,7 +641,7 @@ class Component extends DCLogic {
             let names = g.names.filter((n) => !hide.has(n));
             // "Pinned only" is the blunt declutter: rather than curating away
             // 4,000 chips like "M'amulet mould", show just what's been promoted.
-            if (s.onlyPinned) names = names.filter((n) => this.isPinned(n));
+            if (s.onlyPinned) names = names.filter((n) => this.pinnedIn(g.type, n));
             if (term) names = names.filter((n) => n.toLowerCase().includes(term));
             return { type: g.type, names };
           })

@@ -74,7 +74,11 @@ with `.catch(() => {})` — if either is missing the roadmap still renders in fu
 8. **A change entry holds `entities` (array), never `entity`.** Identical changes are
    rolled up by `group_identical()`, so any count of "what changed" must sum
    `entities.length` — counting entries under-reports. Search must scan all of them.
-9. **The two SHOW chips for Patch notes / Changes carry two controls each.** The label
+9. **Pinning has two sources — use `pinnedIn(type, name)`, not bare `isPinned(name)`.**
+   `PINNED` is a name list; `PINNED_TYPES` pins whole types (Quest, Skill). Any code path that
+   knows the entity's type must consult both, or quests and skills silently lose their
+   highlight. `hasPinned(change)` does the same for a change entry via `c.type`.
+10. **The two SHOW chips for Patch notes / Changes carry two controls each.** The label
    shows/hides the layer (`showNotes` / `showChanges`); the caret expands or collapses every
    block of that kind (`allNotesOpen` / `allChangesOpen` via `toggleAllSub`). `toggleAllSub`
    **drops per-block `subOpen` overrides for that kind** — without that, a block the user had

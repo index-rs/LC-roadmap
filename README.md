@@ -140,26 +140,38 @@ Spell, Prayer, Emote, Shop, Currency, Game mechanic, Organisation, Scenery, Musi
 - add `star: true` to an update → gold star, sorted to the top of its package
 - add `note: "…"` to an update → a line of your own commentary under the title
 
-`PINNED` is one flat list of entity names, and it drives everything: chips, changes, and the
-**Pinned only** filter. To promote something, add its exact wiki page name:
+Two knobs drive all of it — chips, changes, and the **Pinned only** filter:
 
 ```js
+// every member of these types is pinned, without naming any of them
+export const PINNED_TYPES = ["Quest", "Skill"];
+
+// individual names, for everything else
 export const PINNED = [
+  "Mystic hat",
   "Abyssal whip",
   "Salve amulet",
-  "Dragon scimitar",
 ];
 ```
+
+`PINNED_TYPES` is the right tool when a whole category always matters: quests and skills are
+the headline content of any build, so listing all 41 quests by name would be busywork that
+goes stale the moment the data changes. Add `"Miniquest"` to that array if you want those too.
+`PINNED` is for individual promotions — add the exact wiki page name.
 
 **Pinned only** (top bar) then hides every unpinned chip and every change that names no pinned
 entity — the fast way to cut clutter like `M'amulet mould` without deleting anything. Patch
 notes survive it: they are one collapsed line, and they are the only record of content that
 created no entity at all.
 
-Two details worth knowing. Matching is case-insensitive but otherwise exact, so a name must
-match the wiki page title (`Dragon scimitar`, not `dragon scim`). And a rolled-up change is
+Two details worth knowing. `PINNED` matching is case-insensitive but otherwise exact, so a name
+must match the wiki page title (`Dragon scimitar`, not `dragon scim`). And a rolled-up change is
 kept whole when *any* of its entities is pinned — the change genuinely applied to all of them,
 and showing only the pinned member would make its `×N` count wrong.
+
+Pinning an entity highlights its **chips** everywhere and any **changes** recorded about it.
+Plenty of entities have no change history at all — `Mystic hat` is one — so pinning them shows
+gold chips and nothing in the red block. That is the wiki having no record, not a broken pin.
 
 Pruning is still there when you need it: `hidden: true` drops a whole update, `hide: [...]` drops
 individual entity names, and deleting entries from `entities` works fine.

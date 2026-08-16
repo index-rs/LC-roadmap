@@ -25,6 +25,11 @@ export const CURRENT_BUILD = 274;
 
 // Pinned entity names — highlighted gold and sorted first within their type group.
 // Case-insensitive, matched on the exact page name. Add freely; this is the list to grow.
+// Entity types that are pinned wholesale — every member is highlighted and
+// floats to the front of its group, without being listed by name below.
+// Quests and skills are the headline content of any build, so they always lead.
+export const PINNED_TYPES = ["Quest", "Skill"];
+
 export const PINNED = [
   "Mystic hat",
   "Dragon scimitar",
