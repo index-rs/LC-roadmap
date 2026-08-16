@@ -39,9 +39,17 @@ with `.catch(() => {})` — if either is missing the roadmap still renders in fu
    chips are built as a `React.createElement` subtree in `buildChips()` and rendered through a single
    `{{ item.chipsEl }}` hole. **Do not convert `buildChips()` back to template markup** unless you
    also upgrade `support.js`. Max safe loop depth is 2 (`pkg → item`).
-2. **The sticky header and the build rail must stay in one `[data-sticky]` wrapper.** They were
-   separately `position:sticky; top:0` once, and the shorter rail painted behind the taller header.
-   `stickyHeight()` measures that wrapper — scroll offsets derive from it, never from a constant.
+2. **The build rail is a fixed right-hand column, no longer part of the header.** It used to be a
+   horizontal strip inside `[data-sticky]`, which grew a scrollbar the moment the window narrowed.
+   It is now `position:fixed; right:0`, vertically scrolling inside its own box, sitting below the
+   header via `top: headerH + 12`. Two consequences:
+   - `state.headerH` must stay live. A `ResizeObserver` on `[data-sticky]` feeds it, because the
+     header grows and shrinks *on its own* as the SHOW chips wrap in when data loads, at a
+     constant window width — a `resize` listener alone misses that.
+   - Because the rail is out of flow, `shellStyle` reserves its width as `paddingRight`. Remove
+     that and the content slides under the rail on narrow windows.
+   `stickyHeight()` still drives scroll offsets, and returns a flat `14` when the header is not
+   sticky (see trap 5) — offsetting by a header that scrolled away leaves a screen of dead space.
 3. **Icon URLs are guesses.** `iconUrl()` builds `/images/<Page_name>.png`. Names that don't follow
    the pattern must go in `NO_ICON_RE` (page) or `NO_ICON` (data file), or they fire a 404 for every
    visitor. `onError` hides survivors but the request still goes out.
@@ -50,11 +58,13 @@ with `.catch(() => {})` — if either is missing the roadmap still renders in fu
    script in the repo — do not regenerate and clobber hand edits (`PINNED`, `star`, `note`, `hide`).
    `tools/build-changes-data.py` writes **only** `update-notes-data.js` and `changes-data.js`;
    it reads `updates-data.js` but never writes it. Keep that boundary.
-5. **`state.narrow` cannot be trusted from the state initialiser.** The class-property
-   initialiser runs before layout settles, so `window.innerWidth` reads small and every change
-   row renders in its stacked mobile form at desktop width. `componentDidMount` calls
-   `this._onResize()` once to re-measure — do not remove that call. This exists because the page
-   is inline-styles-only and has no stylesheet to hold a media query.
+5. **Below 700px the header is deliberately *not* sticky.** The SHOW row wraps into a ~460px
+   header at phone widths; pinned, that eats most of the viewport. `stickyStyle` switches to
+   `position:relative` there and lets it scroll away — navigation survives because the rail is
+   sticky independently. `state.narrow` drives this and is set in `componentDidMount` via
+   `this._measure()`, never from the class-property initialiser: that runs before layout settles
+   and reads a stale `window.innerWidth`. Do not remove that call. All of this exists because the
+   page is inline-styles-only and has no stylesheet to hold a media query.
 6. **Change `kinds` tags are derived, not sourced.** They come from regex over the change
    wording in `tools/build-changes-data.py` / the research extractor. Never present them as
    wiki-sourced fact, and expect unusual phrasing to be mis-tagged.
@@ -64,6 +74,12 @@ with `.catch(() => {})` — if either is missing the roadmap still renders in fu
 8. **A change entry holds `entities` (array), never `entity`.** Identical changes are
    rolled up by `group_identical()`, so any count of "what changed" must sum
    `entities.length` — counting entries under-reports. Search must scan all of them.
+9. **The two SHOW chips for Patch notes / Changes carry two controls each.** The label
+   shows/hides the layer (`showNotes` / `showChanges`); the caret expands or collapses every
+   block of that kind (`allNotesOpen` / `allChangesOpen` via `toggleAllSub`). `toggleAllSub`
+   **drops per-block `subOpen` overrides for that kind** — without that, a block the user had
+   already toggled ignores the command and the button looks broken. They are `<span>`s inside a
+   `<div>`, not nested `<button>`s, which would be invalid HTML.
 
 ## Roadmap of the roadmap
 

@@ -7,6 +7,11 @@ patch-note headline.
 
 Live page: `Update Roadmap.dc.html` (or `index.html`, which redirects to it).
 
+Navigation is a fixed rail pinned to the right edge of the window, one button per build. It
+scrolls vertically inside its own box, so it never grows the horizontal scrollbar the old
+header strip did. Below 700px the header stops being sticky and scrolls away — at phone widths
+the wrapped filter chips make it ~460px tall — while the rail stays put.
+
 ## What's in here
 
 | File | Purpose |
@@ -25,7 +30,9 @@ Live page: `Update Roadmap.dc.html` (or `index.html`, which redirects to it).
 ## Patch notes and changes
 
 Two extra layers sit under each update, both **collapsed by default** and individually
-expandable (click the header), and both toggleable wholesale from the filter bar:
+expandable (click the block header). Each has a chip in the SHOW row carrying two controls:
+the **label** shows or hides the layer entirely, the **caret** expands or collapses every
+block of that kind at once.
 
 - **Patch note** (gold block) — the prose Jagex actually published, split into its
   sub-sections. 107 of 112 updates have one. This is the only place content that created
@@ -128,9 +135,31 @@ Spell, Prayer, Emote, Shop, Currency, Game mechanic, Organisation, Scenery, Musi
 
 **Pinning is the main tool.** Rather than pruning thousands of rows, promote what matters:
 
-- add a name to `PINNED` → gold chip, sorted to the front of its type group, everywhere it appears
+- add a name to `PINNED` → gold chip, sorted to the front of its type group, everywhere it
+  appears — **and any change about it is highlighted gold and floats to the top of its block**
 - add `star: true` to an update → gold star, sorted to the top of its package
 - add `note: "…"` to an update → a line of your own commentary under the title
+
+`PINNED` is one flat list of entity names, and it drives everything: chips, changes, and the
+**Pinned only** filter. To promote something, add its exact wiki page name:
+
+```js
+export const PINNED = [
+  "Abyssal whip",
+  "Salve amulet",
+  "Dragon scimitar",
+];
+```
+
+**Pinned only** (top bar) then hides every unpinned chip and every change that names no pinned
+entity — the fast way to cut clutter like `M'amulet mould` without deleting anything. Patch
+notes survive it: they are one collapsed line, and they are the only record of content that
+created no entity at all.
+
+Two details worth knowing. Matching is case-insensitive but otherwise exact, so a name must
+match the wiki page title (`Dragon scimitar`, not `dragon scim`). And a rolled-up change is
+kept whole when *any* of its entities is pinned — the change genuinely applied to all of them,
+and showing only the pinned member would make its `×N` count wrong.
 
 Pruning is still there when you need it: `hidden: true` drops a whole update, `hide: [...]` drops
 individual entity names, and deleting entries from `entities` works fine.

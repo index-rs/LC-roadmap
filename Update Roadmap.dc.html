@@ -20,26 +20,29 @@
 
 <div style="min-height:100vh; background:oklch(0.17 0.014 55); color:oklch(0.95 0.01 60); font-family:'IBM Plex Sans',sans-serif;">
 
-  <div data-sticky="1" style="position:sticky; top:0; z-index:20;">
+  <div data-sticky="1" style="{{ stickyStyle }}">
   <div style="background:oklch(0.17 0.014 55 / 0.97); backdrop-filter:blur(6px); border-bottom:1px solid oklch(0.32 0.02 55); padding:20px 28px 13px;">
     <div style="max-width:1060px; margin:0 auto; display:flex; flex-direction:column; gap:11px;">
       <div style="display:flex; align-items:baseline; gap:14px; flex-wrap:wrap;">
         <h1 style="font-family:'Space Grotesk',sans-serif; font-size:26px; font-weight:700; margin:0; letter-spacing:-0.01em;">Lost City Update Roadmap</h1>
         <span style="font-family:'IBM Plex Mono',monospace; font-size:13px; color:oklch(0.62 0.015 60);">build {{ currentBuild }} &rarr; 377 &middot; Nov 2004 &rarr; May 2006</span>
       </div>
-      <p style="margin:0; color:oklch(0.7 0.015 60); font-size:14.5px; max-width:680px; text-wrap:pretty;">Every update ahead, with the content each one actually brought. Quests, gear, monsters and locations come from the wiki release timeline, so a build shows what shipped that week rather than just its patch-note headline.</p>
-
       <div style="display:flex; align-items:center; gap:9px; flex-wrap:wrap;">
         <input type="text" placeholder="Search updates, items, monsters&hellip;" value="{{ search }}" onChange="{{ setSearch }}" style="background:oklch(0.225 0.016 55); border:1px solid oklch(0.32 0.02 55); color:oklch(0.95 0.01 60); border-radius:8px; padding:9px 14px; font-size:14px; font-family:'IBM Plex Sans',sans-serif; width:250px; outline:none;" />
         <button onClick="{{ toggleOnlyStarred }}" style="{{ starBtnStyle }}" style-hover="{{ chipHoverStyle }}">&#9733; Starred only</button>
+        <button onClick="{{ toggleOnlyPinned }}" style="{{ pinnedBtnStyle }}" style-hover="{{ chipHoverStyle }}">&#9679; Pinned only</button>
         <button onClick="{{ toggleIcons }}" style="{{ iconBtnStyle }}" style-hover="{{ chipHoverStyle }}">Icons</button>
-        <button onClick="{{ toggleNotes }}" style="{{ notesBtnStyle }}" style-hover="{{ chipHoverStyle }}">Patch notes</button>
-        <button onClick="{{ toggleChanges }}" style="{{ changesBtnStyle }}" style-hover="{{ chipHoverStyle }}">Changes</button>
         <button onClick="{{ toggleCollapse }}" style="{{ collapseBtnStyle }}" style-hover="{{ chipHoverStyle }}">{{ collapseLabel }}</button>
       </div>
 
       <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
         <span style="font-size:11px; color:oklch(0.5 0.015 60); font-family:'IBM Plex Mono',monospace; letter-spacing:0.06em; margin-right:2px;">SHOW</span>
+        <sc-for list="{{ detailChips }}" as="dc" hint-placeholder-count="2">
+          <div style="{{ dc.wrapStyle }}">
+            <span onClick="{{ dc.onToggle }}" style="{{ dc.labelStyle }}">{{ dc.label }}</span>
+            <span onClick="{{ dc.onExpand }}" style="{{ dc.expandStyle }}" title="{{ dc.expandTitle }}">{{ dc.expandIcon }}</span>
+          </div>
+        </sc-for>
         <sc-for list="{{ typeFilters }}" as="tf" hint-placeholder-count="10">
           <button onClick="{{ tf.onClick }}" style="{{ tf.style }}" style-hover="{{ chipHoverStyle }}">{{ tf.label }}</button>
         </sc-for>
@@ -47,16 +50,10 @@
     </div>
   </div>
 
-  <div style="background:oklch(0.2 0.015 55); border-bottom:1px solid oklch(0.32 0.02 55); overflow-x:auto; white-space:nowrap; padding:9px 28px;">
-    <div style="display:inline-flex; gap:6px;">
-      <sc-for list="{{ navItems }}" as="nav" hint-placeholder-count="16">
-        <button onClick="{{ nav.onClick }}" style="{{ nav.chipStyle }}" style-hover="{{ chipHoverStyle }}">{{ nav.label }}</button>
-      </sc-for>
-    </div>
-  </div>
   </div>
 
-  <div style="max-width:1060px; margin:0 auto; padding:28px 28px 100px;">
+  <div style="{{ shellStyle }}">
+  <div style="{{ contentStyle }}">
 
     <sc-if value="{{ loading }}" hint-placeholder-val="{{ false }}">
       <p style="color:oklch(0.6 0.015 60); font-family:'IBM Plex Mono',monospace;">loading roadmap&hellip;</p>
@@ -121,6 +118,14 @@
 
     <p style="text-align:center; color:oklch(0.5 0.015 60); font-size:13px; margin-top:22px; line-height:1.75;">End of current roadmap &mdash; build 377, May 2006.<br />Content data derived from the <a href="https://oldschool.runescape.wiki" target="_blank" rel="noopener">Old School RuneScape Wiki</a> and <a href="https://runescape.wiki/w/Build_number" target="_blank" rel="noopener">RuneScape Wiki</a>, CC BY-NC-SA 3.0.</p>
   </div>
+
+  <nav style="{{ railStyle }}">
+    <span style="{{ railLabelStyle }}">BUILD</span>
+    <sc-for list="{{ navItems }}" as="nav" hint-placeholder-count="16">
+      <button onClick="{{ nav.onClick }}" style="{{ nav.chipStyle }}" style-hover="{{ chipHoverStyle }}">{{ nav.label }}</button>
+    </sc-for>
+  </nav>
+  </div>
 </div>
 
 </x-dc>
@@ -179,11 +184,11 @@ class Component extends DCLogic {
     search: '', onlyStarred: false, showIcons: true, allClosed: false,
     overrides: {}, badIcons: new Set(), noIconSet: new Set(), pinned: new Set(), activeBuild: null,
     notes: {}, changes: {}, changesByBuild: {}, showNotes: true, showChanges: true,
-    subOpen: {},
-    // The change rows are a two-column grid that collapses below this width.
-    // Tracked in state because this page styles inline only — no stylesheet
-    // exists to hold a media query. See CLAUDE.md conventions.
-    narrow: typeof window !== 'undefined' && window.innerWidth < 720,
+    subOpen: {}, onlyPinned: false, allNotesOpen: false, allChangesOpen: false,
+    // The build rail is sticky *below* the header, so it needs the header's
+    // live height. It changes as the filter chips wrap, so it is observed
+    // rather than measured once. `narrow` only picks the rail's width.
+    headerH: 150, narrow: false,
   };
 
   // Built as elements, not template markup: this runtime cannot placeholder-render a
@@ -235,9 +240,30 @@ class Component extends DCLogic {
   // Reddit-style collapse for the detail blocks. Separate from `overrides` /
   // isOpen because those default to open via `allClosed`; these default to
   // closed, so the page opens as a roadmap and not as a wall of prose.
-  isSubOpen(key) { return !!this.state.subOpen[key]; }
+  // A per-block override wins; with none, the block follows its kind's
+  // expand-all flag. Keys end in '|note' or '|chg', which is what tells the two
+  // kinds apart here.
+  isSubOpen(key) {
+    const v = this.state.subOpen[key];
+    if (v !== undefined) return v;
+    return key.endsWith('|note') ? this.state.allNotesOpen : this.state.allChangesOpen;
+  }
   toggleSub(key) {
     this.setState((s) => ({ subOpen: { ...s.subOpen, [key]: !s.subOpen[key] } }));
+  }
+  // Expand/collapse every block of one kind. Per-block overrides for that kind
+  // are dropped, otherwise a block the user had already toggled would ignore the
+  // command and the button would look broken.
+  toggleAllSub(kind) {
+    const suffix = kind === 'note' ? '|note' : '|chg';
+    const flag = kind === 'note' ? 'allNotesOpen' : 'allChangesOpen';
+    this.setState((s) => {
+      const sub = {};
+      Object.keys(s.subOpen).forEach((k) => {
+        if (!k.endsWith(suffix)) sub[k] = s.subOpen[k];
+      });
+      return { [flag]: !s[flag], subOpen: sub };
+    });
   }
   subHeader(key, open, label, color) {
     return React.createElement('div', {
@@ -316,28 +342,36 @@ class Component extends DCLogic {
       }, [this.subHeader(key, false,
         'Changes to existing content · ' + entityCount, 'oklch(0.68 0.1 25)')]);
     }
-    const rows = list.map((c, i) => {
+    // Pinned entries float to the top of the block, mirroring how pinned names
+    // float to the front of their chip group.
+    const ordered = [...list].sort(
+      (a, b) => (this.hasPinned(b) ? 1 : 0) - (this.hasPinned(a) ? 1 : 0));
+    const rows = ordered.map((c, i) => {
       const kind = topKind(c.kinds);
       const kc = KIND_COLORS[kind] || KIND_COLORS.other;
       const tc = TYPE_COLORS[c.type] || 'oklch(0.7 0.02 60)';
+      const pinned = this.hasPinned(c);
       const bullets = c.bullets.length === 1
         ? h('span', { style: { color: 'oklch(0.78 0.012 60)' } }, c.bullets[0])
         : h('ul', {
             style: { margin: '2px 0 0', paddingLeft: '16px', color: 'oklch(0.78 0.012 60)' },
           }, c.bullets.map((b, j) => h('li', { key: j, style: { marginBottom: '2px' } }, b)));
-      const narrow = this.state.narrow;
-      // One entity keeps the compact two-column form. Several share one wording,
-      // so the names run inline above the text instead — a 35-name list squeezed
-      // into a 150px gutter is unreadable.
-      const wide = c.entities.length > 1 || narrow;
+      // One layout for every row, however many entities it names: names inline,
+      // then the text below. A single-entity row used to sit in a right-aligned
+      // 150px gutter, which read as a different kind of thing entirely.
       const links = [];
       c.entities.forEach((name, k) => {
         if (k) links.push(h('span', {
           key: 's' + k, style: { color: 'oklch(0.45 0.015 60)' },
         }, ', '));
+        const p = this.isPinned(name);
         links.push(h('a', {
           key: 'e' + k, href: WIKI + '/w/' + wikiPath(name), target: '_blank', rel: 'noopener',
-          style: { color: tc, textDecoration: 'none', fontWeight: 600, fontSize: '12.5px' },
+          title: p ? 'Pinned' : undefined,
+          style: {
+            color: p ? 'oklch(0.88 0.09 85)' : tc, textDecoration: 'none',
+            fontWeight: p ? 700 : 600, fontSize: '12.5px',
+          },
         }, name));
       });
       // No game label on the tag. `c.game` records which *wiki* the text came
@@ -357,25 +391,25 @@ class Component extends DCLogic {
 
       return h('div', {
         key: c.entities[0] + i,
-        style: wide
-          ? { display: 'flex', flexDirection: 'column', gap: '2px', fontSize: '13px', lineHeight: 1.55 }
-          : {
-              display: 'grid', gridTemplateColumns: '150px 1fr', gap: '10px',
-              alignItems: 'baseline', fontSize: '13px', lineHeight: 1.55,
-            },
+        style: {
+          display: 'flex', flexDirection: 'column', gap: '2px',
+          fontSize: '13px', lineHeight: 1.55,
+          background: pinned ? 'oklch(0.78 0.15 75 / 0.07)' : 'transparent',
+          borderRadius: pinned ? '6px' : 0,
+          padding: pinned ? '4px 7px' : 0,
+          marginLeft: pinned ? '-7px' : 0,
+        },
       }, [
         h('div', {
           key: 'l',
-          style: wide
-            ? { display: 'flex', alignItems: 'baseline', gap: '7px', flexWrap: 'wrap' }
-            : {
-                textAlign: 'right', display: 'flex', flexDirection: 'column',
-                alignItems: 'flex-end', gap: '1px', flexWrap: 'wrap',
-              },
-        }, wide ? [h('span', { key: 'n' }, links), tag] : [h('span', { key: 'n' }, links), tag]),
+          style: { display: 'flex', alignItems: 'baseline', gap: '7px', flexWrap: 'wrap' },
+        }, [h('span', { key: 'n' }, links), tag]),
         h('div', {
           key: 'b',
-          style: wide ? { paddingLeft: '10px', borderLeft: '1px solid oklch(0.3 0.016 55)' } : null,
+          style: {
+            paddingLeft: '10px',
+            borderLeft: '1px solid ' + (pinned ? 'oklch(0.78 0.15 75 / 0.4)' : 'oklch(0.3 0.016 55)'),
+          },
         }, bullets),
       ]);
     });
@@ -410,6 +444,10 @@ class Component extends DCLogic {
     return NO_ICON_RE.test(name) || this.state.noIconSet.has(name);
   }
   isPinned(name) { return this.state.pinned.has(name.toLowerCase()); }
+  // A grouped change is pinned when ANY of its entities is. The entry is kept
+  // whole rather than split: the change genuinely applied to all of them, and
+  // showing only the pinned member would make the "×N" count a lie.
+  hasPinned(c) { return c.entities.some((n) => this.isPinned(n)); }
 
   componentDidMount() {
     import('./updates-data.js').then((mod) => {
@@ -432,21 +470,36 @@ class Component extends DCLogic {
       .catch(() => {});
     this._onScroll = () => this.handleScroll();
     window.addEventListener('scroll', this._onScroll, { passive: true });
-    this._onResize = () => {
-      const narrow = window.innerWidth < 720;
-      if (narrow !== this.state.narrow) this.setState({ narrow });
+
+    this._measure = () => {
+      const el = document.querySelector('[data-sticky]');
+      const headerH = el ? Math.round(el.getBoundingClientRect().height) : this.state.headerH;
+      const narrow = window.innerWidth < 700;
+      if (headerH !== this.state.headerH || narrow !== this.state.narrow) {
+        this.setState({ headerH, narrow });
+      }
     };
-    window.addEventListener('resize', this._onResize, { passive: true });
-    // The state initialiser runs before the layout settles, so the constructor's
-    // reading of innerWidth is unreliable. Re-measure once mounted.
-    this._onResize();
+    window.addEventListener('resize', this._measure, { passive: true });
+    // A plain resize listener is not enough: the header grows and shrinks on its
+    // own as the SHOW chips wrap in once the data loads, at a constant window
+    // width. Observe the element itself.
+    const sticky = document.querySelector('[data-sticky]');
+    if (sticky && typeof ResizeObserver !== 'undefined') {
+      this._ro = new ResizeObserver(() => this._measure());
+      this._ro.observe(sticky);
+    }
+    this._measure();
   }
   componentWillUnmount() {
     window.removeEventListener('scroll', this._onScroll);
-    window.removeEventListener('resize', this._onResize);
+    window.removeEventListener('resize', this._measure);
+    if (this._ro) this._ro.disconnect();
   }
 
   stickyHeight() {
+    // Only a *sticky* header occludes the target; when it scrolls away (narrow
+    // screens) offsetting by its height would leave a screen of dead space.
+    if (this.state.narrow) return 14;
     const el = document.querySelector('[data-sticky]');
     return (el ? el.getBoundingClientRect().height : 150) + 14;
   }
@@ -502,21 +555,62 @@ class Component extends DCLogic {
       });
     }));
 
-    const typeFilters = TYPE_ORDER.filter((t) => totals[t]).map((t) => {
-      const on = !s.hiddenTypes.has(t);
-      const color = TYPE_COLORS[t];
-      return {
-        label: t + ' ' + totals[t],
-        onClick: () => this.toggleType(t),
-        style: {
-          fontSize: '12px', fontWeight: 600, padding: '4px 9px', borderRadius: '20px', cursor: 'pointer',
-          fontFamily: "'IBM Plex Sans',sans-serif", whiteSpace: 'nowrap',
-          border: '1px solid ' + (on ? alpha(color, 0.55) : 'oklch(0.29 0.015 55)'),
-          background: on ? alpha(color, 0.14) : 'transparent',
-          color: on ? color : 'oklch(0.45 0.015 60)',
-        },
-      };
+    const chipStyle = (on, color) => ({
+      fontSize: '12px', fontWeight: 600, padding: '4px 9px', borderRadius: '20px', cursor: 'pointer',
+      fontFamily: "'IBM Plex Sans',sans-serif", whiteSpace: 'nowrap',
+      border: '1px solid ' + (on ? alpha(color, 0.55) : 'oklch(0.29 0.015 55)'),
+      background: on ? alpha(color, 0.14) : 'transparent',
+      color: on ? color : 'oklch(0.45 0.015 60)',
     });
+
+    const typeFilters = TYPE_ORDER.filter((t) => totals[t]).map((t) => ({
+      label: t + ' ' + totals[t],
+      onClick: () => this.toggleType(t),
+      style: chipStyle(!s.hiddenTypes.has(t), TYPE_COLORS[t]),
+    }));
+
+    // The detail layers sit in the same SHOW row as the entity types, but each
+    // chip carries two controls: the label shows/hides the layer, the caret
+    // expands or collapses every block of that kind at once. Two jobs, because
+    // "hide these entirely" and "open all of them" are different intents and
+    // one button cannot serve both.
+    const noteTotal = Object.keys(s.notes).length;
+    const changeTotal = Object.values(s.changes).concat(Object.values(s.changesByBuild))
+      .reduce((a, l) => a + l.reduce((b, c) => b + c.entities.length, 0), 0);
+    const detailChip = (on, color, label, allOpen, onToggle, onExpand) => ({
+      label,
+      onToggle,
+      onExpand,
+      expandIcon: allOpen ? '▾' : '▸',
+      expandTitle: (allOpen ? 'Collapse' : 'Expand') + ' every ' + label.replace(/ \d+$/, '')
+        .toLowerCase() + ' block',
+      wrapStyle: {
+        display: 'inline-flex', alignItems: 'stretch', borderRadius: '20px',
+        border: '1px solid ' + (on ? alpha(color, 0.55) : 'oklch(0.29 0.015 55)'),
+        background: on ? alpha(color, 0.14) : 'transparent',
+        overflow: 'hidden', whiteSpace: 'nowrap',
+      },
+      labelStyle: {
+        fontSize: '12px', fontWeight: 600, padding: '4px 7px 4px 9px', cursor: 'pointer',
+        fontFamily: "'IBM Plex Sans',sans-serif", userSelect: 'none',
+        color: on ? color : 'oklch(0.45 0.015 60)',
+      },
+      expandStyle: {
+        fontSize: '10px', padding: '4px 8px 4px 6px', cursor: on ? 'pointer' : 'not-allowed',
+        display: 'flex', alignItems: 'center', userSelect: 'none',
+        borderLeft: '1px solid ' + (on ? alpha(color, 0.4) : 'oklch(0.29 0.015 55)'),
+        color: on ? color : 'oklch(0.35 0.015 60)',
+        background: on && allOpen ? alpha(color, 0.18) : 'transparent',
+      },
+    });
+    const detailChips = [
+      detailChip(s.showNotes, gold, 'Patch notes ' + noteTotal, s.allNotesOpen,
+        () => this.setState((st) => ({ showNotes: !st.showNotes })),
+        () => { if (s.showNotes) this.toggleAllSub('note'); }),
+      detailChip(s.showChanges, 'oklch(0.7 0.15 25)', 'Changes ' + changeTotal, s.allChangesOpen,
+        () => this.setState((st) => ({ showChanges: !st.showChanges })),
+        () => { if (s.showChanges) this.toggleAllSub('chg'); }),
+    ];
 
     // Build 274 is already live, so the roadmap starts at the next package.
     // It stays in `updates-data.js` as history — this is a display rule, not a
@@ -535,13 +629,20 @@ class Component extends DCLogic {
           .filter((g) => !s.hiddenTypes.has(g.type))
           .map((g) => {
             let names = g.names.filter((n) => !hide.has(n));
+            // "Pinned only" is the blunt declutter: rather than curating away
+            // 4,000 chips like "M'amulet mould", show just what's been promoted.
+            if (s.onlyPinned) names = names.filter((n) => this.isPinned(n));
             if (term) names = names.filter((n) => n.toLowerCase().includes(term));
             return { type: g.type, names };
           })
           .filter((g) => g.names.length > 0);
 
+        // The patch note survives "Pinned only": it is one collapsed header
+        // line, and it is the only record of content that created no entity at
+        // all, so hiding it would remove the very thing chips cannot show.
         const note = s.showNotes ? s.notes[it.title] : null;
-        const changes = s.showChanges ? (s.changes[it.title] || []) : [];
+        let changes = s.showChanges ? (s.changes[it.title] || []) : [];
+        if (s.onlyPinned) changes = changes.filter((c) => this.hasPinned(c));
         // Search reaches into the patch-note prose and the change text, because
         // content like "more hellhounds in the Taverley dungeon" exists only
         // there — it created no entity, so no chip can ever match it.
@@ -620,6 +721,7 @@ class Component extends DCLogic {
       // belong to the build. They get one collapsed entry per package rather
       // than being dropped — losing them would misrepresent what the build did.
       let loose = s.showChanges && !s.onlyStarred ? (s.changesByBuild[pkg.build] || []) : [];
+      if (s.onlyPinned) loose = loose.filter((c) => this.hasPinned(c));
       if (term && loose.length) {
         loose = loose.filter((c) => c.entities.some((e) => e.toLowerCase().includes(term))
           || c.bullets.some((b) => b.toLowerCase().includes(term))
@@ -686,13 +788,52 @@ class Component extends DCLogic {
         onClick: () => this.scrollToBuild(pkg.build),
         chipStyle: {
           fontFamily: "'IBM Plex Mono',monospace", fontSize: '12px', fontWeight: 600,
-          padding: '5px 10px', borderRadius: '20px', cursor: 'pointer',
-          border: '1px solid ' + (active ? gold : 'oklch(0.32 0.02 55)'),
+          padding: '5px 0', borderRadius: '7px', cursor: 'pointer', width: '100%',
+          border: '1px solid ' + (active ? gold : 'oklch(0.3 0.018 55)'),
           background: active ? alpha(gold, 0.18) : 'oklch(0.225 0.016 55)',
           color: active ? gold : 'oklch(0.72 0.015 60)',
+          textAlign: 'center', flex: 'none',
         },
       };
     });
+
+    // The rail used to be a horizontal strip inside the sticky header, which
+    // grew a scrollbar as soon as the window narrowed. As a sticky right-hand
+    // column it scrolls vertically inside its own box instead, and the header
+    // no longer has to share its sticky wrapper.
+    // On a narrow screen the SHOW chips wrap into a header ~460px tall, which
+    // pinned would eat most of the viewport. The rail is sticky on its own now,
+    // so navigation survives letting the header scroll away.
+    const stickyStyle = s.narrow
+      ? { position: 'relative', zIndex: 20 }
+      : { position: 'sticky', top: 0, zIndex: 20 };
+    const railW = s.narrow ? 48 : 60;
+    const top = s.narrow ? 12 : s.headerH + 12;
+    // Fixed to the window's right edge rather than sitting in the content flow,
+    // so it stays pinned there however wide the window is and leaves a clear gap
+    // to the content. The content wrapper reserves that width as padding.
+    const railStyle = {
+      position: 'fixed', right: 0, top: top + 'px', zIndex: 15,
+      width: railW + 'px', maxHeight: 'calc(100vh - ' + (top + 16) + 'px)',
+      overflowY: 'auto', overflowX: 'hidden',
+      display: s.packages.length ? 'flex' : 'none', flexDirection: 'column', gap: '4px',
+      padding: '10px 6px',
+      background: 'oklch(0.2 0.015 55)', border: '1px solid oklch(0.3 0.018 55)',
+      borderRight: 'none', borderRadius: '10px 0 0 10px',
+      scrollbarWidth: 'thin', scrollbarColor: 'oklch(0.35 0.02 55) transparent',
+    };
+    const railLabelStyle = {
+      fontFamily: "'IBM Plex Mono',monospace", fontSize: '9px', fontWeight: 600,
+      letterSpacing: '0.08em', color: 'oklch(0.5 0.015 60)', textAlign: 'center',
+      marginBottom: '2px', flex: 'none',
+    };
+    // The rail is out of flow, so the page reserves its width here — otherwise
+    // content would slide under it as soon as the window got narrow.
+    const shellStyle = { paddingRight: (railW + (s.narrow ? 10 : 22)) + 'px' };
+    const contentStyle = {
+      maxWidth: '1060px', margin: '0 auto',
+      padding: s.narrow ? '18px 12px 100px' : '28px 24px 100px',
+    };
 
     return {
       loading: s.packages.length === 0,
@@ -703,10 +844,9 @@ class Component extends DCLogic {
       starBtnStyle: this.btn(s.onlyStarred, gold),
       toggleIcons: () => this.setState((st) => ({ showIcons: !st.showIcons })),
       iconBtnStyle: this.btn(s.showIcons, blue),
-      toggleNotes: () => this.setState((st) => ({ showNotes: !st.showNotes })),
-      notesBtnStyle: this.btn(s.showNotes, gold),
-      toggleChanges: () => this.setState((st) => ({ showChanges: !st.showChanges })),
-      changesBtnStyle: this.btn(s.showChanges, 'oklch(0.7 0.15 25)'),
+      toggleOnlyPinned: () => this.setState((st) => ({ onlyPinned: !st.onlyPinned })),
+      pinnedBtnStyle: this.btn(s.onlyPinned, gold),
+      railStyle, railLabelStyle, shellStyle, contentStyle, stickyStyle, detailChips,
       toggleCollapse: () => this.setState((st) => ({ allClosed: !st.allClosed, overrides: {} })),
       collapseBtnStyle: this.btn(false, blue),
       collapseLabel: s.allClosed ? 'Expand all' : 'Collapse all',
