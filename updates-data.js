@@ -26,6 +26,7 @@ export const CURRENT_BUILD = 274;
 // Pinned entity names — highlighted gold and sorted first within their type group.
 // Case-insensitive, matched on the exact page name. Add freely; this is the list to grow.
 export const PINNED = [
+  "Mystic hat",
   "Dragon scimitar",
   "Dragon platelegs",
   "Abyssal whip",
