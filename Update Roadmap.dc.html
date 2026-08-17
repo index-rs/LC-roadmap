@@ -91,7 +91,7 @@
               <div onClick="{{ item.onToggle }}" style="{{ item.headStyle }}">
                 <span style="{{ item.caretStyle }}">{{ item.caret }}</span>
                 <span style="{{ item.starStyle }}">&#9733;</span>
-                <span style="{{ item.titleStyle }}">{{ item.title }}</span>
+                <span style="{{ item.titleStyle }}">{{ item.titleEl }}</span>
                 <span style="{{ item.countStyle }}">{{ item.countLabel }}</span>
                 <span style="{{ item.noteDotStyle }}">&#9679;</span>
                 <span style="{{ item.changeCountStyle }}">{{ item.changeCount }}</span>
@@ -200,6 +200,37 @@ class Component extends DCLogic {
     headerH: 150, narrow: false,
   };
 
+  // Wrap every case-insensitive occurrence of the current search term in a
+  // highlight span. Returns the plain string when there is no term or no match,
+  // otherwise an array of strings and <mark> elements — React renders either.
+  // Used by every content builder so a search for "slayer" lights up in chip
+  // names, patch-note prose and change text alike.
+  hl(text) {
+    const term = this.state.search.trim();
+    if (!term || !text) return text;
+    const low = text.toLowerCase();
+    const t = term.toLowerCase();
+    if (!low.includes(t)) return text;
+    const h = React.createElement;
+    const out = [];
+    let i = 0, k = 0;
+    while (i < text.length) {
+      const j = low.indexOf(t, i);
+      if (j < 0) { out.push(text.slice(i)); break; }
+      if (j > i) out.push(text.slice(i, j));
+      out.push(h('mark', {
+        key: 'm' + (k++),
+        style: {
+          background: 'oklch(0.78 0.15 75 / 0.32)', color: 'inherit',
+          borderRadius: '2px', padding: '0 1px', boxDecorationBreak: 'clone',
+          WebkitBoxDecorationBreak: 'clone',
+        },
+      }, text.slice(j, j + t.length)));
+      i = j + t.length;
+    }
+    return out;
+  }
+
   // Built as elements, not template markup: this runtime cannot placeholder-render a
   // sc-for whose list comes from an outer loop's alias.
   buildChips(groups) {
@@ -217,7 +248,7 @@ class Component extends DCLogic {
           onError: () => this.setState((st) => { const b = new Set(st.badIcons); b.add(n); return { badIcons: b }; }),
           style: { width: '15px', height: '15px', objectFit: 'contain', imageRendering: 'pixelated', flex: 'none' },
         }));
-        kids.push(h('span', { key: 't' }, n));
+        kids.push(h('span', { key: 't' }, this.hl(n)));
         return h('a', {
           key: n, href: WIKI + '/w/' + wikiPath(articleFor(n)), target: '_blank', rel: 'noopener',
           title: pin ? 'Pinned' : undefined,
@@ -302,7 +333,7 @@ class Component extends DCLogic {
           fontFamily: "'Space Grotesk',sans-serif", fontSize: '13.5px', fontWeight: 600,
           color: 'oklch(0.84 0.05 75)', marginTop: i ? '10px' : 0, marginBottom: '3px',
         },
-      }, sec.heading));
+      }, this.hl(sec.heading)));
       sec.text.split('\n\n').forEach((para, j) => {
         if (para.trim()) blocks.push(h('p', {
           key: 'p' + i + '_' + j,
@@ -310,7 +341,7 @@ class Component extends DCLogic {
             margin: '0 0 6px', fontSize: '13.5px', lineHeight: 1.62,
             color: 'oklch(0.76 0.012 60)', textWrap: 'pretty',
           },
-        }, para.trim()));
+        }, this.hl(para.trim())));
       });
     });
     const body = open ? [
@@ -362,10 +393,10 @@ class Component extends DCLogic {
       const tc = TYPE_COLORS[c.type] || 'oklch(0.7 0.02 60)';
       const pinned = this.hasPinned(c);
       const bullets = c.bullets.length === 1
-        ? h('span', { style: { color: 'oklch(0.78 0.012 60)' } }, c.bullets[0])
+        ? h('span', { style: { color: 'oklch(0.78 0.012 60)' } }, this.hl(c.bullets[0]))
         : h('ul', {
             style: { margin: '2px 0 0', paddingLeft: '16px', color: 'oklch(0.78 0.012 60)' },
-          }, c.bullets.map((b, j) => h('li', { key: j, style: { marginBottom: '2px' } }, b)));
+          }, c.bullets.map((b, j) => h('li', { key: j, style: { marginBottom: '2px' } }, this.hl(b))));
       // One layout for every row, however many entities it names: names inline,
       // then the text below. A single-entity row used to sit in a right-aligned
       // 150px gutter, which read as a different kind of thing entirely.
@@ -382,7 +413,7 @@ class Component extends DCLogic {
             color: p ? 'oklch(0.88 0.09 85)' : tc, textDecoration: 'none',
             fontWeight: p ? 700 : 600, fontSize: '12.5px',
           },
-        }, name));
+        }, this.hl(name)));
       });
       // No game label on the tag. `c.game` records which *wiki* the text came
       // from, not the game version — and "RS3" on a 2005 row reads as an
@@ -708,6 +739,7 @@ class Component extends DCLogic {
 
         displayItems.push({
           title: it.title,
+          titleEl: this.hl(it.title),
           star: !!it.star,
           hasNote: !!it.note,
           note: it.note || '',
@@ -774,7 +806,8 @@ class Component extends DCLogic {
         const key = pkg.build + '|__loose_changes';
         const open = this.isOpen(key);
         displayItems.push({
-          title: 'Other changes this build', star: false, hasNote: false, note: '',
+          title: 'Other changes this build', titleEl: 'Other changes this build',
+          star: false, hasNote: false, note: '',
           caret: open ? '–' : '+',
           caretStyle: {
             fontFamily: "'IBM Plex Mono',monospace", fontSize: '13px', width: '14px',
