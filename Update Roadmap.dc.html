@@ -175,11 +175,19 @@ function fmtDate(iso) {
   return new Date(iso + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 function wikiPath(name) { return encodeURIComponent(name.replace(/ /g, '_')); }
-// Synthetic entities ("+48 bank space", the shortcut groups) have no wiki page.
-// LINK_TARGETS redirects their chips to the nearest real article so no chip is a
-// link to a 404. Populated from updates-data.js at load.
+// Synthetic entities have no wiki page under their own name. Two redirect maps,
+// both populated from updates-data.js at load:
+//   LINK_URLS    label -> a full destination URL, used verbatim (agility
+//                shortcuts, whose URLs carry #anchors and %27-style encoding).
+//   LINK_TARGETS label -> a page title routed through wikiPath (bank space -> Bank).
+// hrefFor() prefers a full URL, then a retargeted title, then the name itself.
 let LINK_TARGETS = {};
+let LINK_URLS = {};
 function articleFor(name) { return LINK_TARGETS[name] || name; }
+function hrefFor(name) {
+  if (LINK_URLS[name]) return LINK_URLS[name];
+  return WIKI + '/w/' + wikiPath(articleFor(name));
+}
 function iconUrl(name) {
   const t = name.charAt(0).toUpperCase() + name.slice(1);
   return WIKI + '/images/' + wikiPath(t) + '.png';
@@ -250,7 +258,7 @@ class Component extends DCLogic {
         }));
         kids.push(h('span', { key: 't' }, this.hl(n)));
         return h('a', {
-          key: n, href: WIKI + '/w/' + wikiPath(articleFor(n)), target: '_blank', rel: 'noopener',
+          key: n, href: hrefFor(n), target: '_blank', rel: 'noopener',
           title: pin ? 'Pinned' : undefined,
           style: {
             display: 'inline-flex', alignItems: 'center', gap: '5px',
@@ -407,7 +415,7 @@ class Component extends DCLogic {
         }, ', '));
         const p = this.pinnedIn(c.type, name);
         links.push(h('a', {
-          key: 'e' + k, href: WIKI + '/w/' + wikiPath(articleFor(name)), target: '_blank', rel: 'noopener',
+          key: 'e' + k, href: hrefFor(name), target: '_blank', rel: 'noopener',
           title: p ? 'Pinned' : undefined,
           style: {
             color: p ? 'oklch(0.88 0.09 85)' : tc, textDecoration: 'none',
@@ -500,6 +508,7 @@ class Component extends DCLogic {
   componentDidMount() {
     import('./updates-data.js').then((mod) => {
       LINK_TARGETS = mod.LINK_TARGETS || {};
+      LINK_URLS = mod.LINK_URLS || {};
       this.setState({
         packages: mod.packages, currentBuild: mod.CURRENT_BUILD,
         hiddenTypes: new Set(mod.HIDDEN_TYPES || []),

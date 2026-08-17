@@ -78,11 +78,12 @@ with `.catch(() => {})` — if either is missing the roadmap still renders in fu
    `PINNED` is a name list; `PINNED_TYPES` pins whole types (Quest, Skill). Any code path that
    knows the entity's type must consult both, or quests and skills silently lose their
    highlight. `hasPinned(change)` does the same for a change entry via `c.type`.
-10. **Synthetic entities must be in `LINK_TARGETS`.** `Bank` and `Shortcut` entities
-    (`+48 bank space`, `Falador shortcuts (2)`) have no wiki page, so a chip built from the
-    name alone links to a 404. `articleFor(name)` resolves through `LINK_TARGETS` in
-    `updates-data.js`; both `buildChips` and `buildChanges` go through it. Add any future
-    synthetic name to that map. They are also kept out of `ICON_TYPES`, so no image is fetched.
+10. **Synthetic entity links go through `hrefFor(name)`, never a raw `wikiPath`.** `Bank` and
+    `Shortcut` entities have no wiki page under their chip label. `hrefFor` checks `LINK_URLS`
+    (label → full URL, used verbatim — shortcut URLs carry `#anchors` and `%27` that must not
+    be re-encoded), then `LINK_TARGETS` via `articleFor` (label → page title → `wikiPath`),
+    then the name itself. Both `buildChips` and `buildChanges` call it. Add any new synthetic
+    entity to whichever map fits. They are kept out of `ICON_TYPES`, so no image is fetched.
 11. **The two SHOW chips for Patch notes / Changes carry two controls each.** The label
    shows/hides the layer (`showNotes` / `showChanges`); the caret expands or collapses every
    block of that kind (`allNotesOpen` / `allChangesOpen` via `toggleAllSub`). `toggleAllSub`

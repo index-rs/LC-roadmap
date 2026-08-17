@@ -32,18 +32,47 @@ export const CURRENT_BUILD = 274;
 // Synthetic entities: these describe something a patch note added that the
 // wiki has no page for, so their chips link to the nearest real article
 // instead of a 404.
+
+// Full destination URLs for synthetic entities whose chip label differs
+// from the wiki page (agility shortcuts). Used verbatim, so anchors
+// (#Medium) and pre-encoded characters (%27) survive.
+export const LINK_URLS = {
+  "Western Brimhaven Dungeon (12)": "https://oldschool.runescape.wiki/w/Stepping_stone_(western_Brimhaven_Dungeon)",
+  "Morytania Mausoleum (69)": "https://oldschool.runescape.wiki/w/Bridge_(Mausoleum)",
+  "Lumbridge Swamp Caves (1)": "https://oldschool.runescape.wiki/w/Stepping_stone_(Lumbridge_Swamp_Caves)",
+  "South of Varrock (13)": "https://oldschool.runescape.wiki/w/Fence_(Varrock)",
+  "Yanille (16)": "https://oldschool.runescape.wiki/w/Underwall_tunnel_(Yanille)",
+  "North West of Varrock (21)": "https://oldschool.runescape.wiki/w/Underwall_tunnel_(Grand_Exchange)",
+  "Brimhaven Dungeon entrance (22)": "https://oldschool.runescape.wiki/w/Pipe_(Brimhaven_Dungeon_entrance)",
+  "South West of Falador (26)": "https://oldschool.runescape.wiki/w/Underwall_tunnel_(Falador)",
+  "West of Champions' Guild (31)": "https://oldschool.runescape.wiki/w/Stepping_stone_(Champions%27_Guild)",
+  "East Ardougne (33)": "https://oldschool.runescape.wiki/w/Log_balance_(East_Ardougne)",
+  "North East of Tree Gnome Stronghold (37)": "https://oldschool.runescape.wiki/w/Rocks_(Tree_Gnome_Stronghold)",
+  "Al Kharid Mine (38)": "https://oldschool.runescape.wiki/w/Rocks_(Al_Kharid)",
+  "Trollheim (41)": "https://oldschool.runescape.wiki/w/Rocks_(Trollheim_easy)",
+  "Dwarven Mine (42)": "https://oldschool.runescape.wiki/w/Narrow_crevice_(Dwarven_Mine)",
+  "Trollheim (44)": "https://oldschool.runescape.wiki/w/Rocks_(Trollheim_advanced)",
+  "Cosmic Altar (46)": "https://oldschool.runescape.wiki/w/Jutting_wall_(Zanaris)#Medium",
+  "Trollheim (47)": "https://oldschool.runescape.wiki/w/Rocks_(Trollheim_hard)",
+  "Murder Mystery (48)": "https://oldschool.runescape.wiki/w/Log_balance_(Fremennik_Province)",
+  "Edgeville Dungeon (51)": "https://oldschool.runescape.wiki/w/Obstacle_pipe_(Edgeville_Dungeon)",
+  "Ectofuntus (58)": "https://oldschool.runescape.wiki/w/Weathered_wall",
+  "Tirannwn (59)": "https://oldschool.runescape.wiki/w/Rocks_(Tirannwn)#Easy",
+  "Slayer Tower (61)": "https://oldschool.runescape.wiki/w/Spikey_chain_(Slayer_Tower)#Medium",
+  "Fremennik Slayer Dungeon (62)": "https://oldschool.runescape.wiki/w/Strange_floor_(Fremennik_Slayer_Dungeon)",
+  "Wilderness Trollheim (64)": "https://oldschool.runescape.wiki/w/Rocks_(Wilderness,_Trollheim)",
+  "Morytania Entrance (65)": "https://oldschool.runescape.wiki/w/Ornate_railing",
+  "Cosmic Altar (66)": "https://oldschool.runescape.wiki/w/Jutting_wall_(Zanaris)#Advanced",
+  "Tirannwn (68)": "https://oldschool.runescape.wiki/w/Rocks_(Tirannwn)#Medium",
+  "Taverley Dungeon (70)": "https://oldschool.runescape.wiki/w/Obstacle_pipe_(Taverley_Dungeon)",
+  "Slayer Tower (71)": "https://oldschool.runescape.wiki/w/Spikey_chain_(Slayer_Tower)#Advanced",
+  "Taverley Dungeon (80)": "https://oldschool.runescape.wiki/w/Strange_floor_(Taverley_Dungeon)",
+  "Fremennik Slayer Dungeon (81)": "https://oldschool.runescape.wiki/w/Crevice_(Fremennik_Slayer_Dungeon)",
+  "Tirannwn (85)": "https://oldschool.runescape.wiki/w/Rocks_(Tirannwn)#Advanced",
+  "Burgh de Rott (25)": "https://oldschool.runescape.wiki/w/Low_fence",
+};
+
 export const LINK_TARGETS = {
-  "Trollheim to level 20 Wilderness (one-way)": "Shortcuts",
-  "Taverley Dungeon shortcuts (2)": "Shortcuts",
-  "Elven overpass shortcuts (3)": "Shortcuts",
-  "Trollheim to Troll Stronghold shortcuts (4)": "Shortcuts",
-  "Falador shortcuts (2)": "Shortcuts",
-  "Lumbridge shortcuts (3)": "Shortcuts",
-  "Morytania tomb bypass": "Shortcuts",
-  "Slayer Tower spiky chains (2)": "Shortcuts",
-  "Log balance (Sinclair Mansion)": "Shortcuts",
-  "Slayer Dungeon shortcuts (2)": "Shortcuts",
-  "Port Phasmatys ectopool shortcut": "Shortcuts",
   "+48 bank space": "Bank",
   "+16 bank space": "Bank",
 };
@@ -806,6 +835,7 @@ export const packages = [
       ] },
       { title: "Trawler Game Update", build: 288, date: "2005-01-10" },
       { title: "Karamja Dungeon", build: 289, star: true, entities: [
+        { type: "Shortcut", names: ["Western Brimhaven Dungeon (12)"] },
         { type: "Location", names: ["Brimhaven Dungeon"] },
         { type: "Monster", names: ["Baby red dragon", "Bronze dragon", "Iron dragon", "Steel dragon", "Wild dog"] },
         { type: "NPC", names: ["Saniboch"] },
@@ -830,6 +860,7 @@ export const packages = [
         { type: "Music track", names: ["Masquerade", "Slayer Level Up!", "Slayer Level Up! (Unlocks)", "The Slayer", "The Terrible Tower"] },
       ] },
       { title: "Creature of Fenkenstrain", build: 291, entities: [
+        { type: "Shortcut", names: ["Morytania Mausoleum (69)"] },
         { type: "Quest", names: ["Creature of Fenkenstrain"] },
         { type: "Location", names: ["Experiment cave", "Fenkenstrain's Castle", "Mausoleum", "Werewolf Agility Course", "Werewolf Skullball"] },
         { type: "Monster", names: ["Experiment"] },
@@ -901,6 +932,7 @@ export const packages = [
         { type: "Music track", names: ["Cave of Beasts", "Echo of Beauty (Mountain Daughter)", "Settlement"] },
       ] },
       { title: "Lumbridge Swamp Caves", build: 303, date: "2005-03-14", entities: [
+        { type: "Shortcut", names: ["Lumbridge Swamp Caves (1)"] },
         { type: "Location", names: ["Lumbridge Swamp Caves"] },
         { type: "Monster", names: ["Big frog", "Cave bug", "Cave goblin (monster)", "Cave slime", "Giant frog", "Wall beast"] },
         { type: "NPC", names: ["Candle seller", "Cave bug larva"] },
@@ -1220,8 +1252,8 @@ export const packages = [
   {
     build: 333, from: 333, date: "2005-09-06", status: "planned",
     items: [
-      { title: "New shortcuts and prayers", build: 333, star: true, note: "Patch note says 30 shortcuts; it describes 22 by area and leaves 8 undocumented on purpose.", entities: [
-        { type: "Shortcut", names: ["Trollheim to level 20 Wilderness (one-way)", "Taverley Dungeon shortcuts (2)", "Elven overpass shortcuts (3)", "Trollheim to Troll Stronghold shortcuts (4)", "Falador shortcuts (2)", "Lumbridge shortcuts (3)", "Morytania tomb bypass", "Slayer Tower spiky chains (2)", "Log balance (Sinclair Mansion)", "Slayer Dungeon shortcuts (2)", "Port Phasmatys ectopool shortcut"] },
+      { title: "New shortcuts and prayers", build: 333, star: true, entities: [
+        { type: "Shortcut", names: ["South of Varrock (13)", "Yanille (16)", "North West of Varrock (21)", "Brimhaven Dungeon entrance (22)", "South West of Falador (26)", "West of Champions' Guild (31)", "East Ardougne (33)", "North East of Tree Gnome Stronghold (37)", "Al Kharid Mine (38)", "Trollheim (41)", "Dwarven Mine (42)", "Trollheim (44)", "Cosmic Altar (46)", "Trollheim (47)", "Murder Mystery (48)", "Edgeville Dungeon (51)", "Ectofuntus (58)", "Tirannwn (59)", "Slayer Tower (61)", "Fremennik Slayer Dungeon (62)", "Wilderness Trollheim (64)", "Morytania Entrance (65)", "Cosmic Altar (66)", "Tirannwn (68)", "Taverley Dungeon (70)", "Slayer Tower (71)", "Taverley Dungeon (80)", "Fremennik Slayer Dungeon (81)", "Tirannwn (85)"] },
         { type: "Prayer", names: ["Redemption", "Retribution", "Smite"] },
         { type: "Scenery", names: ["Crevice (Fremennik Slayer Dungeon)", "Fence (Varrock)", "Jutting wall (Zanaris)", "Log balance (East Ardougne)", "Log balance (Fremennik Province)", "Narrow crevice (Dwarven Mine)", "Obstacle pipe (Edgeville Dungeon)", "Obstacle pipe (Taverley Dungeon)", "Ornate railing", "Rat wheel", "Rocks (Al Kharid)", "Rocks (Tirannwn)", "Rocks (Tree Gnome Stronghold)", "Rocks (Trollheim advanced)", "Rocks (Trollheim easy)", "Rocks (Trollheim hard)", "Rocks (Trollheim very easy)", "Rocks (Wilderness, Trollheim)", "Spikey chain (Slayer Tower)", "Stepping stone (Champions' Guild)", "Stile (South Falador Farm)", "Strange floor (Fremennik Slayer Dungeon)", "Strange floor (Taverley Dungeon)", "Underwall tunnel (Falador)", "Underwall tunnel (Grand Exchange)", "Underwall tunnel (Yanille)", "Weathered wall"] },
       ] },
@@ -1621,6 +1653,9 @@ export const packages = [
   {
     build: 374, from: 374, date: "2006-04-20", status: "planned",
     items: [
+      { title: "Agility shortcut", build: 374, date: "2006-04-20", entities: [
+        { type: "Shortcut", names: ["Burgh de Rott (25)"] },
+      ] },
       { title: "Rune Essence adjustment", build: 374, entities: [
         { type: "Item", names: ["Bob (unobtainable item)", "Pure essence"] },
         { type: "Scenery", names: ["Bones (Dragonkin)", "Low fence"] },

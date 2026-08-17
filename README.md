@@ -187,19 +187,23 @@ exist only here:
 - **Bank** — extra bank space, as `+48 bank space` / `+16 bank space`. Three in the window:
   builds 289 and 327 (+48 each) and 316 (+16, "an extra two lines" for the seed release).
   Pinned by default via `PINNED_TYPES`, since bank space matters to players.
-- **Shortcut** — the agility shortcuts from `New shortcuts and prayers` (2005-09-06, #333).
+- **Shortcut** — individual agility shortcuts, labelled `Location (level)` where the level is
+  the agility requirement *at release* (some have since changed). 33 in the window, spread
+  across the builds that added them: Western Brimhaven Dungeon (#289), Morytania Mausoleum
+  (#291), Lumbridge Swamp Caves (#304), the 29-strong batch in `New shortcuts and prayers`
+  (#333), and Burgh de Rott (#374).
 
-Because they have no wiki page, their chips would link to a 404. `LINK_TARGETS` in
-`updates-data.js` redirects them to the nearest real article (`Bank`, `Shortcuts`); anything
-absent from that map links to its own name as usual.
+Because they have no wiki page under their chip label, their links come from one of two maps
+in `updates-data.js`:
 
-**On the shortcut list:** the [Shortcuts](https://oldschool.runescape.wiki/w/Shortcuts) wiki
-page is a 633-row modern list whose own Changes section only documents 2024-and-later
-additions, so it cannot say which shortcuts are from 2005. The patch note can: it enumerates
-them by area, and that is what is recorded here. It claims **30** shortcuts, describes **22**
-across 11 areas, and explicitly leaves 8 undocumented ("a handful of extras which we'll let
-you discover for yourself") — so 11 entities cover the 22 that are actually attributable, and
-the update's `note` records the rest. Nothing was invented to reach 30.
+- `LINK_URLS` — label → a **full destination URL**, used verbatim. Shortcuts need this because
+  their URLs carry section anchors (`#Medium`) and pre-encoded characters
+  (`Champions%27_Guild`) that must not be re-encoded.
+- `LINK_TARGETS` — label → a page **title** routed through `wikiPath` (bank space → `Bank`).
+
+`hrefFor(name)` prefers a full URL, then a retargeted title, then the name itself. To add a
+shortcut: give it a `Location (level)` label in the update's `Shortcut` group and a matching
+`LINK_URLS` entry.
 
 ## Publishing to GitHub Pages
 
