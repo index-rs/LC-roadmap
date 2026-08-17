@@ -188,7 +188,7 @@ function alpha(color, a) { return color.replace(/\)$/, ' / ' + a + ')'); }
 
 class Component extends DCLogic {
   state = {
-    packages: [], currentBuild: null, hiddenTypes: new Set(),
+    packages: [], currentBuild: null, hiddenTypes: new Set(), defaultHidden: new Set(),
     search: '', onlyStarred: false, showIcons: true, allClosed: false,
     overrides: {}, badIcons: new Set(), noIconSet: new Set(), pinned: new Set(),
     pinnedTypes: new Set(), activeBuild: null,
@@ -472,6 +472,9 @@ class Component extends DCLogic {
       this.setState({
         packages: mod.packages, currentBuild: mod.CURRENT_BUILD,
         hiddenTypes: new Set(mod.HIDDEN_TYPES || []),
+        // Kept so "Show default" can restore the shipped hidden set after the
+        // user has toggled types by hand.
+        defaultHidden: new Set(mod.HIDDEN_TYPES || []),
         noIconSet: new Set(mod.NO_ICON || []),
         pinned: new Set((mod.PINNED || []).map((n) => n.toLowerCase())),
         pinnedTypes: new Set(mod.PINNED_TYPES || []),
@@ -548,6 +551,8 @@ class Component extends DCLogic {
   toggleType(t) {
     this.setState((s) => { const n = new Set(s.hiddenTypes); n.has(t) ? n.delete(t) : n.add(t); return { hiddenTypes: n }; });
   }
+  showAllTypes() { this.setState({ hiddenTypes: new Set() }); }
+  showDefaultTypes() { this.setState((s) => ({ hiddenTypes: new Set(s.defaultHidden) })); }
   btn(active, color) {
     return {
       fontSize: '13px', fontWeight: 600, padding: '8px 13px', borderRadius: '7px', cursor: 'pointer',
@@ -582,11 +587,30 @@ class Component extends DCLogic {
       color: on ? color : 'oklch(0.45 0.015 60)',
     });
 
-    const typeFilters = TYPE_ORDER.filter((t) => totals[t]).map((t) => ({
+    // Bulk actions lead the type row. Styled as neutral pill buttons, not as a
+    // toggle chip, so they read as "do this" rather than "a type that is on/off".
+    // "Show all" reveals every type; "Show default" restores HIDDEN_TYPES.
+    const anyHidden = s.hiddenTypes.size > 0;
+    const isDefault = anyHidden && s.hiddenTypes.size === s.defaultHidden.size
+      && [...s.hiddenTypes].every((t) => s.defaultHidden.has(t));
+    const actionStyle = (enabled) => ({
+      fontSize: '11.5px', fontWeight: 600, padding: '4px 10px', borderRadius: '20px',
+      fontFamily: "'IBM Plex Sans',sans-serif", whiteSpace: 'nowrap',
+      cursor: enabled ? 'pointer' : 'default',
+      border: '1px solid ' + (enabled ? 'oklch(0.4 0.02 55)' : 'oklch(0.26 0.014 55)'),
+      background: 'transparent',
+      color: enabled ? 'oklch(0.82 0.012 60)' : 'oklch(0.4 0.015 60)',
+    });
+    const typeFilters = [
+      { label: 'Show all', onClick: () => { if (anyHidden) this.showAllTypes(); },
+        style: actionStyle(anyHidden) },
+      { label: 'Show default', onClick: () => { if (!isDefault) this.showDefaultTypes(); },
+        style: actionStyle(!isDefault) },
+    ].concat(TYPE_ORDER.filter((t) => totals[t]).map((t) => ({
       label: t + ' ' + totals[t],
       onClick: () => this.toggleType(t),
       style: chipStyle(!s.hiddenTypes.has(t), TYPE_COLORS[t]),
-    }));
+    })));
 
     // The detail layers sit in the same SHOW row as the entity types, but each
     // chip carries two controls: the label shows/hides the layer, the caret
