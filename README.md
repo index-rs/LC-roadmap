@@ -179,6 +179,28 @@ individual entity names, and deleting entries from `entities` works fine.
 `NPC`, `Scenery`, `Location` and `Music track` are hidden by default via `HIDDEN_TYPES`
 (2,000+ rows of mostly-noise); every type is toggleable from the filter bar at runtime.
 
+### Synthetic types
+
+Two types describe things a patch note added that the wiki has no entity page for, so they
+exist only here:
+
+- **Bank** — extra bank space, as `+48 bank space` / `+16 bank space`. Three in the window:
+  builds 289 and 327 (+48 each) and 316 (+16, "an extra two lines" for the seed release).
+  Pinned by default via `PINNED_TYPES`, since bank space matters to players.
+- **Shortcut** — the agility shortcuts from `New shortcuts and prayers` (2005-09-06, #333).
+
+Because they have no wiki page, their chips would link to a 404. `LINK_TARGETS` in
+`updates-data.js` redirects them to the nearest real article (`Bank`, `Shortcuts`); anything
+absent from that map links to its own name as usual.
+
+**On the shortcut list:** the [Shortcuts](https://oldschool.runescape.wiki/w/Shortcuts) wiki
+page is a 633-row modern list whose own Changes section only documents 2024-and-later
+additions, so it cannot say which shortcuts are from 2005. The patch note can: it enumerates
+them by area, and that is what is recorded here. It claims **30** shortcuts, describes **22**
+across 11 areas, and explicitly leaves 8 undocumented ("a handful of extras which we'll let
+you discover for yourself") — so 11 entities cover the 22 that are actually attributable, and
+the update's `note` records the rest. Nothing was invented to reach 30.
+
 ## Publishing to GitHub Pages
 
 Settings → Pages → deploy from branch, root. `.nojekyll` is present so files are served as-is.
@@ -209,9 +231,11 @@ affiliated with Jagex or Weird Gloop.
   update itself is correctly placed: 28 of Farming's farm-patch plants (`Barley (plant)`,
   `Redberry bush`, …) are dated 2005-06-06 to the seed prep update, and one Keldagrim music
   track sits in Fight Pits. Neither is duplicated elsewhere.
-- `New fishing skill and more cooking` appears in two packages. Both fishing spots cite a wiki
-  update page of that name from **2001**, while the spots themselves were released 2005-05-31
-  and 2006-05-02. The title is the wiki's; the placement follows the entities' own dates.
+- `New fishing skill and more cooking` in #316 is a wiki quirk: `Fishing spot (frogspawn)`
+  cites an update page of that name from **2001**, though the spot itself was released
+  2005-05-31. The title is the wiki's and the placement follows the entity's own date. (The
+  duplicate that used to sit in #377 is gone — its content, the Piscatoris fishing spot, now
+  lives under `Return of the Wise Old Man!` where its 2006-05-02 date belongs.)
 
 ### Verifying package assignment
 

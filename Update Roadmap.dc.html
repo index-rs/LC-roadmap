@@ -140,8 +140,11 @@ const TYPE_COLORS = {
   Currency: 'oklch(0.8 0.11 85)', 'Game mechanic': 'oklch(0.68 0.03 60)',
   Organisation: 'oklch(0.68 0.06 200)', Scenery: 'oklch(0.58 0.02 60)',
   'Music track': 'oklch(0.62 0.05 300)',
+  // Synthetic types: things a patch note added that have no entity page of their
+  // own. Bank = extra bank space, Shortcut = the 2005 agility shortcuts.
+  Bank: 'oklch(0.8 0.13 55)', Shortcut: 'oklch(0.74 0.12 190)',
 };
-const TYPE_ORDER = ['Quest','Miniquest','Skill','Activity','Location','Monster','NPC','Item','Spell','Prayer','Emote','Shop','Currency','Game mechanic','Organisation','Scenery','Music track'];
+const TYPE_ORDER = ['Quest','Miniquest','Skill','Activity','Bank','Shortcut','Location','Monster','NPC','Item','Spell','Prayer','Emote','Shop','Currency','Game mechanic','Organisation','Scenery','Music track'];
 const ICON_TYPES = new Set(['Item', 'Currency']);
 // Tone for a change's heuristic `kinds` tag. Only the first recognised tag is
 // shown — a change routinely carries three, and painting them all is noise.
@@ -172,6 +175,11 @@ function fmtDate(iso) {
   return new Date(iso + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 function wikiPath(name) { return encodeURIComponent(name.replace(/ /g, '_')); }
+// Synthetic entities ("+48 bank space", the shortcut groups) have no wiki page.
+// LINK_TARGETS redirects their chips to the nearest real article so no chip is a
+// link to a 404. Populated from updates-data.js at load.
+let LINK_TARGETS = {};
+function articleFor(name) { return LINK_TARGETS[name] || name; }
 function iconUrl(name) {
   const t = name.charAt(0).toUpperCase() + name.slice(1);
   return WIKI + '/images/' + wikiPath(t) + '.png';
@@ -211,7 +219,7 @@ class Component extends DCLogic {
         }));
         kids.push(h('span', { key: 't' }, n));
         return h('a', {
-          key: n, href: WIKI + '/w/' + wikiPath(n), target: '_blank', rel: 'noopener',
+          key: n, href: WIKI + '/w/' + wikiPath(articleFor(n)), target: '_blank', rel: 'noopener',
           title: pin ? 'Pinned' : undefined,
           style: {
             display: 'inline-flex', alignItems: 'center', gap: '5px',
@@ -368,7 +376,7 @@ class Component extends DCLogic {
         }, ', '));
         const p = this.pinnedIn(c.type, name);
         links.push(h('a', {
-          key: 'e' + k, href: WIKI + '/w/' + wikiPath(name), target: '_blank', rel: 'noopener',
+          key: 'e' + k, href: WIKI + '/w/' + wikiPath(articleFor(name)), target: '_blank', rel: 'noopener',
           title: p ? 'Pinned' : undefined,
           style: {
             color: p ? 'oklch(0.88 0.09 85)' : tc, textDecoration: 'none',
@@ -460,6 +468,7 @@ class Component extends DCLogic {
 
   componentDidMount() {
     import('./updates-data.js').then((mod) => {
+      LINK_TARGETS = mod.LINK_TARGETS || {};
       this.setState({
         packages: mod.packages, currentBuild: mod.CURRENT_BUILD,
         hiddenTypes: new Set(mod.HIDDEN_TYPES || []),

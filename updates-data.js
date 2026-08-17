@@ -28,9 +28,505 @@ export const CURRENT_BUILD = 274;
 // Entity types that are pinned wholesale — every member is highlighted and
 // floats to the front of its group, without being listed by name below.
 // Quests and skills are the headline content of any build, so they always lead.
-export const PINNED_TYPES = ["Quest", "Skill", "Miniquest", "Activity", "Spell", "Emote", "Prayer"];
+
+// Synthetic entities: these describe something a patch note added that the
+// wiki has no page for, so their chips link to the nearest real article
+// instead of a 404.
+export const LINK_TARGETS = {
+  "Trollheim to level 20 Wilderness (one-way)": "Shortcuts",
+  "Taverley Dungeon shortcuts (2)": "Shortcuts",
+  "Elven overpass shortcuts (3)": "Shortcuts",
+  "Trollheim to Troll Stronghold shortcuts (4)": "Shortcuts",
+  "Falador shortcuts (2)": "Shortcuts",
+  "Lumbridge shortcuts (3)": "Shortcuts",
+  "Morytania tomb bypass": "Shortcuts",
+  "Slayer Tower spiky chains (2)": "Shortcuts",
+  "Log balance (Sinclair Mansion)": "Shortcuts",
+  "Slayer Dungeon shortcuts (2)": "Shortcuts",
+  "Port Phasmatys ectopool shortcut": "Shortcuts",
+  "+48 bank space": "Bank",
+  "+16 bank space": "Bank",
+};
+
+export const PINNED_TYPES = ["Quest", "Skill", "Miniquest", "Activity", "Spell", "Emote", "Prayer", "Bank"];
 
 export const PINNED = [
+  // Slayer monsters and masters
+  "Aberrant spectre",
+  "Abyssal demon",
+  "Banshee",
+  "Basilisk",
+  "Basilisk (unused)",
+  "Bloodveld",
+  "Cave crawler",
+  "Cockatrice",
+  "Cockatrice (unused)",
+  "Crawling Hand",
+  "Dark beast",
+  "Death spawn",
+  "Desert Lizard",
+  "Dust devil",
+  "Gargoyle",
+  "Harpie Bug Swarm",
+  "Infernal Mage",
+  "Jelly",
+  "Kurask",
+  "Mogre",
+  "Nechryael",
+  "Pyrefiend",
+  "Rockslug",
+  "Skeletal Wyvern",
+  "Smokedevil",
+  "Turoth",
+  "Zygomite",
+  "Chaeldar",
+  "Duradel",
+  "Mazchna",
+  "Turael",
+
+  // Banks
+  "Burgh de Rott bank",
+  "Etceteria bank",
+  "Keldagrim bank",
+  "Lletya bank",
+  "Mor Ul Rek north bank",
+  "Mos Le'Harmless bank",
+  "Nardah bank",
+  "Piscatoris bank",
+  "Port Phasmatys bank",
+  "Void Knights' Outpost bank",
+
+  // Barrows brothers
+  "Ahrim the Blighted",
+  "Dharok the Wretched",
+  "Guthan the Infested",
+  "Karil the Tainted",
+  "Torag the Corrupted",
+  "Verac the Defiled",
+  "Barrows gloves",
+
+  // TzHaar / Fight Pits
+  "Mor Ul Rek",
+  "North Mor Ul Rek mine",
+  "Tok-Xil",
+  "Tz-Kek",
+  "Tz-Kih",
+  "TzHaar-Hur",
+  "TzHaar-Ket",
+  "TzHaar-Mej",
+  "TzHaar-Xil",
+  "TzTok-Jad",
+  "Tokkul",
+  "Toktz-ket-xil",
+  "Toktz-mej-tal",
+  "Toktz-xil-ak",
+  "Toktz-xil-ek",
+  "Toktz-xil-ul",
+  "Tzhaar-ket-em",
+  "Tzhaar-ket-om",
+  "TzHaar-Hur-Lek's Ore and Gem Store",
+  "TzHaar-Hur-Tel's Equipment Store",
+  "TzHaar-Mej-Roh's Rune Store",
+  "Amulet of fury",
+  "Obsidian cape",
+  "Ring of stone",
+  "Uncut onyx",
+
+  // Rune pouches and tiaras (Abyss)
+  "Air tiara",
+  "Binding necklace",
+  "Body tiara",
+  "Chaos tiara",
+  "Cosmic tiara",
+  "Death talisman",
+  "Death tiara",
+  "Dust rune",
+  "Earth tiara",
+  "Elemental talisman",
+  "Fire tiara",
+  "Lava rune",
+  "Law tiara",
+  "Mind tiara",
+  "Mist rune",
+  "Mud rune",
+  "Nature tiara",
+  "Smoke rune",
+  "Soul tiara",
+  "Steam rune",
+  "Tiara mould",
+  "Water tiara",
+  "Battle Runes",
+  "Pure essence",
+
+  // White (Initiate/Proselyte) equipment
+  "White 2h sword",
+  "White battleaxe",
+  "White boots",
+  "White chainbody",
+  "White claws",
+  "White dagger",
+  "White full helm",
+  "White gloves",
+  "White halberd",
+  "White kiteshield",
+  "White longsword",
+  "White mace",
+  "White magic staff",
+  "White med helm",
+  "White platebody",
+  "White platelegs",
+  "White plateskirt",
+  "White scimitar",
+  "White sq shield",
+  "White sword",
+  "White warhammer",
+  "Initiate cuisse",
+  "Initiate hauberk",
+  "Initiate sallet",
+  "Emerald Benedict",
+
+  // Fremennik / Waterbirth
+  "Waterbirth Island",
+  "Waterbirth Island Dungeon",
+  "Rock-shell boots",
+  "Rock-shell gloves",
+  "Rock-shell helm",
+  "Rock-shell legs",
+  "Rock-shell plate",
+  "Skeletal boots",
+  "Skeletal bottoms",
+  "Skeletal gloves",
+  "Skeletal helm",
+  "Skeletal top",
+  "Spined body",
+  "Spined boots",
+  "Spined chaps",
+  "Spined gloves",
+  "Spined helm",
+
+  // Tai Bwo Wannai / Karamja
+  "Hardwood Grove",
+  "Broodoo shield (combat)",
+  "Broodoo shield (disease)",
+  "Broodoo shield (poison)",
+  "Snakeskin bandana",
+  "Snakeskin body",
+  "Snakeskin boots",
+  "Snakeskin chaps",
+  "Snakeskin vambraces",
+  "Teak logs",
+  "Trading sticks",
+  "Tribal mask (combat)",
+  "Tribal mask (disease)",
+  "Tribal mask (poison)",
+  "Tribal top (blue)",
+  "Tribal top (brown)",
+  "Tribal top (pink)",
+  "Tribal top (yellow)",
+  "Villager armband (blue)",
+  "Villager armband (brown)",
+  "Villager armband (pink)",
+  "Villager armband (yellow)",
+  "Villager hat (blue)",
+  "Villager hat (brown)",
+  "Villager hat (pink)",
+  "Villager hat (yellow)",
+  "Villager robe (blue)",
+  "Villager robe (brown)",
+  "Villager robe (pink)",
+  "Villager robe (yellow)",
+  "Villager sandals (blue)",
+  "Villager sandals (brown)",
+  "Villager sandals (pink)",
+  "Villager sandals (yellow)",
+
+  // Castle Wars decoratives
+  "Castlewars cloak (Saradomin)",
+  "Castlewars cloak (Zamorak)",
+  "Castlewars hood (Saradomin)",
+  "Castlewars hood (Zamorak)",
+  "Decorative armour (gold platebody)",
+  "Decorative armour (gold platelegs)",
+  "Decorative armour (white platebody)",
+  "Decorative armour (white platelegs)",
+  "Decorative helm (gold)",
+  "Decorative helm (white)",
+  "Decorative shield (gold)",
+  "Decorative shield (white)",
+  "Decorative sword (gold)",
+  "Decorative sword (white)",
+
+  // Lumbridge Swamp Caves / Dorgesh-Kaan
+  "Big frog",
+  "Cave bug",
+  "Cave goblin (monster)",
+  "Cave slime",
+  "Giant frog",
+  "Wall beast",
+  "Bullseye lantern",
+  "Sapphire lantern",
+  "Spiny helmet",
+  "Gold helmet",
+  "Mining helmet",
+  "Frog mask",
+  "Frog token",
+
+  // Farming
+  "Acorn",
+  "Bird nest (empty)",
+  "Bird nest (ring)",
+  "Bird nest (seeds, 2005-2019)",
+  "Bird nest (Wyson, 2006\u20132016)",
+  "Mushroom spore",
+  "Supercompost",
+  "Compost potion",
+  "Magic secateurs",
+  "Master Farmer",
+  "Lumbridge Guide",
+  "Wise Old Man",
+  "Greenman's ale(m)",
+  "Axeman's folly(m)",
+  "Slayer's respite(m)",
+  "Mature wmb",
+  "Mature cider",
+  "Chef's delight(m)",
+
+  // Elf / Mourning's End
+  "Lletya",
+  "Crystal weapon seed",
+  "Crystal teleport seed",
+
+  // Keldagrim
+  "Keldagrim south-west mine",
+  "Quarry",
+  "Granite",
+  "Sandstone",
+  "Granite legs",
+  "Gadderhammer",
+
+  // Desert (Ali Morrisane, Pollnivneach, Nardah)
+  "Nardah",
+  "Zahur",
+  "Camel mask",
+  "Camulet",
+  "Desert legs",
+  "Desert robes",
+  "Desert top",
+  "Desert top (overcoat)",
+  "Black desert robe",
+  "Black desert shirt",
+  "Fez",
+  "Maple blackjack",
+  "Maple blackjack(d)",
+  "Maple blackjack(o)",
+  "Menaphite purple hat",
+  "Menaphite purple kilt",
+  "Menaphite purple robe",
+  "Menaphite purple top",
+  "Menaphite red hat",
+  "Menaphite red kilt",
+  "Menaphite red robe",
+  "Menaphite red top",
+  "Agility Pyramid",
+  "Magic carpet (animation item)",
+  "Rug Merchant",
+
+  // Desert Treasure / demons
+  "Darklight",
+  "Demonic sigil",
+  "Guthix mjolnir",
+  "Saradomin mjolnir",
+  "Zamorak mjolnir",
+
+  // Mos Le'Harmless / pirates
+  "Mos Le'Harmless",
+  "Lucky cutlass",
+  "Rapier",
+  "Pirate boots",
+  "Pirate bandana (blue)",
+  "Pirate bandana (brown)",
+  "Pirate bandana (red)",
+  "Pirate bandana (white)",
+  "Pirate leggings (beige)",
+  "Pirate leggings (blue)",
+  "Pirate leggings (brown)",
+  "Pirate leggings (red)",
+  "Stripy pirate shirt (blue)",
+  "Stripy pirate shirt (brown)",
+  "Stripy pirate shirt (red)",
+  "Dodgy Mike's Second Hand Clothing.",
+
+  // Treasure Trails rewards
+  "Adamant shield (h1)",
+  "Adamant shield (h2)",
+  "Adamant shield (h3)",
+  "Adamant shield (h4)",
+  "Adamant shield (h5)",
+  "Black shield (h1)",
+  "Black shield (h2)",
+  "Black shield (h3)",
+  "Black shield (h4)",
+  "Black shield (h5)",
+  "Rune shield (h1)",
+  "Rune shield (h2)",
+  "Rune shield (h3)",
+  "Rune shield (h4)",
+  "Rune shield (h5)",
+  "Black boater",
+  "Blue boater",
+  "Green boater",
+  "Orange boater",
+  "Red boater",
+  "Blue d'hide body (g)",
+  "Blue d'hide body (t)",
+  "Blue d'hide chaps (g)",
+  "Blue d'hide chaps (t)",
+  "Green d'hide body (g)",
+  "Green d'hide body (t)",
+  "Green d'hide chaps (g)",
+  "Green d'hide chaps (t)",
+  "Studded body (g)",
+  "Studded body (t)",
+  "Studded chaps (g)",
+  "Studded chaps (t)",
+  "Blue skirt (g)",
+  "Blue skirt (t)",
+  "Blue wizard hat (g)",
+  "Blue wizard hat (t)",
+  "Blue wizard robe (g)",
+  "Blue wizard robe (t)",
+  "Enchanted hat",
+  "Enchanted robe",
+  "Enchanted top",
+
+  // Cooking / Cook-X
+  "Admiral pie",
+  "Garden pie",
+  "Mud pie",
+  "Summer pie",
+  "Wild pie",
+  "Pie Shop",
+  "Baked potato",
+  "Potato with butter",
+  "Potato with cheese",
+  "Spicy stew",
+  "Frying pan",
+  "Culinaromancer's Chest",
+  "Monkfish",
+  "Saradomin brew",
+
+  // Firemaking / misc tools
+  "Blue firelighter",
+  "Green firelighter",
+  "Red firelighter",
+  "Insulated boots",
+  "Holy wrench",
+  "Wyvern bones",
+
+  // Champion scrolls
+  "Earth warrior champion scroll",
+  "Ghoul champion scroll",
+  "Giant champion scroll",
+  "Goblin champion scroll",
+  "Hobgoblin champion scroll",
+  "Imp champion scroll",
+  "Jogre champion scroll",
+  "Leon's champion scroll",
+  "Lesser demon champion scroll",
+  "Skeleton champion scroll",
+  "Zombie champion scroll",
+
+  // Random events
+  "Cap'n Hand",
+  "Capt' Arnav",
+  "Dr Ford",
+  "Dr Jekyll",
+  "Evil Bob",
+  "Evil Chicken",
+  "Freaky Forester",
+  "Frog (Kiss the frog)",
+  "Frog Prince",
+  "Frog Princess",
+  "Giant Rock Crab",
+  "Pheasant",
+  "Prison Pete",
+  "Quiz Master",
+  "Rick Turpentine",
+  "Sandwich lady",
+  "Hooded Stranger",
+  "Mystery box",
+  "Pink cape",
+  "Lederhosen hat",
+  "Lederhosen shorts",
+  "Lederhosen top",
+  "Royal frog blouse",
+  "Royal frog leggings",
+  "Royal frog skirt",
+  "Royal frog tunic",
+  "Zombie boots",
+  "Zombie gloves",
+  "Zombie head",
+  "Zombie mask",
+  "Zombie shirt",
+  "Zombie trousers",
+  "Camo bottoms",
+  "Camo helmet",
+  "Camo top",
+  "Fishbowl",
+  "Fishbowl helmet",
+  "Flippers",
+  "Mudskipper hat",
+  "Blue marionette",
+  "Green marionette",
+  "Red marionette",
+  "Bobble hat",
+  "Bobble scarf",
+  "Jester hat",
+  "Jester scarf",
+  "Tri-jester hat",
+  "Tri-jester scarf",
+  "Woolly hat",
+  "Woolly scarf",
+
+  // H.A.M.
+  "Ham boots",
+  "Ham cloak",
+  "Ham gloves",
+  "Ham hood",
+  "Ham logo",
+  "Ham robe",
+  "Ham shirt",
+
+  // Achievement / diary tomes
+  "Agility tome",
+  "Firemaking tome",
+  "Fishing tome",
+  "Mining tome",
+  "Slayer tome",
+  "Thieving tome",
+  "Woodcutting tome",
+
+  // Agility courses
+  "Werewolf Agility Course",
+  "Ape Atoll Agility Course",
+
+  // Giant Mole
+  "Giant Mole",
+  "Mole claw",
+  "Mole skin",
+
+  // Piscatoris
+  "Piscatoris Fishing Colony",
+  "Piscatoris mine",
+
+  // Morytania
+  "Burgh de Rott",
+
+  // Misc notable
+  "Dragon 2h sword",
+  "ScapeRune",
+  "Yin yang amulet",
+  "Easter ring",
   // Farming seeds (Seeds, Bankspace And Advisors)
   "Apple tree seed",
   "Asgarnian seed",
@@ -205,7 +701,6 @@ export const PINNED = [
   "Antidote++",
   "Weapon poison(+)",
   "Weapon poison(++)",
-  "Slayer's respite",
   "Grimy snapdragon",
   "Grimy toadflax",
   "Sophanem",
@@ -292,6 +787,7 @@ export const packages = [
         { type: "Music track", names: ["Chamber", "Deep Down", "Haunted Mine (music track)", "Spooky 2"] },
       ] },
       { title: "Troll Romance, Banks and Chat", build: 285, date: "2005-01-05", entities: [
+        { type: "Bank", names: ["+48 bank space"] },
         { type: "Quest", names: ["Troll Romance"] },
         { type: "Location", names: ["Trollweiss Dungeon", "Trollweiss Mountain"] },
         { type: "Monster", names: ["Arrg", "Ice troll", "Ice wolf"] },
@@ -309,7 +805,7 @@ export const packages = [
         { type: "Music track", names: ["Stillness"] },
       ] },
       { title: "Trawler Game Update", build: 288, date: "2005-01-10" },
-      { title: "Karamja Dungeon", build: 289, entities: [
+      { title: "Karamja Dungeon", build: 289, star: true, entities: [
         { type: "Location", names: ["Brimhaven Dungeon"] },
         { type: "Monster", names: ["Baby red dragon", "Bronze dragon", "Iron dragon", "Steel dragon", "Wild dog"] },
         { type: "NPC", names: ["Saniboch"] },
@@ -347,7 +843,7 @@ export const packages = [
   {
     build: 295, from: 292, date: "2005-02-15", status: "planned", uncertain: true,
     items: [
-      { title: "Roving Elves", build: 292, date: "2005-02-07", entities: [
+      { title: "Roving Elves", build: 292, date: "2005-02-07", star: true, entities: [
         { type: "Quest", names: ["Roving Elves"] },
         { type: "Monster", names: ["Moss Guardian"] },
         { type: "NPC", names: ["Eluned", "Islwyn"] },
@@ -380,7 +876,7 @@ export const packages = [
         { type: "Music track", names: ["Monster Melee"] },
       ] },
       { title: "Wilderness Capes Change", build: 297, date: "2005-02-23" },
-      { title: "One Small Favour", build: 298, date: "2005-02-28", star: true, entities: [
+      { title: "One Small Favour", build: 298, date: "2005-02-28", entities: [
         { type: "Quest", names: ["One Small Favour"] },
         { type: "Monster", names: ["Dwarf gang member", "Slagilith"] },
         { type: "NPC", names: ["Gnormadium Avlafrim", "Hammerspike Stoutbeard", "Petra Fiyed", "Phantuwti Fanstuwi Farsight", "Seth Groats", "Tassie Slipcast", "Tindel Marchant"] },
@@ -412,7 +908,7 @@ export const packages = [
         { type: "Scenery", names: ["Connected stalagmites", "Dark hole (Lumbridge Swamp)", "Gas hole (Lumbridge Swamp Caves)", "Lamp oil still", "Large stalagmite", "Stepping stone (Lumbridge Swamp Caves)"] },
         { type: "Music track", names: ["Cave of the Goblins"] },
       ] },
-      { title: "Magic and Wilderness Updates", build: 303, date: "2005-03-14", entities: [
+      { title: "Magic and Wilderness Updates", build: 303, date: "2005-03-14", star: true, entities: [
         { type: "Spell", names: ["Tele Block", "Teleother Camelot", "Teleother Falador", "Teleother Lumbridge"] },
         { type: "Scenery", names: ["Lever (Mage Arena bank)", "Lever (Mage Arena)"] },
       ] },
@@ -438,7 +934,7 @@ export const packages = [
   {
     build: 306, from: 305, date: "2005-04-04", status: "planned", uncertain: true,
     items: [
-      { title: "Weapons Update", build: 305, date: "2005-03-29", entities: [
+      { title: "Weapons Update", build: 305, date: "2005-03-29", star: true, entities: [
         { type: "NPC", names: ["Brian (Rimmington)", "Monkey boy"] },
         { type: "Item", names: ["Dragon plateskirt", "Dragon scimitar"] },
         { type: "Shop", names: ["Brian's Archery Supplies."] },
@@ -526,7 +1022,7 @@ export const packages = [
         { type: "Scenery", names: ["An ogre standard", "Bell (Wizards' Guild)", "Bookcase (Necromancer Tower)", "Broken lectern", "Crushed barricade", "Cupboard (Zogre Flesh Eaters)", "Drawers (Zogre Flesh Eaters)", "Fungus pattern", "Ogre barricade", "Ogre Coffin", "Ogre Coffin (Zogre Flesh Eaters)", "Ogre Drums", "Ogre fire", "Signpost (Jiggig)", "Stand (Zogre Flesh Eaters)", "Standing torch (Jiggig)", "Wardrobe (Zogre Flesh Eaters)"] },
         { type: "Music track", names: ["Romper Chomper", "Wayward", "Zogre Dance"] },
       ] },
-      { title: "Keldagrim - The Dwarven City", build: 314, date: "2005-05-31", star: true, entities: [
+      { title: "Keldagrim - The Dwarven City", build: 314, date: "2005-05-31", entities: [
         { type: "Quest", names: ["The Giant Dwarf"] },
         { type: "Activity", names: ["Keldagrim tasks"] },
         { type: "Location", names: ["Keldagrim", "Keldagrim bank", "Keldagrim Library", "Keldagrim north-east mine", "Keldagrim Palace", "Keldagrim south-west mine", "Trade Octagon", "Wemund's Wrench Warehouse"] },
@@ -553,7 +1049,8 @@ export const packages = [
       { title: "New fishing skill and more cooking", build: 314, date: "2005-05-31", entities: [
         { type: "NPC", names: ["Fishing spot (frogspawn)"] },
       ] },
-      { title: "Seeds, Bankspace And Advisors", build: 316, entities: [
+      { title: "Seeds, Bankspace And Advisors", build: 316, star: true, entities: [
+        { type: "Bank", names: ["+16 bank space"] },
         { type: "Activity", names: ["Wise Old Man tasks"] },
         { type: "Monster", names: ["Market Guard (Draynor)", "Thing under the bed"] },
         { type: "NPC", names: ["Donie", "Gee", "Lumbridge Guide", "Master Farmer", "Olivia", "Pig", "Piglet", "Wise Old Man"] },
@@ -567,8 +1064,8 @@ export const packages = [
   {
     build: 317, from: 317, date: "2005-06-13", status: "planned", uncertain: true,
     items: [
-      { title: "Rune Shop Changes", build: 317 },
-      { title: "RuneCraft Update and Tweaks", build: 317, entities: [
+      { title: "Rune Shop Changes", star: true, build: 317 },
+      { title: "RuneCraft Update and Tweaks", build: 317, star: true, entities: [
         { type: "Miniquest", names: ["Enter the Abyss"] },
         { type: "Location", names: ["Abyss", "Abyssal Space"] },
         { type: "Monster", names: ["Abyssal guardian", "Abyssal leech", "Abyssal walker"] },
@@ -611,7 +1108,7 @@ export const packages = [
   {
     build: 321, from: 320, date: "2005-07-07", status: "planned",
     items: [
-      { title: "Magic Carpet Ride", build: 320, date: "2005-07-05", entities: [
+      { title: "Magic Carpet Ride", build: 320, date: "2005-07-05", star: true, entities: [
         { type: "NPC", names: ["Monkey (magic carpet)", "Rug Merchant", "Rug Station Attendant"] },
         { type: "Item", names: ["Magic carpet (animation item)"] },
         { type: "Scenery", names: ["Carpet Exhibit", "Hookah", "Little tent", "Rolled up rug", "Rolled up rugs", "Rug (magic carpet)"] },
@@ -647,7 +1144,7 @@ export const packages = [
   {
     build: 326, from: 326, date: "2005-07-26", status: "planned",
     items: [
-      { title: "The Forgettable Tale...", build: 326, entities: [
+      { title: "The Forgettable Tale...", build: 326, star: true, entities: [
         { type: "Quest", names: ["Forgettable Tale..."] },
         { type: "Miniquest", names: ["Curse of the Empty Lord"] },
         { type: "NPC", names: ["Chaos dwarf (Forgettable Tale...)", "Colonel Grimsson", "Dhalak", "Grunsh", "Kharrim", "Lennissa", "Rennard", "Valdez", "Viggora"] },
@@ -661,7 +1158,9 @@ export const packages = [
   {
     build: 327, from: 327, date: "2005-08-01", status: "planned", uncertain: true,
     items: [
-      { title: "48 more bank slots for members", build: 327 },
+      { title: "48 more bank slots for members", star: true, build: 327, entities: [
+        { type: "Bank", names: ["+48 bank space"] },
+      ] },
       { title: "Waterbirth Island", build: 327, star: true, entities: [
         { type: "Activity", names: ["Kiss the frog", "Lost and Found"] },
         { type: "Location", names: ["Waterbirth Island", "Waterbirth Island Dungeon"] },
@@ -721,7 +1220,8 @@ export const packages = [
   {
     build: 333, from: 333, date: "2005-09-06", status: "planned",
     items: [
-      { title: "New shortcuts and prayers", build: 333, entities: [
+      { title: "New shortcuts and prayers", build: 333, star: true, note: "Patch note says 30 shortcuts; it describes 22 by area and leaves 8 undocumented on purpose.", entities: [
+        { type: "Shortcut", names: ["Trollheim to level 20 Wilderness (one-way)", "Taverley Dungeon shortcuts (2)", "Elven overpass shortcuts (3)", "Trollheim to Troll Stronghold shortcuts (4)", "Falador shortcuts (2)", "Lumbridge shortcuts (3)", "Morytania tomb bypass", "Slayer Tower spiky chains (2)", "Log balance (Sinclair Mansion)", "Slayer Dungeon shortcuts (2)", "Port Phasmatys ectopool shortcut"] },
         { type: "Prayer", names: ["Redemption", "Retribution", "Smite"] },
         { type: "Scenery", names: ["Crevice (Fremennik Slayer Dungeon)", "Fence (Varrock)", "Jutting wall (Zanaris)", "Log balance (East Ardougne)", "Log balance (Fremennik Province)", "Narrow crevice (Dwarven Mine)", "Obstacle pipe (Edgeville Dungeon)", "Obstacle pipe (Taverley Dungeon)", "Ornate railing", "Rat wheel", "Rocks (Al Kharid)", "Rocks (Tirannwn)", "Rocks (Tree Gnome Stronghold)", "Rocks (Trollheim advanced)", "Rocks (Trollheim easy)", "Rocks (Trollheim hard)", "Rocks (Trollheim very easy)", "Rocks (Wilderness, Trollheim)", "Spikey chain (Slayer Tower)", "Stepping stone (Champions' Guild)", "Stile (South Falador Farm)", "Strange floor (Fremennik Slayer Dungeon)", "Strange floor (Taverley Dungeon)", "Underwall tunnel (Falador)", "Underwall tunnel (Grand Exchange)", "Underwall tunnel (Yanille)", "Weathered wall"] },
       ] },
@@ -740,7 +1240,7 @@ export const packages = [
         { type: "Scenery", names: ["Cave entrance (to Mor Ul Rek)", "Cave exit (Mor Ul Rek)", "Egg (TzHaar)", "Hot vent door", "Lava forge", "Sulphur vent", "TzHaar statue", "Viewing orb (TzHaar Fight Pit)"] },
         { type: "Music track", names: ["Fire and Brimstone", "In the Pits", "Last Man Standing! (Fight Pits)", "Loss (Keldagrim Trading)", "Profit (Keldagrim Trading)", "TzHaar!"] },
       ] },
-      { title: "Cook-X", build: 334, date: "2005-09-12" },
+      { title: "Cook-X", build: 334, star: true, date: "2005-09-12" },
       { title: "Security feature - Bank PIN", build: 336, star: true, entities: [
         { type: "Scenery", names: ["Bank Deposit Box"] },
       ] },
@@ -939,7 +1439,7 @@ export const packages = [
         { type: "Scenery", names: ["Sandy's Coffee Mug", "Sandy's Desk", "Waste Paper Bin"] },
         { type: "Music track", names: ["Autumn in Bridgelum", "Bert's Lovely Sand (Hand in the Sand)", "Freedom at Last! (Prison Pete)", "In the Clink", "Wrong Key! (Prison Pete)"] },
       ] },
-      { title: "Agility Pyramid", build: 353, date: "2006-01-16", entities: [
+      { title: "Agility Pyramid", build: 353, date: "2006-01-16", star: true, entities: [
         { type: "Location", names: ["Agility Pyramid"] },
         { type: "NPC", names: ["Pyramid block (Agility Pyramid)", "Simon Templeton"] },
         { type: "Item", names: ["Pyramid top"] },
@@ -988,7 +1488,7 @@ export const packages = [
   {
     build: 362, from: 358, date: "2006-02-22", status: "planned",
     items: [
-      { title: "Updates, updates and more updates...", build: 360, date: "2006-02-20", entities: [
+      { title: "Updates, updates and more updates...", build: 360, date: "2006-02-20", star: true, entities: [
         { type: "Location", names: ["Killerwatt plane"] },
         { type: "Monster", names: ["Barbarian", "Black Guard", "Chaos Elemental", "Cuffs", "Drunken man", "Guard (Doric's hut)", "Jeff", "Killerwatt", "Narf", "Rusty", "Skeleton (Draynor Manor)", "Woman (historical)"] },
         { type: "NPC", names: ["Apprentice workman", "Black swan", "Cecilia", "Emily", "Engineer", "Engineering assistant", "Gadrin", "Hunding", "Kaylee", "Mourner (Plague City)", "Norman", "Pious Pete", "Raccoon", "Romily Weaklax", "Squirrel", "Storm Cloud", "Swan", "Sweeper", "Taper", "Tina", "Workman"] },
@@ -1002,7 +1502,7 @@ export const packages = [
   {
     build: 363, from: 363, date: "2006-02-27", status: "planned",
     items: [
-      { title: "A Fairy Tale Part I - Growing Pains", build: 363, entities: [
+      { title: "A Fairy Tale Part I - Growing Pains", build: 363, star: true, entities: [
         { type: "Quest", names: ["Fairytale I - Growing Pains"] },
         { type: "Location", names: ["Shady grove"] },
         { type: "Monster", names: ["Baby tanglefoot", "Tanglefoot"] },
@@ -1016,7 +1516,7 @@ export const packages = [
   {
     build: 365, from: 364, date: "2006-03-15", status: "planned",
     items: [
-      { title: "Canoeing, Zygomites and a Mole!", build: 364, date: "2006-03-07", entities: [
+      { title: "Canoeing, Zygomites and a Mole!", build: 364, date: "2006-03-07", star: true, entities: [
         { type: "Location", names: ["Mole Hole", "Varrock crypt"] },
         { type: "Monster", names: ["Giant Mole", "Zygomite"] },
         { type: "NPC", names: ["Baby Mole (NPC)", "Barfy Bill", "Cave Scenery", "Cavemouth", "Draul Leptoc", "Hari", "Jeremy Clerksin", "Martina Scorsby", "Phillipa", "Sigurd", "Tarquin"] },
@@ -1131,7 +1631,7 @@ export const packages = [
     build: 376, from: 375, date: "2006-04-25", status: "planned",
     items: [
       { title: "Pure Essence now craftable on free servers", build: 375, date: "2006-04-24" },
-      { title: "Wilderness graphical update", build: 375, date: "2006-04-24", entities: [
+      { title: "Wilderness graphical update", build: 375, date: "2006-04-24", star: true, entities: [
         { type: "Location", names: ["Blighted Volcano"] },
         { type: "Monster", names: ["Gnome Archer", "Gnome Driver", "Gnome Mage", "Tortoise"] },
         { type: "NPC", names: ["Captain Wimto", "Gillie Groats", "Lieutenant Schepbur", "Millie Miller", "Postie Pete", "Trainer Nacklepen"] },
@@ -1144,12 +1644,8 @@ export const packages = [
   {
     build: 377, from: 377, date: "2006-05-02", status: "planned",
     items: [
-      { title: "New fishing skill and more cooking", build: 377, date: "2006-05-02",
-        note: "Wiki quirk: this page cites a 2001 update of the same name; the fishing spot itself is dated 2006-05-02.",
-        entities: [
+      { title: "Return of the Wise Old Man!", build: 377, star: true, entities: [
         { type: "NPC", names: ["Fishing spot (Piscatoris Fishing Colony)"] },
-      ] },
-      { title: "Return of the Wise Old Man!", build: 377, entities: [
         { type: "Quest", names: ["Swan Song"] },
         { type: "Location", names: ["Piscatoris bank", "Piscatoris falconry area", "Piscatoris Fishing Colony", "Piscatoris mine"] },
         { type: "Monster", names: ["Ogre shaman (Swan Song)", "Sea troll", "Sea Troll Queen"] },
