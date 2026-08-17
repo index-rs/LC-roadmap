@@ -54,7 +54,7 @@ export const LINK_URLS = {
   "Trollheim (44)": "https://oldschool.runescape.wiki/w/Rocks_(Trollheim_advanced)",
   "Cosmic Altar (46)": "https://oldschool.runescape.wiki/w/Jutting_wall_(Zanaris)#Medium",
   "Trollheim (47)": "https://oldschool.runescape.wiki/w/Rocks_(Trollheim_hard)",
-  "Murder Mystery (48)": "https://oldschool.runescape.wiki/w/Log_balance_(Fremennik_Province)",
+  "North West of Murder Mystery (48)": "https://oldschool.runescape.wiki/w/Log_balance_(Fremennik_Province)",
   "Edgeville Dungeon (51)": "https://oldschool.runescape.wiki/w/Obstacle_pipe_(Edgeville_Dungeon)",
   "Ectofuntus (58)": "https://oldschool.runescape.wiki/w/Weathered_wall",
   "Tirannwn (59)": "https://oldschool.runescape.wiki/w/Rocks_(Tirannwn)#Easy",
@@ -77,7 +77,7 @@ export const LINK_TARGETS = {
   "+16 bank space": "Bank",
 };
 
-export const PINNED_TYPES = ["Quest", "Skill", "Miniquest", "Activity", "Spell", "Emote", "Prayer", "Bank"];
+export const PINNED_TYPES = ["Quest", "Skill", "Miniquest", "Activity", "Spell", "Emote", "Prayer", "Bank", "Shortcut"];
 
 export const PINNED = [
   // Slayer monsters and masters
@@ -1253,7 +1253,7 @@ export const packages = [
     build: 333, from: 333, date: "2005-09-06", status: "planned",
     items: [
       { title: "New shortcuts and prayers", build: 333, star: true, entities: [
-        { type: "Shortcut", names: ["South of Varrock (13)", "Yanille (16)", "North West of Varrock (21)", "Brimhaven Dungeon entrance (22)", "South West of Falador (26)", "West of Champions' Guild (31)", "East Ardougne (33)", "North East of Tree Gnome Stronghold (37)", "Al Kharid Mine (38)", "Trollheim (41)", "Dwarven Mine (42)", "Trollheim (44)", "Cosmic Altar (46)", "Trollheim (47)", "Murder Mystery (48)", "Edgeville Dungeon (51)", "Ectofuntus (58)", "Tirannwn (59)", "Slayer Tower (61)", "Fremennik Slayer Dungeon (62)", "Wilderness Trollheim (64)", "Morytania Entrance (65)", "Cosmic Altar (66)", "Tirannwn (68)", "Taverley Dungeon (70)", "Slayer Tower (71)", "Taverley Dungeon (80)", "Fremennik Slayer Dungeon (81)", "Tirannwn (85)"] },
+        { type: "Shortcut", names: ["South of Varrock (13)", "Yanille (16)", "North West of Varrock (21)", "Brimhaven Dungeon entrance (22)", "South West of Falador (26)", "West of Champions' Guild (31)", "East Ardougne (33)", "North East of Tree Gnome Stronghold (37)", "Al Kharid Mine (38)", "Trollheim (41)", "Dwarven Mine (42)", "Trollheim (44)", "Cosmic Altar (46)", "Trollheim (47)", "North West of Murder Mystery (48)", "Edgeville Dungeon (51)", "Ectofuntus (58)", "Tirannwn (59)", "Slayer Tower (61)", "Fremennik Slayer Dungeon (62)", "Wilderness Trollheim (64)", "Morytania Entrance (65)", "Cosmic Altar (66)", "Tirannwn (68)", "Taverley Dungeon (70)", "Slayer Tower (71)", "Taverley Dungeon (80)", "Fremennik Slayer Dungeon (81)", "Tirannwn (85)"] },
         { type: "Prayer", names: ["Redemption", "Retribution", "Smite"] },
         { type: "Scenery", names: ["Crevice (Fremennik Slayer Dungeon)", "Fence (Varrock)", "Jutting wall (Zanaris)", "Log balance (East Ardougne)", "Log balance (Fremennik Province)", "Narrow crevice (Dwarven Mine)", "Obstacle pipe (Edgeville Dungeon)", "Obstacle pipe (Taverley Dungeon)", "Ornate railing", "Rat wheel", "Rocks (Al Kharid)", "Rocks (Tirannwn)", "Rocks (Tree Gnome Stronghold)", "Rocks (Trollheim advanced)", "Rocks (Trollheim easy)", "Rocks (Trollheim hard)", "Rocks (Trollheim very easy)", "Rocks (Wilderness, Trollheim)", "Spikey chain (Slayer Tower)", "Stepping stone (Champions' Guild)", "Stile (South Falador Farm)", "Strange floor (Fremennik Slayer Dungeon)", "Strange floor (Taverley Dungeon)", "Underwall tunnel (Falador)", "Underwall tunnel (Grand Exchange)", "Underwall tunnel (Yanille)", "Weathered wall"] },
       ] },
