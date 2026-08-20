@@ -848,7 +848,21 @@ export const packages = [
   {
     build: 291, from: 290, date: "2005-01-31", status: "planned", uncertain: true,
     items: [
-      { title: "Slayer Skill", build: 290, date: "2005-01-26", star: true, entities: [
+      { title: "Slayer Skill", build: 290, date: "2005-01-26", star: true, unconfirmed: [
+        {
+          kind: "spawn",
+          confidence: "likely",
+          text: "Green dragons added west of the Dark Warriors' Fortress and east of the Bone Yard Hunter area. Before this build the only wilderness group is south of the Lava Maze.",
+          entities: ["Green dragon"],
+          spawns: [
+            { area: "West of the Dark Warriors' Fortress", count: 3 },
+            { area: "East of the Bone Yard Hunter area", count: 11 },
+          ],
+          basis: "Inferred. No patch note in this window mentions green dragons.",
+          caveat: "A third group north of the Graveyard of Shadows (5 today) arrives later in 2005; the update that added it hasn't been identified yet.",
+          source: "https://oldschool.runescape.wiki/w/Green_dragon#Locations",
+        },
+      ], entities: [
         { type: "Skill", names: ["Slayer"] },
         { type: "Location", names: ["Fremennik Slayer Dungeon", "Slayer Tower"] },
         { type: "Monster", names: ["Aberrant spectre", "Abyssal demon", "Banshee", "Basilisk", "Basilisk (unused)", "Bloodveld", "Cave crawler", "Cockatrice", "Cockatrice (unused)", "Crawling Hand", "Death spawn", "Gargoyle", "Infernal Mage", "Jelly", "Kurask", "Nechryael", "Pyrefiend", "Rockslug", "Smokedevil", "Turoth"] },
@@ -859,7 +873,34 @@ export const packages = [
         { type: "Scenery", names: ["Chest (Slayer Tower)", "Heap of bricks", "Statue (Kurask)"] },
         { type: "Music track", names: ["Masquerade", "Slayer Level Up!", "Slayer Level Up! (Unlocks)", "The Slayer", "The Terrible Tower"] },
       ] },
-      { title: "Creature of Fenkenstrain", build: 291, entities: [
+      { title: "Creature of Fenkenstrain", build: 291, unconfirmed: [
+        {
+          kind: "spawn",
+          confidence: "confirmed",
+          text: "More hellhounds, to cope with the demand the Slayer skill created: additions in the Taverley Dungeon, and a new group south of the Wilderness axe hut.",
+          entities: ["Hellhound"],
+          spawns: [
+            { area: "Taverley Dungeon", count: 13 },
+            { area: "South of the Wilderness axe hut", count: 6, note: "listed today as “Outside of the Wilderness Resource Area”, an area that did not exist in 2005" },
+          ],
+          basis: "Stated in this update's own patch notes, under “Slayer changes”.",
+          caveat: "The note says “more”, never how many. Counts are today's wiki figures and include twenty years of later edits.",
+          source: "https://oldschool.runescape.wiki/w/Hellhound#Locations",
+        },
+        {
+          kind: "spawn",
+          confidence: "confirmed",
+          text: "Hill giants added north of the Observatory and south-west of the Gnome Stronghold. The same update renamed Giants to Hill giants, so Slayer tasks could not be confused with moss, fire or ice giants.",
+          entities: ["Hill giant"],
+          spawns: [
+            { area: "North of the Observatory", count: 6 },
+            { area: "South-west of the Gnome Stronghold", count: 6 },
+          ],
+          basis: "Stated in this update's own patch notes, under “Slayer changes”.",
+          caveat: "Counts are today's wiki figures. The wiki gives Hill giant no parseable location table, so these groups are matched by coordinate, not by label.",
+          source: "https://oldschool.runescape.wiki/w/Hill_giant",
+        },
+      ], entities: [
         { type: "Shortcut", names: ["Morytania Mausoleum (69)"] },
         { type: "Quest", names: ["Creature of Fenkenstrain"] },
         { type: "Location", names: ["Experiment cave", "Fenkenstrain's Castle", "Mausoleum", "Werewolf Agility Course", "Werewolf Skullball"] },

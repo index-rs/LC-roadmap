@@ -20,7 +20,12 @@ the wrapped filter chips make it ~460px tall — while the rail stays put.
 | `updates-data.js` | All roadmap content. **This is the file you edit.** |
 | `update-notes-data.js` | Patch-note prose per update. **Generated — do not hand-edit.** |
 | `changes-data.js` | Post-release changes per update/build. **Generated — do not hand-edit.** |
-| `tools/build-changes-data.py` | Regenerates the two files above. Never touches `updates-data.js`. |
+| `quests-data.js` | Requirements and rewards per quest. **Generated — do not hand-edit.** |
+| `tools/build-changes-data.py` | Regenerates the patch-note and changes files. Never touches `updates-data.js`. |
+| `tools/build-quests-data.py` | Regenerates `quests-data.js`. Never touches `updates-data.js`. |
+| `tools/probe-quest-buffs.py` | Scans the quest pages for newly documented XP reward buffs. Read-only. |
+| `tools/probe-late-rewards.py` | Lists rewards a later update attached to the quest. Read-only, hand-reviewed. |
+| `tools/quest-dates.mjs` | Prints quest → build date, so the generator can date-check rewards. |
 | `tools/check-data.mjs` | Sanity-checks that the generated data joins cleanly. |
 | `support.js` | Runtime for the `.dc.html` format. Don't edit. |
 | `index.html` | Redirect so GitHub Pages serves the roadmap at the repo root. |
@@ -66,12 +71,160 @@ filter, not as fact. Only the most consequential tag is shown.
 ### Regenerating
 
 ```bash
-python tools/build-changes-data.py && node tools/check-data.mjs
+python tools/build-changes-data.py && python tools/build-quests-data.py && node tools/check-data.mjs
 ```
 
 Reads `jsonl/entity_changes.jsonl` and `jsonl/update_notes.jsonl` from the
 `runescape-research` project (`--research DIR` to point elsewhere). `--check` reports the
 join without writing. It writes only the two generated files.
+
+## Themes
+
+Two looks, switched from the toggle at the top right and remembered in
+`localStorage`:
+
+- **Editorial** (default) — the original: warm charcoal oklch, Space Grotesk
+  headings, gold accent, rounded pills.
+- **Terminal** — near-black, teal accent, IBM Plex throughout, sharp corners.
+  Ported from [LC-bankvalue](../LC-bankvalue)'s `theme-terminal.css`, whose own
+  *editorial* theme was lifted from this page in the first place.
+
+The page is still inline-styles-only. What changed is that colours, fonts and
+radii are now **tokens** — `var(--bg-2)`, `var(--gold)`, `var(--font-head)`,
+`var(--r-card)` — defined once per theme in the `<helmet>` block. Inline styles
+reference the tokens; the `<style>` block holds no rules for elements, only the
+token definitions.
+
+**A colour written literally into an inline style is a bug**: it will not switch
+themes. `grep 'oklch('` outside `<helmet>` should return nothing.
+
+Terminal moves the primary accent (stars, pins, "in development") from gold to
+teal. That is deliberate — matching hex-for-oklch while keeping amber everywhere
+would just be editorial with different greys.
+
+## Quest requirements and rewards
+
+Every update that adds a quest — 41 of them — carries two more collapsible
+blocks: **Requirements** (blue) and **Rewards** (green, headed with the quest
+point total). Both come from `quests-data.js`, all 52 quest names the roadmap
+mentions, including the eleven `Recipe for Disaster/…` subquests. An update
+naming several quests renders one sub-heading per quest inside the single block.
+
+They share one SHOW chip, *Quest details*, rather than taking a chip each: five
+chips do not fit in the control row at phone widths.
+
+**These describe the quest as OSRS documents it today, not as it shipped in
+2005.** Requirements drift, reward XP gets rebalanced, and `difficulty` /
+`length` are present-day wiki gradings that did not exist then. Every rendered
+block says so in its footer — do not remove that line.
+
+Two filters narrow what actually renders, and the footer reports how many lines
+each removed:
+
+- **Anachronism filter.** A reward list written for today's game cites things
+  that did not exist when the quest shipped. The extractor dates every wiki page
+  a bullet links to, and the generator drops any bullet naming something released
+  after the build the quest sits under — Monkey Madness's dragon scimitar
+  (2005-03-29, four months after the quest), Troll Romance's boss "in the
+  Nightmare Zone" (2013), In Search of the Myreque's fairy ring (2006-07),
+  Haunted Mine's Tarn's Lair (2007). Two cases dating cannot see, because the
+  page is old and only the capability is new, are phrase rules in
+  `ANACHRONISMS` in the generator: ring of wealth *teleports* (2008), *elite*
+  clue scrolls (2010), and access to the Wizards' Guild rune store — OSRS made
+  completing The Hand in the Sand a requirement to buy there on 2018-06-28, so
+  in 2006 it was not a reward at all; RS3 does not list it either.
+- **Reward buff correction.** OSRS has raised some quest XP awards long after
+  the fact, and dating cannot see it: a rebalanced *quantity* links no new page,
+  so it sails through the filter above. `REWARD_BUFFS` in the generator rewrites
+  the figure back to what the build paid and the block says which line it
+  changed — Mourning's End Part I (Thieving 40,000 → 25,000), Mourning's End
+  Part II (Agility 60,000 → 20,000) and Swan Song (Fishing 50,000 → 10,000),
+  all raised in the same update on 2022-11-30. A row is applied only while the
+  wiki still reads the value it was written against; if it moves, the build
+  warns instead of correcting to a number nobody checked.
+  Finding the third one had a method behind it, kept as
+  `tools/probe-late-rewards.py`: when a page linked from quest *Q*'s rewards
+  carries a change entry dated after *Q*'s build that names *Q*, the quest very
+  likely did not have that reward at its build. It produces about seven hits to
+  read by hand — most are later quality-of-life tweaks to rewards the quest
+  always had, so nothing is dropped without reading it. Diffing OSRS rewards
+  against the RS3 wiki was also tried and is weaker: 16 flags, no true
+  positives, because RS3 diverged heavily on its own.
+- **Requirements are quests and skills only.** Start point, items needed and
+  enemies to defeat are dropped — they describe a modern route through the quest
+  rather than the 2005 one. A quest with neither renders "No quest or skill
+  requirements", which for `A Soul's Bane` and `Rag and Bone Man I` is simply
+  true.
+
+For the four quests a Lost City preservation branch actually implements
+(Monkey Madness, The Golem, Throne of Miscellania, Troll Romance) the block also
+shows what that build gives you:
+
+> Lost City build 289 implements (authoritative for this build): 3 QP · 10,000 coins · 3 diamond ·
+> 20,000–35,000 attack · 20,000–35,000 defence · …
+
+That line is **not merged** into the wiki's, and where both exist the branch is
+the value to trust: it is period data by construction, while the wiki describes
+today. Keeping both on screen is the point — the disagreement is the drift.
+Quest points that disagree render in gold.
+
+Change logs supply only a little of this, and it took measuring to find out how
+little. `{{Subject changes}}` on the 292 pages a quest reward links to holds 595
+entries, of which exactly **one** predates 2008 — reward drift is essentially
+never recorded on the item or skill page. The quest page itself does record it,
+but rarely: 61 entries across all 52 quests, **three** of them reward buffs.
+Those three are in `REWARD_BUFFS`. `tools/probe-quest-buffs.py` re-runs the scan
+(2 API requests, cached); anything it prints that is not already in the table is
+a reward the page is still showing at a modern figure. Three found is a floor,
+not a ceiling — an undocumented buff stays invisible, which is why the footer
+caveat stays on every block.
+
+## Unconfirmed and unlisted content
+
+A fourth block, dashed rather than solid, for things the entity timeline
+structurally cannot show: content that created no page, so no chip can carry it.
+Hand-written on the update in `updates-data.js` — there is no generator, which is
+exactly why it survives every regeneration.
+
+```js
+unconfirmed: [
+  {
+    kind: "spawn",                 // optional; drives the Spawns filter
+    confidence: "likely",          // confirmed | likely | possible | unknown
+    text: "Green dragons added west of the Dark Warriors' Fortress …",
+    entities: ["Green dragon"],    // linked, and honoured by "Pinned only"
+    spawns: [{ area: "West of the Dark Warriors' Fortress", count: 3 }],
+    basis: "Inferred. No patch note in this window mentions green dragons.",
+    caveat: "A third group north of the Graveyard of Shadows arrives later …",
+    source: "https://oldschool.runescape.wiki/w/Green_dragon#Locations",
+  },
+],
+```
+
+`confidence` is the point of the block. Two different things live here and the
+badge is what tells them apart:
+
+- **`confirmed`** — Jagex published it, but it made no entity. The Creature of
+  Fenkenstrain hellhound and hill giant additions. The block header reads
+  *Unlisted* when every entry is confirmed.
+- **`likely` / `possible`** — our inference, with nothing in any patch note
+  behind it. The green dragon spawns at the Slayer release. Header reads
+  *Unconfirmed*.
+
+**Spawn counts are today's wiki figures**, from `bucket("locline")`, and are
+labelled `N today` on every row. The 2005 patch notes say "more", never how many.
+
+### The Spawns filter
+
+`◇ Spawns` in the top bar narrows the page to updates that add spawns of an
+existing monster. Switching it on also switches the layer on and expands every
+unconfirmed block — filtering down to two updates and finding them collapsed
+would look broken. On today's data it leaves build #290–291.
+
+Scanning both datasets over the whole window turned up exactly one update that
+documents this (Creature of Fenkenstrain, 31 January 2005) — of 242 change rows
+matching spawn language only 7 were monster-typed, and the substantive one just
+quotes that patch note back. So this layer is curation, not extraction.
 
 ## Scope
 

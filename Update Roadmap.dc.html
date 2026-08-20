@@ -10,37 +10,199 @@
 <helmet>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script>
+  // Before first paint, not in componentDidMount: setting the attribute after
+  // React mounts gives every visitor a flash of the other theme.
+  try {
+    var t = localStorage.getItem('lc_roadmap_theme');
+    document.documentElement.setAttribute('data-theme', t === 'terminal' ? 'terminal' : 'editorial');
+  } catch (e) { document.documentElement.setAttribute('data-theme', 'editorial'); }
+</script>
 <style>
-  body { margin: 0; background: oklch(0.17 0.014 55); }
-  a { color: oklch(0.72 0.1 210); text-decoration: none; }
-  a:hover { color: oklch(0.78 0.15 75); text-decoration: underline; }
-  ::selection { background: oklch(0.78 0.15 75 / 0.35); }
+  /* The page is inline-styles-only by convention (see CLAUDE.md) and stays that
+     way: this block holds no rules for elements, only the token *definitions*
+     that the inline styles reference as var(--x). Two themes:
+
+       editorial - the original look. Warm charcoal oklch, Space Grotesk
+                   headings, gold accent, rounded pills.
+       terminal  - near-black, teal accent, IBM Plex throughout, sharp corners.
+                   Lifted from LC-bankvalue's theme-terminal.css, which in turn
+                   took its editorial theme from this page.
+
+     Anything themed must be a token. A colour written literally into an inline
+     style is a bug: it will not switch. */
+  :root, :root[data-theme="editorial"] {
+    --bg-0: oklch(0.17 0.014 55);      /* page */
+    --bg-1: oklch(0.2 0.015 55);       /* update card, rail */
+    --bg-2: oklch(0.225 0.016 55);     /* package card, input, buttons */
+    --bg-3: oklch(0.255 0.016 55);     /* entity chip, bulk-action button */
+    --bg-4: oklch(0.27 0.016 55);      /* build number pill */
+
+    --border-1: oklch(0.28 0.015 55);  /* off/disabled outlines */
+    --border-2: oklch(0.3 0.017 55);
+    --border-3: oklch(0.32 0.02 55);   /* the default border */
+    --border-4: oklch(0.36 0.02 55);   /* raised: scrollbar, (i) marker */
+
+    --text-0: oklch(0.95 0.01 60);     /* headings, update titles */
+    --text-1: oklch(0.81 0.012 60);    /* body copy */
+    --text-2: oklch(0.72 0.015 60);    /* secondary */
+    --text-3: oklch(0.6 0.015 60);     /* meta */
+    --text-4: oklch(0.52 0.015 60);    /* counts, carets */
+    --text-5: oklch(0.45 0.015 60);    /* off-state chip label */
+    --text-6: oklch(0.36 0.015 60);    /* disabled */
+
+    --gold: oklch(0.78 0.15 75);       /* the primary accent: stars, pins, next */
+    --gold-bright: oklch(0.88 0.09 85);
+    --gold-soft: oklch(0.84 0.05 75);
+    --gold-dim: oklch(0.7 0.09 75);
+    --on-gold: oklch(0.2 0.05 75);     /* text on a filled gold pill */
+    --blue: oklch(0.72 0.1 210);
+    --blue-soft: oklch(0.78 0.06 210);
+    --blue-dim: oklch(0.66 0.08 210);
+    --red: oklch(0.7 0.15 25);
+    --red-dim: oklch(0.68 0.1 25);
+    --green: oklch(0.75 0.16 145);
+    --green-soft: oklch(0.72 0.14 145);
+    --green-deep: oklch(0.7 0.12 155); /* "Released" pill */
+    --on-green: oklch(0.2 0.03 155);
+    --neutral: oklch(0.7 0.02 60);     /* unknown type / kind fallback */
+
+    --type-quest: oklch(0.78 0.15 75);       --type-miniquest: oklch(0.78 0.13 95);
+    --type-skill: oklch(0.75 0.16 145);      --type-activity: oklch(0.74 0.13 168);
+    --type-location: oklch(0.72 0.1 210);    --type-monster: oklch(0.7 0.15 25);
+    --type-npc: oklch(0.68 0.09 320);        --type-item: oklch(0.8 0.09 95);
+    --type-spell: oklch(0.7 0.13 285);       --type-prayer: oklch(0.78 0.09 250);
+    --type-emote: oklch(0.7 0.1 340);        --type-shop: oklch(0.72 0.09 130);
+    --type-currency: oklch(0.8 0.11 85);     --type-mechanic: oklch(0.68 0.03 60);
+    --type-org: oklch(0.68 0.06 200);        --type-scenery: oklch(0.58 0.02 60);
+    --type-music: oklch(0.62 0.05 300);      --type-bank: oklch(0.8 0.13 55);
+    --type-shortcut: oklch(0.74 0.12 190);
+
+    --kind-value: oklch(0.8 0.11 85);        --kind-members: oklch(0.78 0.13 95);
+    --kind-requirement: oklch(0.78 0.09 250); --kind-drop: oklch(0.7 0.13 285);
+    --kind-added: oklch(0.74 0.13 168);      --kind-bugfix: oklch(0.72 0.09 130);
+    --kind-graphics: oklch(0.68 0.09 320);   --kind-sound: oklch(0.62 0.05 300);
+    --kind-flat: oklch(0.62 0.03 60);        --kind-interface: oklch(0.68 0.06 200);
+    --kind-poll: oklch(0.68 0.03 60);        --kind-other: oklch(0.55 0.015 60);
+
+    --font-head: 'Space Grotesk', 'IBM Plex Sans', sans-serif;
+    --font-body: 'IBM Plex Sans', -apple-system, sans-serif;
+    --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+    --r-card: 14px;   /* package */
+    --r-item: 10px;   /* update */
+    --r-input: 8px;
+    --r-ctl: 7px;     /* buttons, detail blocks */
+    --r-chip: 6px;    /* entity chips, build pill */
+    --r-pill: 20px;   /* filter chips, status */
+  }
+
+  :root[data-theme="terminal"] {
+    --bg-0: #08080a;
+    --bg-1: #0d0d11;
+    --bg-2: #14141a;
+    --bg-3: #1b1b22;
+    --bg-4: #232330;
+
+    --border-1: #1d1d26;
+    --border-2: #26262f;
+    --border-3: #2a2a34;
+    --border-4: #3a3a48;
+
+    --text-0: #f1f1f6;
+    --text-1: #c8c8d2;
+    --text-2: #a4a4b0;
+    --text-3: #8a8a96;
+    --text-4: #6e6e7a;
+    --text-5: #5a5a66;
+    --text-6: #43434e;
+
+    /* Terminal's identity is the teal accent, so the roadmap's primary accent
+       moves to teal here rather than staying amber. Item/currency chips keep
+       their amber below, so gold has not simply vanished from the page. */
+    --gold: #5eead4;
+    --gold-bright: #99f6e4;
+    --gold-soft: #5eead4;
+    --gold-dim: #2dd4bf;
+    --on-gold: #04201b;
+    --blue: #60a5fa;
+    --blue-soft: #93c5fd;
+    --blue-dim: #3b82f6;
+    --red: #f87171;
+    --red-dim: #ef4444;
+    --green: #4ade80;
+    --green-soft: #34d399;
+    --green-deep: #22c55e;
+    --on-green: #05230f;
+    --neutral: #8a8a96;
+
+    --type-quest: #5eead4;        --type-miniquest: #2dd4bf;
+    --type-skill: #4ade80;        --type-activity: #34d399;
+    --type-location: #60a5fa;     --type-monster: #f87171;
+    --type-npc: #e879f9;          --type-item: #fbbf24;
+    --type-spell: #a78bfa;        --type-prayer: #818cf8;
+    --type-emote: #f472b6;        --type-shop: #86efac;
+    --type-currency: #f59e0b;     --type-mechanic: #8a8a96;
+    --type-org: #22d3ee;          --type-scenery: #5a5a66;
+    --type-music: #c4b5fd;        --type-bank: #fb923c;
+    --type-shortcut: #2dd4bf;
+
+    --kind-value: #f59e0b;        --kind-members: #fbbf24;
+    --kind-requirement: #818cf8;  --kind-drop: #a78bfa;
+    --kind-added: #34d399;        --kind-bugfix: #86efac;
+    --kind-graphics: #e879f9;     --kind-sound: #c4b5fd;
+    --kind-flat: #6e6e7a;         --kind-interface: #22d3ee;
+    --kind-poll: #8a8a96;         --kind-other: #5a5a66;
+
+    --font-head: 'IBM Plex Sans', -apple-system, sans-serif;
+    --font-body: 'IBM Plex Sans', -apple-system, sans-serif;
+    --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+    --r-card: 5px;
+    --r-item: 4px;
+    --r-input: 3px;
+    --r-ctl: 3px;
+    --r-chip: 3px;
+    --r-pill: 3px;
+  }
+
+  body { margin: 0; background: var(--bg-0); }
+  a { color: var(--blue); text-decoration: none; }
+  a:hover { color: var(--gold); text-decoration: underline; }
+  ::selection { background: color-mix(in oklch, var(--gold) 35%, transparent); }
 </style>
 </helmet>
 
-<div style="min-height:100vh; background:oklch(0.17 0.014 55); color:oklch(0.95 0.01 60); font-family:'IBM Plex Sans',sans-serif;">
+<div style="min-height:100vh; background:var(--bg-0); color:var(--text-0); font-family:var(--font-body);">
 
   <div data-sticky="1" style="{{ stickyStyle }}">
-  <div style="background:oklch(0.17 0.014 55 / 0.97); backdrop-filter:blur(6px); border-bottom:1px solid oklch(0.32 0.02 55); padding:20px 28px 13px;">
+  <div style="background:color-mix(in oklch, var(--bg-0) 97%, transparent); backdrop-filter:blur(6px); border-bottom:1px solid var(--border-3); padding:20px 28px 13px;">
     <div style="max-width:1060px; margin:0 auto; display:flex; flex-direction:column; gap:11px;">
       <div style="display:flex; align-items:baseline; gap:14px; flex-wrap:wrap;">
-        <h1 style="font-family:'Space Grotesk',sans-serif; font-size:26px; font-weight:700; margin:0; letter-spacing:-0.01em;">Lost City Update Roadmap</h1>
-        <span style="font-family:'IBM Plex Mono',monospace; font-size:13px; color:oklch(0.62 0.015 60);">build {{ currentBuild }} &rarr; 377 &middot; Nov 2004 &rarr; May 2006</span>
+        <h1 style="font-family:var(--font-head); font-size:26px; font-weight:700; margin:0; letter-spacing:-0.01em;">Lost City Update Roadmap</h1>
+        <span style="font-family:var(--font-mono); font-size:13px; color:var(--text-3);">build {{ currentBuild }} &rarr; 377 &middot; Nov 2004 &rarr; May 2006</span>
+        <span style="flex:1;"></span>
+        <div style="{{ themeWrapStyle }}" role="group" aria-label="Theme">
+          <sc-for list="{{ themeBtns }}" as="tb" hint-placeholder-count="2">
+            <button onClick="{{ tb.onClick }}" style="{{ tb.style }}">{{ tb.label }}</button>
+          </sc-for>
+        </div>
       </div>
       <div style="display:flex; align-items:center; gap:9px; flex-wrap:wrap;">
-        <input type="text" placeholder="Search updates, items, monsters&hellip;" value="{{ search }}" onChange="{{ setSearch }}" style="background:oklch(0.225 0.016 55); border:1px solid oklch(0.32 0.02 55); color:oklch(0.95 0.01 60); border-radius:8px; padding:9px 14px; font-size:14px; font-family:'IBM Plex Sans',sans-serif; width:250px; outline:none;" />
+        <input type="text" placeholder="Search updates, items, monsters&hellip;" value="{{ search }}" onChange="{{ setSearch }}" style="background:var(--bg-2); border:1px solid var(--border-3); color:var(--text-0); border-radius:var(--r-input); padding:9px 14px; font-size:14px; font-family:var(--font-body); width:250px; outline:none;" />
         <button onClick="{{ toggleOnlyStarred }}" style="{{ starBtnStyle }}" style-hover="{{ chipHoverStyle }}">&#9733; Starred only</button>
         <button onClick="{{ toggleOnlyPinned }}" style="{{ pinnedBtnStyle }}" style-hover="{{ chipHoverStyle }}">&#9679; Pinned only</button>
+        <button onClick="{{ toggleOnlySpawns }}" style="{{ spawnsBtnStyle }}" style-hover="{{ chipHoverStyle }}" title="Only updates that add spawns of an existing monster">{{ spawnsLabel }}</button>
         <button onClick="{{ toggleIcons }}" style="{{ iconBtnStyle }}" style-hover="{{ chipHoverStyle }}">Icons</button>
         <button onClick="{{ toggleCollapse }}" style="{{ collapseBtnStyle }}" style-hover="{{ chipHoverStyle }}">{{ collapseLabel }}</button>
-        <span style="width:1px; align-self:stretch; background:oklch(0.3 0.016 55); margin:2px 3px;"></span>
+        <span style="width:1px; align-self:stretch; background:var(--border-2); margin:2px 3px;"></span>
         <sc-for list="{{ filterActions }}" as="fa" hint-placeholder-count="3">
           <button onClick="{{ fa.onClick }}" style="{{ fa.style }}" style-hover="{{ chipHoverStyle }}">{{ fa.label }}</button>
         </sc-for>
       </div>
 
       <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
-        <span style="font-size:11px; color:oklch(0.5 0.015 60); font-family:'IBM Plex Mono',monospace; letter-spacing:0.06em; margin-right:2px;">SHOW</span>
+        <span style="font-size:11px; color:var(--text-4); font-family:var(--font-mono); letter-spacing:0.06em; margin-right:2px;">SHOW</span>
         <sc-for list="{{ detailChips }}" as="dc" hint-placeholder-count="2">
           <div style="{{ dc.wrapStyle }}">
             <span onClick="{{ dc.onToggle }}" style="{{ dc.labelStyle }}">{{ dc.label }}</span>
@@ -60,33 +222,33 @@
   <div style="{{ contentStyle }}">
 
     <sc-if value="{{ loading }}" hint-placeholder-val="{{ false }}">
-      <p style="color:oklch(0.6 0.015 60); font-family:'IBM Plex Mono',monospace;">loading roadmap&hellip;</p>
+      <p style="color:var(--text-3); font-family:var(--font-mono);">loading roadmap&hellip;</p>
     </sc-if>
 
     <sc-if value="{{ noResults }}" hint-placeholder-val="{{ false }}">
-      <p style="color:oklch(0.55 0.015 60); font-size:15px; padding:40px 0; text-align:center;">Nothing matches your filters.</p>
+      <p style="color:var(--text-4); font-size:15px; padding:40px 0; text-align:center;">Nothing matches your filters.</p>
     </sc-if>
 
     <sc-for list="{{ renderPackages }}" as="pkg" hint-placeholder-count="6">
 
       <sc-if value="{{ pkg.showDivider }}" hint-placeholder-val="{{ false }}">
         <div style="display:flex; align-items:center; gap:14px; margin:32px 0;">
-          <div style="flex:1; height:1px; background:oklch(0.72 0.1 210 / 0.4);"></div>
-          <span style="font-family:'IBM Plex Mono',monospace; font-size:12.5px; color:oklch(0.72 0.1 210); font-weight:600; letter-spacing:0.04em;">YOU ARE HERE &mdash; BUILD {{ currentBuild }}</span>
-          <div style="flex:1; height:1px; background:oklch(0.72 0.1 210 / 0.4);"></div>
+          <div style="flex:1; height:1px; background:color-mix(in oklch, var(--blue) 40%, transparent);"></div>
+          <span style="font-family:var(--font-mono); font-size:12.5px; color:var(--blue); font-weight:600; letter-spacing:0.04em;">YOU ARE HERE &mdash; BUILD {{ currentBuild }}</span>
+          <div style="flex:1; height:1px; background:color-mix(in oklch, var(--blue) 40%, transparent);"></div>
         </div>
       </sc-if>
 
-      <section data-build="{{ pkg.build }}" data-screen-label="{{ pkg.buildLabel }}" style="background:oklch(0.225 0.016 55); border:1px solid oklch(0.32 0.02 55); border-radius:14px; padding:18px 20px; margin-bottom:18px;">
+      <section data-build="{{ pkg.build }}" data-screen-label="{{ pkg.buildLabel }}" style="background:var(--bg-2); border:1px solid var(--border-3); border-radius:var(--r-card); padding:18px 20px; margin-bottom:18px;">
         <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:13px;">
-          <span style="font-family:'IBM Plex Mono',monospace; font-size:15px; font-weight:600; background:oklch(0.27 0.016 55); border:1px solid oklch(0.32 0.02 55); padding:3px 9px; border-radius:6px;">{{ pkg.buildLabel }}</span>
-          <span style="font-size:14px; color:oklch(0.7 0.015 60);">{{ pkg.dateLabel }}</span>
-          <span style="font-size:11.5px; font-weight:600; letter-spacing:0.03em; padding:2px 8px; border-radius:20px; text-transform:uppercase; color:{{ pkg.statusTextColor }}; background:{{ pkg.statusBgColor }};">{{ pkg.statusLabel }}</span>
+          <span style="font-family:var(--font-mono); font-size:15px; font-weight:600; background:var(--bg-4); border:1px solid var(--border-3); padding:3px 9px; border-radius:var(--r-chip);">{{ pkg.buildLabel }}</span>
+          <span style="font-size:14px; color:var(--text-2);">{{ pkg.dateLabel }}</span>
+          <span style="font-size:11.5px; font-weight:600; letter-spacing:0.03em; padding:2px 8px; border-radius:var(--r-pill); text-transform:uppercase; color:{{ pkg.statusTextColor }}; background:{{ pkg.statusBgColor }};">{{ pkg.statusLabel }}</span>
           <sc-if value="{{ pkg.uncertain }}" hint-placeholder-val="{{ false }}">
-            <span title="Wide date range — limited archived cache data for this revision" style="font-size:11px; color:oklch(0.62 0.015 60); cursor:help; border:1px solid oklch(0.4 0.02 55); border-radius:50%; width:16px; height:16px; display:inline-flex; align-items:center; justify-content:center; flex:none;">i</span>
+            <span title="Wide date range — limited archived cache data for this revision" style="font-size:11px; color:var(--text-3); cursor:help; border:1px solid var(--border-4); border-radius:50%; width:16px; height:16px; display:inline-flex; align-items:center; justify-content:center; flex:none;">i</span>
           </sc-if>
           <span style="flex:1;"></span>
-          <span style="font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:oklch(0.52 0.015 60);">{{ pkg.countLabel }}</span>
+          <span style="font-family:var(--font-mono); font-size:11.5px; color:var(--text-4);">{{ pkg.countLabel }}</span>
         </div>
 
         <div style="display:flex; flex-direction:column; gap:9px;">
@@ -98,13 +260,14 @@
                 <span style="{{ item.titleStyle }}">{{ item.titleEl }}</span>
                 <span style="{{ item.countStyle }}">{{ item.countLabel }}</span>
                 <span style="{{ item.noteDotStyle }}">&#9679;</span>
+                <span style="{{ item.uncDotStyle }}">&#9671;</span>
                 <span style="{{ item.changeCountStyle }}">{{ item.changeCount }}</span>
                 <span style="flex:1;"></span>
-                <span style="font-family:'IBM Plex Mono',monospace; font-size:11.5px; color:oklch(0.48 0.015 60); flex:none;">{{ item.metaLabel }}</span>
+                <span style="font-family:var(--font-mono); font-size:11.5px; color:var(--text-5); flex:none;">{{ item.metaLabel }}</span>
               </div>
 
               <sc-if value="{{ item.hasNote }}" hint-placeholder-val="{{ false }}">
-                <div style="font-size:13px; color:oklch(0.72 0.14 145); margin:6px 0 0 26px; font-family:'IBM Plex Mono',monospace;">{{ item.note }}</div>
+                <div style="font-size:13px; color:var(--green-soft); margin:6px 0 0 26px; font-family:var(--font-mono);">{{ item.note }}</div>
               </sc-if>
 
               <sc-if value="{{ item.showChips }}" hint-placeholder-val="{{ false }}">
@@ -120,7 +283,7 @@
       </section>
     </sc-for>
 
-    <p style="text-align:center; color:oklch(0.5 0.015 60); font-size:13px; margin-top:22px; line-height:1.75;">End of current roadmap &mdash; build 377, May 2006.<br />Content data derived from the <a href="https://oldschool.runescape.wiki" target="_blank" rel="noopener">Old School RuneScape Wiki</a> and <a href="https://runescape.wiki/w/Build_number" target="_blank" rel="noopener">RuneScape Wiki</a>, CC BY-NC-SA 3.0.</p>
+    <p style="text-align:center; color:var(--text-4); font-size:13px; margin-top:22px; line-height:1.75;">End of current roadmap &mdash; build 377, May 2006.<br />Content data derived from the <a href="https://oldschool.runescape.wiki" target="_blank" rel="noopener">Old School RuneScape Wiki</a> and <a href="https://runescape.wiki/w/Build_number" target="_blank" rel="noopener">RuneScape Wiki</a>, CC BY-NC-SA 3.0.</p>
   </div>
 
   <nav style="{{ railStyle }}">
@@ -134,33 +297,35 @@
 
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{}">
+// Values are theme tokens, defined in the <helmet> block for both themes. Never
+// write a literal colour here: it would not switch with the theme.
 const TYPE_COLORS = {
-  Quest: 'oklch(0.78 0.15 75)', Miniquest: 'oklch(0.78 0.13 95)',
-  Skill: 'oklch(0.75 0.16 145)', Activity: 'oklch(0.74 0.13 168)',
-  Location: 'oklch(0.72 0.1 210)', Monster: 'oklch(0.7 0.15 25)',
-  NPC: 'oklch(0.68 0.09 320)', Item: 'oklch(0.8 0.09 95)',
-  Spell: 'oklch(0.7 0.13 285)', Prayer: 'oklch(0.78 0.09 250)',
-  Emote: 'oklch(0.7 0.1 340)', Shop: 'oklch(0.72 0.09 130)',
-  Currency: 'oklch(0.8 0.11 85)', 'Game mechanic': 'oklch(0.68 0.03 60)',
-  Organisation: 'oklch(0.68 0.06 200)', Scenery: 'oklch(0.58 0.02 60)',
-  'Music track': 'oklch(0.62 0.05 300)',
+  Quest: 'var(--type-quest)', Miniquest: 'var(--type-miniquest)',
+  Skill: 'var(--type-skill)', Activity: 'var(--type-activity)',
+  Location: 'var(--type-location)', Monster: 'var(--type-monster)',
+  NPC: 'var(--type-npc)', Item: 'var(--type-item)',
+  Spell: 'var(--type-spell)', Prayer: 'var(--type-prayer)',
+  Emote: 'var(--type-emote)', Shop: 'var(--type-shop)',
+  Currency: 'var(--type-currency)', 'Game mechanic': 'var(--type-mechanic)',
+  Organisation: 'var(--type-org)', Scenery: 'var(--type-scenery)',
+  'Music track': 'var(--type-music)',
   // Synthetic types: things a patch note added that have no entity page of their
   // own. Bank = extra bank space, Shortcut = the 2005 agility shortcuts.
-  Bank: 'oklch(0.8 0.13 55)', Shortcut: 'oklch(0.74 0.12 190)',
+  Bank: 'var(--type-bank)', Shortcut: 'var(--type-shortcut)',
 };
 const TYPE_ORDER = ['Quest','Miniquest','Skill','Activity','Bank','Shortcut','Location','Monster','NPC','Item','Spell','Prayer','Emote','Shop','Currency','Game mechanic','Organisation','Scenery','Music track'];
 const ICON_TYPES = new Set(['Item', 'Currency']);
 // Tone for a change's heuristic `kinds` tag. Only the first recognised tag is
 // shown — a change routinely carries three, and painting them all is noise.
 const KIND_COLORS = {
-  combat: 'oklch(0.7 0.15 25)', value: 'oklch(0.8 0.11 85)',
-  obtainability: 'oklch(0.75 0.16 145)', members: 'oklch(0.78 0.13 95)',
-  requirement: 'oklch(0.78 0.09 250)', drop: 'oklch(0.7 0.13 285)',
-  added: 'oklch(0.74 0.13 168)', bugfix: 'oklch(0.72 0.09 130)',
-  graphics: 'oklch(0.68 0.09 320)', sound: 'oklch(0.62 0.05 300)',
-  examine: 'oklch(0.62 0.03 60)', rename: 'oklch(0.62 0.03 60)',
-  interface: 'oklch(0.68 0.06 200)', location: 'oklch(0.72 0.1 210)',
-  poll: 'oklch(0.68 0.03 60)', other: 'oklch(0.55 0.015 60)',
+  combat: 'var(--type-monster)', value: 'var(--kind-value)',
+  obtainability: 'var(--type-skill)', members: 'var(--kind-members)',
+  requirement: 'var(--kind-requirement)', drop: 'var(--kind-drop)',
+  added: 'var(--kind-added)', bugfix: 'var(--kind-bugfix)',
+  graphics: 'var(--kind-graphics)', sound: 'var(--kind-sound)',
+  examine: 'var(--kind-flat)', rename: 'var(--kind-flat)',
+  interface: 'var(--kind-interface)', location: 'var(--type-location)',
+  poll: 'var(--kind-poll)', other: 'var(--kind-other)',
 };
 // Ranked: the tag shown is the most consequential one present, not the first
 // one the classifier happened to match.
@@ -170,6 +335,30 @@ function topKind(kinds) {
   for (const k of KIND_RANK) if (kinds.includes(k)) return k;
   return kinds[0] || 'other';
 }
+// The unconfirmed layer holds things the entity timeline structurally cannot
+// show: content that created no page, so no chip can ever carry it. Two sorts
+// live here, told apart by `confidence` rather than by separate layers, because
+// they need identical plumbing and the reader needs to see which is which:
+//   confirmed - Jagex published it, but it made no entity (extra monster spawns)
+//   likely/possible - our inference, with nothing in any patch note behind it
+// Every entry is hand-written in updates-data.js. Nothing generates this.
+const CONFIDENCE = {
+  confirmed: { label: 'Confirmed', color: 'var(--green-soft)' },
+  likely: { label: 'Likely', color: 'var(--blue)' },
+  possible: { label: 'Possible', color: 'var(--type-spell)' },
+  unknown: { label: 'Unknown', color: 'var(--text-3)' },
+};
+const UNCONF_COLOR = 'var(--blue)';
+// Which expand-all flag a detail block follows, keyed by its subOpen suffix.
+// isSubOpen and toggleAllSub both read this, so adding a fourth block kind is
+// one entry here rather than a widening chain of ternaries.
+// The two quest blocks share a flag: they are one layer with one SHOW chip,
+// split into two blocks because requirements and rewards are read at different
+// moments. Five chips in the control row would not fit at phone widths.
+const SUB_FLAGS = {
+  note: 'allNotesOpen', chg: 'allChangesOpen', unc: 'allUnconfOpen',
+  req: 'allQuestOpen', rew: 'allQuestOpen',
+};
 // Name shapes whose wiki image filename is never the plain page name — never requested.
 const NO_ICON_RE = /(seed|seedling|sapling)s?$|^Clue scroll|^Casket|^Challenge scroll|^Puzzle box|\((?:[^)]*)\)$|\b(brutal|tome|spice|points)$|^(Antidote\+|Bananas|Onions|Oranges|Apples|Tomatoes|Cabbages|Strawberries|Potatoes|Granite|Broad arrows|Trading sticks|Saradomin brew|Guthix rest|Guthix balance|Ecto-token|Minecart ticket|Acorn|Bird's egg|Bolt rack|Fishbowl|Proboscis|Sandstone|Tacks|Whoopsie|Sine wave|Square stone|Stone head|Canopic jar|Compost potion|Mushroom spore|Waste disposal|Animals' bones|Bucket of rubble|Mobile phone|9mm revolver|Hex edit detected|Tax relief|Blessed pot|Herb tea mix|Mouth grip|Sliding button|Broken vane part|Dwarven battleaxe|Dwarven rock cake|Monkey Madness helper|Sphinx baby|Cooked giant crab meat|Relicym's balm|\?\?\? mixture|.*lantern)$/i;
 const WIKI = 'https://oldschool.runescape.wiki';
@@ -196,7 +385,13 @@ function iconUrl(name) {
   const t = name.charAt(0).toUpperCase() + name.slice(1);
   return WIKI + '/images/' + wikiPath(t) + '.png';
 }
-function alpha(color, a) { return color.replace(/\)$/, ' / ' + a + ')'); }
+// Every colour on this page is a var(--token) now, and the old implementation was
+// string surgery on the closing paren of an oklch literal -- it produces garbage
+// for `var(--gold)`, and would do the same for the terminal theme's hex values.
+// color-mix is correct for any colour syntax.
+function alpha(color, a) {
+  return 'color-mix(in oklch, ' + color + ' ' + (a * 100) + '%, transparent)';
+}
 
 class Component extends DCLogic {
   state = {
@@ -206,10 +401,12 @@ class Component extends DCLogic {
     pinnedTypes: new Set(), activeBuild: null,
     notes: {}, changes: {}, changesByBuild: {}, showNotes: true, showChanges: true,
     subOpen: {}, onlyPinned: false, allNotesOpen: false, allChangesOpen: false,
+    showUnconf: true, allUnconfOpen: false, onlySpawns: false,
+    quests: {}, showQuests: true, allQuestOpen: false,
     // The build rail is sticky *below* the header, so it needs the header's
     // live height. It changes as the filter chips wrap, so it is observed
     // rather than measured once. `narrow` only picks the rail's width.
-    headerH: 150, narrow: false,
+    headerH: 150, narrow: false, theme: 'editorial',
   };
 
   // Wrap every case-insensitive occurrence of the current search term in a
@@ -233,7 +430,7 @@ class Component extends DCLogic {
       out.push(h('mark', {
         key: 'm' + (k++),
         style: {
-          background: 'oklch(0.78 0.15 75 / 0.32)', color: 'inherit',
+          background: 'color-mix(in oklch, var(--gold) 32%, transparent)', color: 'inherit',
           borderRadius: '2px', padding: '0 1px', boxDecorationBreak: 'clone',
           WebkitBoxDecorationBreak: 'clone',
         },
@@ -248,7 +445,7 @@ class Component extends DCLogic {
   buildChips(groups) {
     const h = React.createElement;
     const rows = groups.map((g) => {
-      const color = TYPE_COLORS[g.type] || 'oklch(0.7 0.02 60)';
+      const color = TYPE_COLORS[g.type] || 'var(--neutral)';
       const pinnedFirst = [...g.names].sort(
         (a, b) => (this.pinnedIn(g.type, b) ? 1 : 0) - (this.pinnedIn(g.type, a) ? 1 : 0));
       const chips = pinnedFirst.map((n) => {
@@ -267,10 +464,10 @@ class Component extends DCLogic {
           style: {
             display: 'inline-flex', alignItems: 'center', gap: '5px',
             fontSize: pin ? '13.5px' : '13px', fontWeight: pin ? 600 : 400,
-            color: pin ? 'oklch(0.88 0.09 85)' : 'oklch(0.82 0.012 60)', textDecoration: 'none',
-            background: pin ? 'oklch(0.78 0.15 75 / 0.14)' : 'oklch(0.255 0.016 55)',
-            border: '1px solid ' + (pin ? 'oklch(0.78 0.15 75 / 0.5)' : 'oklch(0.3 0.016 55)'),
-            borderRadius: '6px', padding: '2px 7px', lineHeight: 1.55,
+            color: pin ? 'var(--gold-bright)' : 'var(--text-1)', textDecoration: 'none',
+            background: pin ? 'color-mix(in oklch, var(--gold) 14%, transparent)' : 'var(--bg-3)',
+            border: '1px solid ' + (pin ? 'color-mix(in oklch, var(--gold) 50%, transparent)' : 'var(--border-2)'),
+            borderRadius: 'var(--r-chip)', padding: '2px 7px', lineHeight: 1.55,
           },
         }, kids);
       });
@@ -278,7 +475,7 @@ class Component extends DCLogic {
         h('span', {
           key: 'l',
           style: {
-            fontFamily: "'IBM Plex Mono',monospace", fontSize: '10.5px', fontWeight: 600,
+            fontFamily: 'var(--font-mono)', fontSize: '10.5px', fontWeight: 600,
             letterSpacing: '0.06em', textTransform: 'uppercase', color, textAlign: 'right',
           },
         }, g.type + ' ' + g.names.length),
@@ -299,7 +496,7 @@ class Component extends DCLogic {
   isSubOpen(key) {
     const v = this.state.subOpen[key];
     if (v !== undefined) return v;
-    return key.endsWith('|note') ? this.state.allNotesOpen : this.state.allChangesOpen;
+    return this.state[SUB_FLAGS[key.slice(key.lastIndexOf('|') + 1)] || 'allChangesOpen'];
   }
   toggleSub(key) {
     this.setState((s) => ({ subOpen: { ...s.subOpen, [key]: !s.subOpen[key] } }));
@@ -307,13 +504,12 @@ class Component extends DCLogic {
   // Expand/collapse every block of one kind. Per-block overrides for that kind
   // are dropped, otherwise a block the user had already toggled would ignore the
   // command and the button would look broken.
-  toggleAllSub(kind) {
-    const suffix = kind === 'note' ? '|note' : '|chg';
-    const flag = kind === 'note' ? 'allNotesOpen' : 'allChangesOpen';
+  toggleAllSub(flag, kinds) {
+    const suffixes = kinds.map((k) => '|' + k);
     this.setState((s) => {
       const sub = {};
       Object.keys(s.subOpen).forEach((k) => {
-        if (!k.endsWith(suffix)) sub[k] = s.subOpen[k];
+        if (!suffixes.some((x) => k.endsWith(x))) sub[k] = s.subOpen[k];
       });
       return { [flag]: !s[flag], subOpen: sub };
     });
@@ -324,7 +520,7 @@ class Component extends DCLogic {
       onClick: () => this.toggleSub(key),
       style: {
         display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer',
-        userSelect: 'none', fontFamily: "'IBM Plex Mono',monospace", fontSize: '10.5px',
+        userSelect: 'none', fontFamily: 'var(--font-mono)', fontSize: '10.5px',
         fontWeight: 600, letterSpacing: '0.06em', textTransform: 'uppercase', color,
       },
     }, [
@@ -342,8 +538,8 @@ class Component extends DCLogic {
       if (sec.heading) blocks.push(h('div', {
         key: 'h' + i,
         style: {
-          fontFamily: "'Space Grotesk',sans-serif", fontSize: '13.5px', fontWeight: 600,
-          color: 'oklch(0.84 0.05 75)', marginTop: i ? '10px' : 0, marginBottom: '3px',
+          fontFamily: 'var(--font-head)', fontSize: '13.5px', fontWeight: 600,
+          color: 'var(--gold-soft)', marginTop: i ? '10px' : 0, marginBottom: '3px',
         },
       }, this.hl(sec.heading)));
       sec.text.split('\n\n').forEach((para, j) => {
@@ -351,7 +547,7 @@ class Component extends DCLogic {
           key: 'p' + i + '_' + j,
           style: {
             margin: '0 0 6px', fontSize: '13.5px', lineHeight: 1.62,
-            color: 'oklch(0.76 0.012 60)', textWrap: 'pretty',
+            color: 'var(--text-2)', textWrap: 'pretty',
           },
         }, this.hl(para.trim())));
       });
@@ -362,8 +558,8 @@ class Component extends DCLogic {
         note.url ? h('a', {
           key: 'a', href: note.url, target: '_blank', rel: 'noopener',
           style: {
-            color: 'oklch(0.66 0.08 210)', textDecoration: 'none',
-            fontFamily: "'IBM Plex Mono',monospace", fontSize: '11px',
+            color: 'var(--blue-dim)', textDecoration: 'none',
+            fontFamily: 'var(--font-mono)', fontSize: '11px',
           },
         }, 'read on the wiki ↗') : null,
       ]),
@@ -371,12 +567,12 @@ class Component extends DCLogic {
     return h('div', {
       key: 'note',
       style: {
-        borderLeft: '2px solid oklch(0.78 0.15 75 / 0.45)',
-        background: 'oklch(0.78 0.15 75 / 0.04)', borderRadius: '0 7px 7px 0',
+        borderLeft: '2px solid color-mix(in oklch, var(--gold) 45%, transparent)',
+        background: 'color-mix(in oklch, var(--gold) 4%, transparent)', borderRadius: '0 var(--r-ctl) var(--r-ctl) 0',
         padding: open ? '9px 12px 10px' : '7px 12px', display: 'flex', flexDirection: 'column',
       },
     }, [
-      this.subHeader(key, open, 'Patch note', 'oklch(0.7 0.09 75)'),
+      this.subHeader(key, open, 'Patch note', 'var(--gold-dim)'),
       ...body,
     ]);
   }
@@ -389,11 +585,11 @@ class Component extends DCLogic {
       return h('div', {
         key: 'changes',
         style: {
-          borderLeft: '2px solid oklch(0.7 0.15 25 / 0.35)', padding: '7px 12px',
-          background: 'oklch(0.7 0.15 25 / 0.035)', borderRadius: '0 7px 7px 0',
+          borderLeft: '2px solid color-mix(in oklch, var(--red) 35%, transparent)', padding: '7px 12px',
+          background: 'color-mix(in oklch, var(--red) 3.5%, transparent)', borderRadius: '0 var(--r-ctl) var(--r-ctl) 0',
         },
       }, [this.subHeader(key, false,
-        'Changes to existing content · ' + entityCount, 'oklch(0.68 0.1 25)')]);
+        'Changes to existing content · ' + entityCount, 'var(--red-dim)')]);
     }
     // Pinned entries float to the top of the block, mirroring how pinned names
     // float to the front of their chip group.
@@ -402,12 +598,12 @@ class Component extends DCLogic {
     const rows = ordered.map((c, i) => {
       const kind = topKind(c.kinds);
       const kc = KIND_COLORS[kind] || KIND_COLORS.other;
-      const tc = TYPE_COLORS[c.type] || 'oklch(0.7 0.02 60)';
+      const tc = TYPE_COLORS[c.type] || 'var(--neutral)';
       const pinned = this.hasPinned(c);
       const bullets = c.bullets.length === 1
-        ? h('span', { style: { color: 'oklch(0.78 0.012 60)' } }, this.hl(c.bullets[0]))
+        ? h('span', { style: { color: 'var(--text-1)' } }, this.hl(c.bullets[0]))
         : h('ul', {
-            style: { margin: '2px 0 0', paddingLeft: '16px', color: 'oklch(0.78 0.012 60)' },
+            style: { margin: '2px 0 0', paddingLeft: '16px', color: 'var(--text-1)' },
           }, c.bullets.map((b, j) => h('li', { key: j, style: { marginBottom: '2px' } }, this.hl(b))));
       // One layout for every row, however many entities it names: names inline,
       // then the text below. A single-entity row used to sit in a right-aligned
@@ -415,14 +611,14 @@ class Component extends DCLogic {
       const links = [];
       c.entities.forEach((name, k) => {
         if (k) links.push(h('span', {
-          key: 's' + k, style: { color: 'oklch(0.45 0.015 60)' },
+          key: 's' + k, style: { color: 'var(--text-5)' },
         }, ', '));
         const p = this.pinnedIn(c.type, name);
         links.push(h('a', {
           key: 'e' + k, href: hrefFor(name), target: '_blank', rel: 'noopener',
           title: p ? 'Pinned' : undefined,
           style: {
-            color: p ? 'oklch(0.88 0.09 85)' : tc, textDecoration: 'none',
+            color: p ? 'var(--gold-bright)' : tc, textDecoration: 'none',
             fontWeight: p ? 700 : 600, fontSize: '12.5px',
           },
         }, this.hl(name)));
@@ -437,7 +633,7 @@ class Component extends DCLogic {
         key: 'k',
         title: c.game === 'RS3' ? 'Text sourced from the RuneScape Wiki (runescape.wiki)' : undefined,
         style: {
-          fontFamily: "'IBM Plex Mono',monospace", fontSize: '9.5px', fontWeight: 600,
+          fontFamily: 'var(--font-mono)', fontSize: '9.5px', fontWeight: 600,
           letterSpacing: '0.05em', textTransform: 'uppercase', color: kc, whiteSpace: 'nowrap',
         },
       }, kind + (c.entities.length > 1 ? ' ×' + c.entities.length : ''));
@@ -447,7 +643,7 @@ class Component extends DCLogic {
         style: {
           display: 'flex', flexDirection: 'column', gap: '2px',
           fontSize: '13px', lineHeight: 1.55,
-          background: pinned ? 'oklch(0.78 0.15 75 / 0.07)' : 'transparent',
+          background: pinned ? 'color-mix(in oklch, var(--gold) 7%, transparent)' : 'transparent',
           borderRadius: pinned ? '6px' : 0,
           padding: pinned ? '4px 7px' : 0,
           marginLeft: pinned ? '-7px' : 0,
@@ -461,7 +657,7 @@ class Component extends DCLogic {
           key: 'b',
           style: {
             paddingLeft: '10px',
-            borderLeft: '1px solid ' + (pinned ? 'oklch(0.78 0.15 75 / 0.4)' : 'oklch(0.3 0.016 55)'),
+            borderLeft: '1px solid ' + (pinned ? 'color-mix(in oklch, var(--gold) 40%, transparent)' : 'var(--border-2)'),
           },
         }, bullets),
       ]);
@@ -469,21 +665,299 @@ class Component extends DCLogic {
     return h('div', {
       key: 'changes',
       style: {
-        borderLeft: '2px solid oklch(0.7 0.15 25 / 0.35)', padding: '9px 12px',
-        background: 'oklch(0.7 0.15 25 / 0.035)', borderRadius: '0 7px 7px 0',
+        borderLeft: '2px solid color-mix(in oklch, var(--red) 35%, transparent)', padding: '9px 12px',
+        background: 'color-mix(in oklch, var(--red) 3.5%, transparent)', borderRadius: '0 var(--r-ctl) var(--r-ctl) 0',
         display: 'flex', flexDirection: 'column', gap: '7px',
       },
     }, [
       this.subHeader(key, true,
-        'Changes to existing content · ' + entityCount, 'oklch(0.68 0.1 25)'),
+        'Changes to existing content · ' + entityCount, 'var(--red-dim)'),
       ...rows,
     ]);
   }
 
-  buildDetail(note, changes, keyBase) {
+  // Dashed border, not solid: the two blocks above it are sourced, this one is
+  // partly inference, and the reader should be able to tell at a glance without
+  // reading a badge.
+  buildUnconfirmed(list, key) {
+    const h = React.createElement;
+    const open = this.isSubOpen(key);
+    // "Unconfirmed" would be a lie for the Fenkenstrain spawn additions: Jagex
+    // published those. They are here because they created no entity, not
+    // because they are doubted.
+    const label = (list.some((u) => (u.confidence || 'likely') !== 'confirmed')
+      ? 'Unconfirmed' : 'Unlisted') + ' · ' + list.length;
+    const wrap = (kids) => h('div', {
+      key: 'unc',
+      style: {
+        borderLeft: '2px dashed ' + alpha(UNCONF_COLOR, 0.5),
+        background: alpha(UNCONF_COLOR, 0.035), borderRadius: '0 var(--r-ctl) var(--r-ctl) 0',
+        padding: open ? '9px 12px 10px' : '7px 12px',
+        display: 'flex', flexDirection: 'column', gap: open ? '9px' : 0,
+      },
+    }, kids);
+    const header = this.subHeader(key, open, label, 'var(--blue-dim)');
+    if (!open) return wrap([header]);
+
+    const rows = list.map((u, i) => {
+      const conf = CONFIDENCE[u.confidence] || CONFIDENCE.likely;
+      const tagText = conf.label + (u.kind === 'spawn' ? ' · spawns' : '');
+      const links = [];
+      (u.entities || []).forEach((name, k) => {
+        if (k) links.push(h('span', { key: 's' + k, style: { color: 'var(--text-5)' } }, ', '));
+        const p = this.isPinned(name);
+        links.push(h('a', {
+          key: 'e' + k, href: hrefFor(name), target: '_blank', rel: 'noopener',
+          title: p ? 'Pinned' : undefined,
+          style: {
+            color: p ? 'var(--gold-bright)' : 'var(--blue-soft)',
+            textDecoration: 'none', fontWeight: p ? 700 : 600, fontSize: '12.5px',
+          },
+        }, this.hl(name)));
+      });
+      const body = [
+        h('div', {
+          key: 'l', style: { display: 'flex', alignItems: 'baseline', gap: '7px', flexWrap: 'wrap' },
+        }, [
+          h('span', { key: 'n' }, links),
+          h('span', {
+            key: 'c',
+            style: {
+              fontFamily: 'var(--font-mono)', fontSize: '9.5px', fontWeight: 600,
+              letterSpacing: '0.05em', textTransform: 'uppercase', color: conf.color,
+              whiteSpace: 'nowrap',
+            },
+          }, tagText),
+        ]),
+        h('div', {
+          key: 't', style: { color: 'var(--text-1)', fontSize: '13px', lineHeight: 1.55 },
+        }, this.hl(u.text)),
+      ];
+      // Spawn counts are today's wiki figures, so they are labelled "today" on
+      // every row rather than in a footnote nobody reads. The patch notes say
+      // "more", never how many.
+      if (u.spawns && u.spawns.length) body.push(h('div', {
+        key: 'sp',
+        style: { display: 'flex', flexDirection: 'column', gap: '2px', margin: '3px 0 1px' },
+      }, u.spawns.map((sp, j) => h('div', {
+        key: j,
+        style: {
+          display: 'flex', alignItems: 'baseline', gap: '8px', flexWrap: 'wrap',
+          fontFamily: 'var(--font-mono)', fontSize: '11.5px',
+          color: 'var(--text-2)',
+        },
+      }, [
+        h('span', { key: 'c', style: { color: UNCONF_COLOR, minWidth: '54px' } },
+          sp.count + ' today'),
+        h('span', { key: 'a' }, this.hl(sp.area)),
+        sp.note ? h('span', { key: 'n', style: { color: 'var(--text-4)' } },
+          '— ' + sp.note) : null,
+      ]))));
+      [['basis', u.basis], ['caveat', u.caveat]].forEach(([k, v]) => {
+        if (v) body.push(h('div', {
+          key: k,
+          style: { fontSize: '12px', lineHeight: 1.5, color: 'var(--text-3)', fontStyle: 'italic' },
+        }, this.hl(v)));
+      });
+      if (u.source) body.push(h('a', {
+        key: 'src', href: u.source, target: '_blank', rel: 'noopener',
+        style: {
+          color: 'var(--blue-dim)', textDecoration: 'none',
+          fontFamily: 'var(--font-mono)', fontSize: '11px',
+        },
+      }, 'source ↗'));
+      return h('div', {
+        key: i,
+        style: {
+          display: 'flex', flexDirection: 'column', gap: '3px',
+          paddingLeft: '10px', borderLeft: '1px solid var(--border-2)',
+        },
+      }, body);
+    });
+    return wrap([header, ...rows]);
+  }
+
+  // A bullet list out of the wiki, as elements. Nesting is meaningful here in a
+  // way it never was for change bullets -- a requirements list opens with
+  // "Completion of the following quests:" and then indents the actual quests --
+  // so depth is rendered, not flattened. Links route through hrefFor like every
+  // other entity link on the page (CLAUDE.md trap 10).
+  questBullets(rows, color) {
+    const h = React.createElement;
+    // Depth 0 is a heading inside the list, not a bullet: it gets no marker
+    // and sits flush, so "To complete all chapters of the quest:" reads as the
+    // divider it is rather than as another requirement.
+    return rows.map((b, i) => h('div', {
+      key: i,
+      style: {
+        display: 'flex', gap: '6px', fontSize: '13px', lineHeight: 1.55,
+        // Belt and braces against a long unbreakable token in wiki text: one
+        // un-stripped `<abbr title=...>` was enough to push the whole page
+        // 240px sideways before the extractor learned to drop every tag.
+        minWidth: 0, overflowWrap: 'anywhere',
+        color: b.d ? 'var(--text-1)' : 'var(--text-2)',
+        fontWeight: b.d ? 400 : 600,
+        marginTop: b.d ? 0 : '5px',
+        paddingLeft: (Math.max(b.d - 1, 0) * 15) + 'px',
+      },
+    }, [
+      h('span', { key: 'm', style: { color, flex: 'none', display: b.d ? 'inline' : 'none' } },
+        b.d > 1 ? '\u25e6' : '\u2022'),
+      h('span', { key: 't' }, b.p.map((part, j) => (typeof part === 'string'
+        ? h('span', { key: j }, this.hl(part))
+        : h('a', {
+            key: j, href: hrefFor(part[1] || part[0]), target: '_blank', rel: 'noopener',
+            style: { color: 'var(--blue-dim)', textDecoration: 'none' },
+          }, this.hl(part[0]))))),
+    ]));
+  }
+
+  // One block per side of a quest. `mode` is 'req' or 'rew'; an update that adds
+  // several quests (Recipe for Disaster names nine) renders one sub-heading per
+  // quest inside the single block rather than repeating the block.
+  buildQuestBlock(names, mode, key) {
+    const h = React.createElement;
+    const open = this.isSubOpen(key);
+    const isReq = mode === 'req';
+    const color = isReq ? 'var(--kind-requirement)' : 'var(--type-skill)';
+    const qs = names.map((n) => [n, this.state.quests[n]]).filter((x) => x[1]);
+    if (!qs.length) return null;
+    const qpTotal = qs.reduce((a, q) => a + (q[1].qp || 0), 0);
+    const label = (isReq ? 'Requirements' : 'Rewards')
+      + (!isReq && qpTotal ? ' \u00b7 ' + qpTotal + ' QP' : '')
+      + (qs.length > 1 ? ' \u00b7 ' + qs.length + ' quests' : '');
+    const wrap = (kids) => h('div', {
+      key: mode,
+      style: {
+        borderLeft: '2px solid ' + alpha(color, 0.4),
+        background: alpha(color, 0.035), borderRadius: '0 var(--r-ctl) var(--r-ctl) 0',
+        padding: open ? '9px 12px 10px' : '7px 12px',
+        display: 'flex', flexDirection: 'column', gap: open ? '8px' : 0,
+      },
+    }, kids);
+    const header = this.subHeader(key, open, label, color);
+    if (!open) return wrap([header]);
+
+    const bodies = qs.map((entry, i) => {
+      const name = entry[0];
+      const q = entry[1];
+      const kids = [];
+      if (qs.length > 1) kids.push(h('div', {
+        key: 'n',
+        style: {
+          fontFamily: 'var(--font-head)', fontSize: '13.5px', fontWeight: 600,
+          color: 'var(--text-0)', marginTop: i ? '8px' : 0,
+        },
+      }, this.hl(name)));
+      if (isReq) {
+        // Quest and skill requirements only. Start point, items needed and
+        // enemies to defeat are dropped by the generator: they describe a modern
+        // route through the quest, not the 2005 one.
+        const meta = [q.difficulty, q.length].filter(Boolean).join(' \u00b7 ');
+        if (meta) kids.push(h('div', {
+          key: 'm',
+          style: { fontFamily: 'var(--font-mono)', fontSize: '11px', color: 'var(--text-4)' },
+        }, meta));
+        if (q.requirements.length) kids.push(...this.questBullets(q.requirements, color));
+        else kids.push(h('div', {
+          key: 'none',
+          style: { fontSize: '13px', color: 'var(--text-4)', fontStyle: 'italic' },
+        }, 'No quest or skill requirements.'));
+      } else {
+        // No "N quest points" line: the block header already says "\u00b7 N QP".
+        kids.push(...this.questBullets(q.rewards, color));
+        // An XP award the wiki reports at a figure the quest did not pay at this
+        // build. The bullet above already shows the period value; this says so
+        // out loud, because printing a corrected number with no note would be
+        // the same failure as printing the modern one.
+        if (q.buffs && q.buffs.length) kids.push(h('div', {
+          key: 'buff',
+          style: {
+            marginTop: '5px', paddingTop: '5px', borderTop: '1px solid var(--border-2)',
+            fontFamily: 'var(--font-mono)', fontSize: '11px', lineHeight: 1.6,
+            color: 'var(--kind-value)',
+          },
+        }, q.buffs.map((b, j) => h('div', { key: j },
+          'Corrected: ' + b.skill + ' ' + b.was.toLocaleString()
+          + ' \u2014 OSRS raised it to ' + b.now.toLocaleString()
+          + ' on ' + b.date))));
+        // The build's own numbers, shown beside the wiki's rather than merged
+        // into them: the wiki describes today's quest, the branch describes
+        // 2005, and a disagreement between them is the only drift signal there
+        // is. See the header of quests-data.js.
+        if (q.lc) {
+          const bits = [];
+          if (q.lc.qp != null) bits.push(q.lc.qp + ' QP');
+          q.lc.items.forEach((it) => bits.push(
+            (it.n > 1 ? it.n.toLocaleString() + ' ' : '') + it.obj.replace(/_/g, ' ')));
+          // xp is a list per skill: a quest that lets the player choose which
+          // skills take the larger award has both values in its script, so it
+          // renders as a range rather than as two separate awards.
+          q.lc.xp.forEach((x) => bits.push(
+            x.xp.map((v) => v.toLocaleString()).join('\u2013') + ' ' + x.skill));
+          const drift = q.lc.qp != null && q.qp != null && q.lc.qp !== q.qp;
+          kids.push(h('div', {
+            key: 'lc',
+            style: {
+              marginTop: '5px', paddingTop: '5px', borderTop: '1px solid var(--border-2)',
+              fontFamily: 'var(--font-mono)', fontSize: '11px', lineHeight: 1.6,
+              color: drift ? 'var(--gold-bright)' : 'var(--text-3)',
+            },
+          }, 'Lost City build ' + q.lc.branch + ' implements (authoritative for this build): ' + bits.join(' \u00b7 ')
+             + (drift ? '  \u2014 quest points differ from the wiki' : '')));
+        }
+      }
+      return h('div', {
+        key: name,
+        style: {
+          display: 'flex', flexDirection: 'column', gap: '2px',
+          paddingLeft: '10px', borderLeft: '1px solid var(--border-2)',
+        },
+      }, kids);
+    });
+
+    // Never render these without the caveat. The source is the wiki as it stands
+    // now, and 2005 requirements and rewards were not the same.
+    // A short list is otherwise indistinguishable from a quest that simply gives
+    // little, so say when lines were removed rather than quietly showing fewer.
+    const cut = qs.reduce((a, x) => a + (x[1].cut || 0), 0);
+    const buffed = isReq ? 0 : qs.reduce((a, x) => a + ((x[1].buffs || []).length), 0);
+    const foot = h('div', {
+      key: 'foot',
+      style: { display: 'flex', gap: '8px', flexWrap: 'wrap', alignItems: 'baseline' },
+    }, [
+      h('span', {
+        key: 'c',
+        style: { fontSize: '11.5px', color: 'var(--text-4)', fontStyle: 'italic' },
+      }, 'As documented on the OSRS Wiki today \u2014 requirements and rewards have changed since 2005.'
+         + (cut ? ' ' + cut + ' line' + (cut === 1 ? '' : 's') + ' hidden: they cite content released '
+            + 'after this build, or are not a quest or skill requirement.' : '')
+         + (buffed ? ' ' + buffed + ' XP figure' + (buffed === 1 ? '' : 's') + ' corrected back to '
+            + 'what this build paid; only buffs the wiki records are visible.' : '')),
+      qs.length === 1 ? h('a', {
+        key: 'a', href: qs[0][1].url, target: '_blank', rel: 'noopener',
+        style: {
+          color: 'var(--blue-dim)', textDecoration: 'none',
+          fontFamily: 'var(--font-mono)', fontSize: '11px',
+        },
+      }, 'read on the wiki \u2197') : null,
+    ]);
+    return wrap([header].concat(bodies, [foot]));
+  }
+
+  buildDetail(note, questNames, unconf, changes, keyBase) {
     const h = React.createElement;
     const kids = [];
     if (note && this.state.showNotes) kids.push(this.buildNote(note, keyBase + '|note'));
+    if (questNames && questNames.length && this.state.showQuests) {
+      const req = this.buildQuestBlock(questNames, 'req', keyBase + '|req');
+      const rew = this.buildQuestBlock(questNames, 'rew', keyBase + '|rew');
+      if (req) kids.push(req);
+      if (rew) kids.push(rew);
+    }
+    if (unconf && unconf.length && this.state.showUnconf) {
+      kids.push(this.buildUnconfirmed(unconf, keyBase + '|unc'));
+    }
     if (changes && changes.length && this.state.showChanges) {
       kids.push(this.buildChanges(changes, keyBase + '|chg'));
     }
@@ -529,6 +1003,9 @@ class Component extends DCLogic {
     import('./update-notes-data.js')
       .then((mod) => this.setState({ notes: mod.UPDATE_NOTES || {} }))
       .catch(() => {});
+    import('./quests-data.js')
+      .then((mod) => this.setState({ quests: mod.QUESTS || {} }))
+      .catch(() => {});
     import('./changes-data.js')
       .then((mod) => this.setState({
         changes: mod.CHANGES || {}, changesByBuild: mod.CHANGES_BY_BUILD || {},
@@ -555,6 +1032,8 @@ class Component extends DCLogic {
       this._ro.observe(sticky);
     }
     this._measure();
+    const t = document.documentElement.getAttribute('data-theme');
+    if (t && t !== this.state.theme) this.setState({ theme: t });
   }
   componentWillUnmount() {
     window.removeEventListener('scroll', this._onScroll);
@@ -582,6 +1061,15 @@ class Component extends DCLogic {
     if (el) window.scrollTo({ top: el.getBoundingClientRect().top + window.scrollY - this.stickyHeight(), behavior: 'instant' });
   }
 
+  // The attribute is already on <html> before React mounts (see the inline
+  // script in <helmet>); this only keeps state in sync so the buttons can show
+  // which one is active.
+  setTheme(t) {
+    document.documentElement.setAttribute('data-theme', t);
+    try { localStorage.setItem('lc_roadmap_theme', t); } catch (e) {}
+    this.setState({ theme: t });
+  }
+
   isOpen(key) {
     const o = this.state.overrides[key];
     return o === undefined ? !this.state.allClosed : o;
@@ -603,19 +1091,19 @@ class Component extends DCLogic {
   hideAllTypes(allTypes) { this.setState({ hiddenTypes: new Set(allTypes) }); }
   btn(active, color) {
     return {
-      fontSize: '13px', fontWeight: 600, padding: '8px 13px', borderRadius: '7px', cursor: 'pointer',
-      fontFamily: "'IBM Plex Sans',sans-serif",
-      border: '1px solid ' + (active ? color : 'oklch(0.32 0.02 55)'),
-      background: active ? alpha(color, 0.18) : 'oklch(0.225 0.016 55)',
-      color: active ? color : 'oklch(0.72 0.015 60)',
+      fontSize: '13px', fontWeight: 600, padding: '8px 13px', borderRadius: 'var(--r-ctl)', cursor: 'pointer',
+      fontFamily: 'var(--font-body)',
+      border: '1px solid ' + (active ? color : 'var(--border-3)'),
+      background: active ? alpha(color, 0.18) : 'var(--bg-2)',
+      color: active ? color : 'var(--text-2)',
     };
   }
 
   renderVals() {
     const s = this.state;
     const term = s.search.trim().toLowerCase();
-    const gold = 'oklch(0.78 0.15 75)';
-    const blue = 'oklch(0.72 0.1 210)';
+    const gold = 'var(--gold)';
+    const blue = 'var(--blue)';
 
     const totals = {};
     s.packages.forEach((p) => p.items.forEach((it) => {
@@ -628,11 +1116,11 @@ class Component extends DCLogic {
     }));
 
     const chipStyle = (on, color) => ({
-      fontSize: '12px', fontWeight: 600, padding: '4px 9px', borderRadius: '20px', cursor: 'pointer',
-      fontFamily: "'IBM Plex Sans',sans-serif", whiteSpace: 'nowrap',
-      border: '1px solid ' + (on ? alpha(color, 0.55) : 'oklch(0.29 0.015 55)'),
+      fontSize: '12px', fontWeight: 600, padding: '4px 9px', borderRadius: 'var(--r-pill)', cursor: 'pointer',
+      fontFamily: 'var(--font-body)', whiteSpace: 'nowrap',
+      border: '1px solid ' + (on ? alpha(color, 0.55) : 'var(--border-1)'),
       background: on ? alpha(color, 0.14) : 'transparent',
-      color: on ? color : 'oklch(0.45 0.015 60)',
+      color: on ? color : 'var(--text-5)',
     });
 
     const presentTypes = TYPE_ORDER.filter((t) => totals[t]);
@@ -652,11 +1140,11 @@ class Component extends DCLogic {
       && [...s.hiddenTypes].every((t) => s.defaultHidden.has(t));
     const actionStyle = (enabled) => ({
       fontSize: '10.5px', fontWeight: 600, letterSpacing: '0.04em', textTransform: 'uppercase',
-      padding: '7px 11px', borderRadius: '7px', fontFamily: "'IBM Plex Mono',monospace",
+      padding: '7px 11px', borderRadius: 'var(--r-ctl)', fontFamily: 'var(--font-mono)',
       whiteSpace: 'nowrap', cursor: enabled ? 'pointer' : 'default',
-      border: '1px solid ' + (enabled ? 'oklch(0.34 0.02 55)' : 'oklch(0.26 0.014 55)'),
-      background: enabled ? 'oklch(0.255 0.016 55)' : 'oklch(0.205 0.014 55)',
-      color: enabled ? 'oklch(0.8 0.012 60)' : 'oklch(0.4 0.015 60)',
+      border: '1px solid ' + (enabled ? 'var(--border-4)' : 'var(--border-1)'),
+      background: enabled ? 'var(--bg-3)' : 'var(--bg-1)',
+      color: enabled ? 'var(--text-1)' : 'var(--text-6)',
     });
     const filterActions = [
       { label: 'Show all', onClick: () => { if (anyHidden) this.showAllTypes(); },
@@ -675,39 +1163,55 @@ class Component extends DCLogic {
     const noteTotal = Object.keys(s.notes).length;
     const changeTotal = Object.values(s.changes).concat(Object.values(s.changesByBuild))
       .reduce((a, l) => a + l.reduce((b, c) => b + c.entities.length, 0), 0);
+    // Counted off the packages themselves — unconfirmed entries live on the
+    // update in updates-data.js, not in a generated lookup keyed by title.
+    const questTotal = Object.keys(s.quests).length;
+    let unconfTotal = 0;
+    let spawnTotal = 0;
+    s.packages.forEach((p) => p.items.forEach((it) => (it.unconfirmed || []).forEach((u) => {
+      unconfTotal += 1;
+      if (u.kind === 'spawn') spawnTotal += 1;
+    })));
     const detailChip = (on, color, label, allOpen, onToggle, onExpand) => ({
       label,
       onToggle,
       onExpand,
       expandIcon: allOpen ? '▾' : '▸',
       expandTitle: (allOpen ? 'Collapse' : 'Expand') + ' every ' + label.replace(/ \d+$/, '')
-        .toLowerCase() + ' block',
+        .replace(/ \u00b7 .*$/, '').toLowerCase() + ' block',
       wrapStyle: {
-        display: 'inline-flex', alignItems: 'stretch', borderRadius: '20px',
-        border: '1px solid ' + (on ? alpha(color, 0.55) : 'oklch(0.29 0.015 55)'),
+        display: 'inline-flex', alignItems: 'stretch', borderRadius: 'var(--r-pill)',
+        border: '1px solid ' + (on ? alpha(color, 0.55) : 'var(--border-1)'),
         background: on ? alpha(color, 0.14) : 'transparent',
         overflow: 'hidden', whiteSpace: 'nowrap',
       },
       labelStyle: {
         fontSize: '12px', fontWeight: 600, padding: '4px 7px 4px 9px', cursor: 'pointer',
-        fontFamily: "'IBM Plex Sans',sans-serif", userSelect: 'none',
-        color: on ? color : 'oklch(0.45 0.015 60)',
+        fontFamily: 'var(--font-body)', userSelect: 'none',
+        color: on ? color : 'var(--text-5)',
       },
       expandStyle: {
         fontSize: '10px', padding: '4px 8px 4px 6px', cursor: on ? 'pointer' : 'not-allowed',
         display: 'flex', alignItems: 'center', userSelect: 'none',
-        borderLeft: '1px solid ' + (on ? alpha(color, 0.4) : 'oklch(0.29 0.015 55)'),
-        color: on ? color : 'oklch(0.35 0.015 60)',
+        borderLeft: '1px solid ' + (on ? alpha(color, 0.4) : 'var(--border-1)'),
+        color: on ? color : 'var(--text-6)',
         background: on && allOpen ? alpha(color, 0.18) : 'transparent',
       },
     });
     const detailChips = [
       detailChip(s.showNotes, gold, 'Patch notes ' + noteTotal, s.allNotesOpen,
         () => this.setState((st) => ({ showNotes: !st.showNotes })),
-        () => { if (s.showNotes) this.toggleAllSub('note'); }),
-      detailChip(s.showChanges, 'oklch(0.7 0.15 25)', 'Changes ' + changeTotal, s.allChangesOpen,
+        () => { if (s.showNotes) this.toggleAllSub('allNotesOpen', ['note']); }),
+      detailChip(s.showQuests, 'var(--kind-requirement)', 'Quest details ' + questTotal,
+        s.allQuestOpen,
+        () => this.setState((st) => ({ showQuests: !st.showQuests })),
+        () => { if (s.showQuests) this.toggleAllSub('allQuestOpen', ['req', 'rew']); }),
+      detailChip(s.showUnconf, UNCONF_COLOR, 'Unconfirmed ' + unconfTotal, s.allUnconfOpen,
+        () => this.setState((st) => ({ showUnconf: !st.showUnconf })),
+        () => { if (s.showUnconf) this.toggleAllSub('allUnconfOpen', ['unc']); }),
+      detailChip(s.showChanges, 'var(--red)', 'Changes ' + changeTotal, s.allChangesOpen,
         () => this.setState((st) => ({ showChanges: !st.showChanges })),
-        () => { if (s.showChanges) this.toggleAllSub('chg'); }),
+        () => { if (s.showChanges) this.toggleAllSub('allChangesOpen', ['chg']); }),
     ];
 
     // Build 274 is already live, so the roadmap starts at the next package.
@@ -741,6 +1245,21 @@ class Component extends DCLogic {
         const note = s.showNotes ? s.notes[it.title] : null;
         let changes = s.showChanges ? (s.changes[it.title] || []) : [];
         if (s.onlyPinned) changes = changes.filter((c) => this.hasPinned(c));
+        // Unconfirmed entries are hand-written on the update in updates-data.js,
+        // not joined in from a generated file, so there is no title lookup here.
+        // Taken from the update's own entities rather than from the filtered
+        // `groups`: hiding the Quest chip type is a chip-level filter, and the
+        // detail layer has its own SHOW chip to switch it off.
+        const hidden = new Set(it.hide || []);
+        const questNames = s.showQuests
+          ? ((it.entities || []).find((g) => g.type === 'Quest') || { names: [] })
+              .names.filter((n) => !hidden.has(n))
+          : [];
+        let unconf = s.showUnconf ? (it.unconfirmed || []) : [];
+        if (s.onlySpawns) unconf = unconf.filter((u) => u.kind === 'spawn');
+        if (s.onlyPinned) {
+          unconf = unconf.filter((u) => (u.entities || []).some((n) => this.isPinned(n)));
+        }
         // Search reaches into the patch-note prose and the change text, because
         // content like "more hellhounds in the Taverley dungeon" exists only
         // there — it created no entity, so no chip can ever match it.
@@ -749,14 +1268,22 @@ class Component extends DCLogic {
             sec.heading.toLowerCase().includes(term) || sec.text.toLowerCase().includes(term)))
           || changes.some((c) => c.entities.some((e) => e.toLowerCase().includes(term))
             || c.bullets.some((b) => b.toLowerCase().includes(term)))
+          // Same reason the note prose is searched: "green dragon" appears in no
+          // chip on this page, only in the claim text.
+          || unconf.some((u) => (u.text + ' ' + (u.caveat || '') + ' ' + (u.basis || '')
+            + ' ' + (u.entities || []).join(' ')
+            + ' ' + (u.spawns || []).map((sp) => sp.area).join(' ')).toLowerCase().includes(term))
         );
         const titleHit = !term || it.title.toLowerCase().includes(term) || String(pkg.build).includes(term);
         if (term && !titleHit && !noteHit && groups.length === 0) continue;
+        // "Spawns only" is a filter on the update, not just on the block: an
+        // update with no spawn entry has nothing to say here and should go.
+        if (s.onlySpawns && !unconf.length) continue;
 
         const count = groups.reduce((a, g) => a + g.names.length, 0);
         pkgCount += count;
         const key = pkg.build + '|' + it.title;
-        const detailEl = this.buildDetail(note, changes, key);
+        const detailEl = this.buildDetail(note, questNames, unconf, changes, key);
         const hasDetail = !!detailEl;
         const expandable = groups.length > 0 || hasDetail;
         const open = this.isOpen(key) && expandable;
@@ -769,27 +1296,27 @@ class Component extends DCLogic {
           note: it.note || '',
           caret: expandable ? (open ? '\u2013' : '+') : '\u00b7',
           caretStyle: {
-            fontFamily: "'IBM Plex Mono',monospace", fontSize: '13px', width: '14px', flex: 'none',
-            color: expandable ? 'oklch(0.55 0.015 60)' : 'oklch(0.35 0.015 60)', textAlign: 'center',
+            fontFamily: 'var(--font-mono)', fontSize: '13px', width: '14px', flex: 'none',
+            color: expandable ? 'var(--text-4)' : 'var(--text-6)', textAlign: 'center',
           },
           starStyle: {
             fontSize: '12px', flex: 'none', display: it.star ? 'inline' : 'none', color: gold,
           },
           titleStyle: {
             fontSize: it.star ? '16.5px' : '15.5px', fontWeight: it.star ? 700 : 600,
-            color: it.star ? gold : 'oklch(0.93 0.01 60)', fontFamily: "'Space Grotesk',sans-serif",
+            color: it.star ? gold : 'var(--text-0)', fontFamily: 'var(--font-head)',
           },
           countStyle: {
-            fontFamily: "'IBM Plex Mono',monospace", fontSize: '11.5px', color: 'oklch(0.52 0.015 60)',
+            fontFamily: 'var(--font-mono)', fontSize: '11.5px', color: 'var(--text-4)',
             flex: 'none', display: count ? 'inline' : 'none',
           },
           countLabel: count ? count + '' : '',
           metaLabel: it.build && it.build !== pkg.build ? '#' + it.build : '',
           onToggle: () => this.toggleItem(key),
           wrapStyle: {
-            background: it.star ? alpha(gold, 0.07) : 'oklch(0.2 0.014 55)',
-            border: '1px solid ' + (it.star ? alpha(gold, 0.3) : 'oklch(0.29 0.016 55)'),
-            borderRadius: '10px', padding: '11px 13px',
+            background: it.star ? alpha(gold, 0.07) : 'var(--bg-1)',
+            border: '1px solid ' + (it.star ? alpha(gold, 0.3) : 'var(--border-1)'),
+            borderRadius: 'var(--r-item)', padding: '11px 13px',
           },
           headStyle: {
             display: 'flex', alignItems: 'center', gap: '8px',
@@ -804,12 +1331,19 @@ class Component extends DCLogic {
           changeCount: changes.length
             ? changes.reduce((a, c) => a + c.entities.length, 0) + ' changed' : '',
           changeCountStyle: {
-            fontFamily: "'IBM Plex Mono',monospace", fontSize: '11px', flex: 'none',
-            color: 'oklch(0.68 0.1 25)', display: changes.length ? 'inline' : 'none',
+            fontFamily: 'var(--font-mono)', fontSize: '11px', flex: 'none',
+            color: 'var(--red-dim)', display: changes.length ? 'inline' : 'none',
           },
           noteDotStyle: {
-            fontSize: '10px', flex: 'none', color: 'oklch(0.7 0.09 75)',
+            fontSize: '10px', flex: 'none', color: 'var(--gold-dim)',
             display: note ? 'inline' : 'none',
+          },
+          // A hollow diamond rather than the note's filled dot: same glanceable
+          // position in the header row, different shape for a different kind of
+          // claim.
+          uncDotStyle: {
+            fontSize: '10px', flex: 'none', color: UNCONF_COLOR,
+            display: unconf.length ? 'inline' : 'none',
           },
           chipsEl: this.buildChips(groups),
           detailEl,
@@ -819,7 +1353,8 @@ class Component extends DCLogic {
       // Changes whose originating update is not itemised on this page still
       // belong to the build. They get one collapsed entry per package rather
       // than being dropped — losing them would misrepresent what the build did.
-      let loose = s.showChanges && !s.onlyStarred ? (s.changesByBuild[pkg.build] || []) : [];
+      let loose = s.showChanges && !s.onlyStarred && !s.onlySpawns
+        ? (s.changesByBuild[pkg.build] || []) : [];
       if (s.onlyPinned) loose = loose.filter((c) => this.hasPinned(c));
       if (term && loose.length) {
         loose = loose.filter((c) => c.entities.some((e) => e.toLowerCase().includes(term))
@@ -834,37 +1369,37 @@ class Component extends DCLogic {
           star: false, hasNote: false, note: '',
           caret: open ? '–' : '+',
           caretStyle: {
-            fontFamily: "'IBM Plex Mono',monospace", fontSize: '13px', width: '14px',
-            flex: 'none', color: 'oklch(0.55 0.015 60)', textAlign: 'center',
+            fontFamily: 'var(--font-mono)', fontSize: '13px', width: '14px',
+            flex: 'none', color: 'var(--text-4)', textAlign: 'center',
           },
           starStyle: { display: 'none' },
           titleStyle: {
-            fontSize: '15px', fontWeight: 600, color: 'oklch(0.74 0.02 60)',
-            fontFamily: "'Space Grotesk',sans-serif", fontStyle: 'italic',
+            fontSize: '15px', fontWeight: 600, color: 'var(--text-2)',
+            fontFamily: 'var(--font-head)', fontStyle: 'italic',
           },
           countStyle: { display: 'none' }, countLabel: '',
-          noteDotStyle: { display: 'none' },
+          noteDotStyle: { display: 'none' }, uncDotStyle: { display: 'none' },
           changeCount: loose.reduce((a, c) => a + c.entities.length, 0) + ' changed',
           changeCountStyle: {
-            fontFamily: "'IBM Plex Mono',monospace", fontSize: '11px', flex: 'none',
-            color: 'oklch(0.68 0.1 25)',
+            fontFamily: 'var(--font-mono)', fontSize: '11px', flex: 'none',
+            color: 'var(--red-dim)',
           },
           metaLabel: '', onToggle: () => this.toggleItem(key),
           wrapStyle: {
-            background: 'oklch(0.2 0.014 55)', border: '1px dashed oklch(0.29 0.016 55)',
-            borderRadius: '10px', padding: '11px 13px',
+            background: 'var(--bg-1)', border: '1px dashed var(--border-1)',
+            borderRadius: 'var(--r-item)', padding: '11px 13px',
           },
           headStyle: {
             display: 'flex', alignItems: 'center', gap: '8px',
             cursor: 'pointer', userSelect: 'none',
           },
           open, showChips: false, showDetail: open,
-          chipsEl: null, detailEl: this.buildDetail(null, loose, key),
+          chipsEl: null, detailEl: this.buildDetail(null, null, null, loose, key),
         });
       }
 
-      const statusTextColor = pkg.status === 'done' ? 'oklch(0.2 0.03 155)' : pkg.status === 'next' ? 'oklch(0.2 0.05 75)' : 'oklch(0.85 0.01 60)';
-      const statusBgColor = pkg.status === 'done' ? 'oklch(0.7 0.12 155)' : pkg.status === 'next' ? gold : 'oklch(0.32 0.02 55)';
+      const statusTextColor = pkg.status === 'done' ? 'var(--on-green)' : pkg.status === 'next' ? 'var(--on-gold)' : 'var(--text-1)';
+      const statusBgColor = pkg.status === 'done' ? 'var(--green-deep)' : pkg.status === 'next' ? gold : 'var(--border-3)';
       const statusLabel = pkg.status === 'done' ? 'Released' : pkg.status === 'next' ? 'In development' : 'Planned';
       const buildLabel = pkg.from && pkg.from < pkg.build ? '#' + pkg.from + '\u2013' + pkg.build : '#' + pkg.build;
 
@@ -887,11 +1422,11 @@ class Component extends DCLogic {
         label: '' + pkg.build,
         onClick: () => this.scrollToBuild(pkg.build),
         chipStyle: {
-          fontFamily: "'IBM Plex Mono',monospace", fontSize: '12px', fontWeight: 600,
-          padding: '5px 0', borderRadius: '7px', cursor: 'pointer', width: '100%',
-          border: '1px solid ' + (active ? gold : 'oklch(0.3 0.018 55)'),
-          background: active ? alpha(gold, 0.18) : 'oklch(0.225 0.016 55)',
-          color: active ? gold : 'oklch(0.72 0.015 60)',
+          fontFamily: 'var(--font-mono)', fontSize: '12px', fontWeight: 600,
+          padding: '5px 0', borderRadius: 'var(--r-ctl)', cursor: 'pointer', width: '100%',
+          border: '1px solid ' + (active ? gold : 'var(--border-2)'),
+          background: active ? alpha(gold, 0.18) : 'var(--bg-2)',
+          color: active ? gold : 'var(--text-2)',
           textAlign: 'center', flex: 'none',
         },
       };
@@ -918,13 +1453,13 @@ class Component extends DCLogic {
       overflowY: 'auto', overflowX: 'hidden',
       display: s.packages.length ? 'flex' : 'none', flexDirection: 'column', gap: '4px',
       padding: '10px 6px',
-      background: 'oklch(0.2 0.015 55)', border: '1px solid oklch(0.3 0.018 55)',
-      borderRight: 'none', borderRadius: '10px 0 0 10px',
-      scrollbarWidth: 'thin', scrollbarColor: 'oklch(0.35 0.02 55) transparent',
+      background: 'var(--bg-1)', border: '1px solid var(--border-2)',
+      borderRight: 'none', borderRadius: 'var(--r-item) 0 0 var(--r-item)',
+      scrollbarWidth: 'thin', scrollbarColor: 'var(--border-4) transparent',
     };
     const railLabelStyle = {
-      fontFamily: "'IBM Plex Mono',monospace", fontSize: '9px', fontWeight: 600,
-      letterSpacing: '0.08em', color: 'oklch(0.5 0.015 60)', textAlign: 'center',
+      fontFamily: 'var(--font-mono)', fontSize: '9px', fontWeight: 600,
+      letterSpacing: '0.08em', color: 'var(--text-4)', textAlign: 'center',
       marginBottom: '2px', flex: 'none',
     };
     // The rail is out of flow, so the page reserves its width here — otherwise
@@ -946,12 +1481,42 @@ class Component extends DCLogic {
       iconBtnStyle: this.btn(s.showIcons, blue),
       toggleOnlyPinned: () => this.setState((st) => ({ onlyPinned: !st.onlyPinned })),
       pinnedBtnStyle: this.btn(s.onlyPinned, gold),
+      // Filtering to spawns and then finding a collapsed block would look
+      // broken, so switching it on also switches the layer on, expands every
+      // unconfirmed block (dropping stale per-block overrides, as toggleAllSub
+      // does) and opens the surviving updates.
+      toggleOnlySpawns: () => this.setState((st) => {
+        if (st.onlySpawns) return { onlySpawns: false };
+        const sub = {};
+        Object.keys(st.subOpen).forEach((k) => { if (!k.endsWith('|unc')) sub[k] = st.subOpen[k]; });
+        return {
+          onlySpawns: true, showUnconf: true, allUnconfOpen: true, subOpen: sub,
+          allClosed: false, overrides: {},
+        };
+      }),
+      spawnsBtnStyle: this.btn(s.onlySpawns, UNCONF_COLOR),
+      spawnsLabel: '◇ Spawns ' + spawnTotal,
+      themeWrapStyle: {
+        display: 'inline-flex', border: '1px solid var(--border-3)',
+        borderRadius: 'var(--r-ctl)', overflow: 'hidden', flex: 'none',
+      },
+      themeBtns: ['editorial', 'terminal'].map((t) => ({
+        label: t.charAt(0).toUpperCase() + t.slice(1),
+        onClick: () => this.setTheme(t),
+        style: {
+          fontFamily: 'var(--font-mono)', fontSize: '10.5px', fontWeight: 600,
+          letterSpacing: '0.05em', textTransform: 'uppercase', padding: '6px 10px',
+          border: 'none', cursor: 'pointer', whiteSpace: 'nowrap',
+          background: s.theme === t ? alpha(gold, 0.18) : 'var(--bg-2)',
+          color: s.theme === t ? gold : 'var(--text-4)',
+        },
+      })),
       railStyle, railLabelStyle, shellStyle, contentStyle, stickyStyle, detailChips,
       toggleCollapse: () => this.setState((st) => ({ allClosed: !st.allClosed, overrides: {} })),
       collapseBtnStyle: this.btn(false, blue),
       collapseLabel: s.allClosed ? 'Expand all' : 'Collapse all',
       chipHoverStyle: { filter: 'brightness(1.2)' },
-      entHoverStyle: { background: 'oklch(0.3 0.02 55)', color: 'oklch(0.95 0.01 60)' },
+      entHoverStyle: { background: 'var(--border-2)', color: 'var(--text-0)' },
       typeFilters, filterActions, navItems, renderPackages,
       noResults: s.packages.length > 0 && renderPackages.length === 0,
     };
