@@ -192,7 +192,6 @@
         <input type="text" placeholder="Search updates, items, monsters&hellip;" value="{{ search }}" onChange="{{ setSearch }}" style="background:var(--bg-2); border:1px solid var(--border-3); color:var(--text-0); border-radius:var(--r-input); padding:9px 14px; font-size:14px; font-family:var(--font-body); width:250px; outline:none;" />
         <button onClick="{{ toggleOnlyStarred }}" style="{{ starBtnStyle }}" style-hover="{{ chipHoverStyle }}">&#9733; Starred only</button>
         <button onClick="{{ toggleOnlyPinned }}" style="{{ pinnedBtnStyle }}" style-hover="{{ chipHoverStyle }}">&#9679; Pinned only</button>
-        <button onClick="{{ toggleOnlySpawns }}" style="{{ spawnsBtnStyle }}" style-hover="{{ chipHoverStyle }}" title="Only updates that add spawns of an existing monster">{{ spawnsLabel }}</button>
         <button onClick="{{ toggleIcons }}" style="{{ iconBtnStyle }}" style-hover="{{ chipHoverStyle }}">Icons</button>
         <button onClick="{{ toggleCollapse }}" style="{{ collapseBtnStyle }}" style-hover="{{ chipHoverStyle }}">{{ collapseLabel }}</button>
         <span style="width:1px; align-self:stretch; background:var(--border-2); margin:2px 3px;"></span>
@@ -401,7 +400,7 @@ class Component extends DCLogic {
     pinnedTypes: new Set(), activeBuild: null,
     notes: {}, changes: {}, changesByBuild: {}, showNotes: true, showChanges: true,
     subOpen: {}, onlyPinned: false, allNotesOpen: false, allChangesOpen: false,
-    showUnconf: true, allUnconfOpen: false, onlySpawns: false,
+    showUnconf: true, allUnconfOpen: false,
     quests: {}, showQuests: true, allQuestOpen: false,
     // The build rail is sticky *below* the header, so it needs the header's
     // live height. It changes as the filter chips wrap, so it is observed
@@ -1167,11 +1166,9 @@ class Component extends DCLogic {
     // update in updates-data.js, not in a generated lookup keyed by title.
     const questTotal = Object.keys(s.quests).length;
     let unconfTotal = 0;
-    let spawnTotal = 0;
-    s.packages.forEach((p) => p.items.forEach((it) => (it.unconfirmed || []).forEach((u) => {
-      unconfTotal += 1;
-      if (u.kind === 'spawn') spawnTotal += 1;
-    })));
+    s.packages.forEach((p) => p.items.forEach((it) => {
+      unconfTotal += (it.unconfirmed || []).length;
+    }));
     const detailChip = (on, color, label, allOpen, onToggle, onExpand) => ({
       label,
       onToggle,
@@ -1256,7 +1253,6 @@ class Component extends DCLogic {
               .names.filter((n) => !hidden.has(n))
           : [];
         let unconf = s.showUnconf ? (it.unconfirmed || []) : [];
-        if (s.onlySpawns) unconf = unconf.filter((u) => u.kind === 'spawn');
         if (s.onlyPinned) {
           unconf = unconf.filter((u) => (u.entities || []).some((n) => this.isPinned(n)));
         }
@@ -1276,10 +1272,6 @@ class Component extends DCLogic {
         );
         const titleHit = !term || it.title.toLowerCase().includes(term) || String(pkg.build).includes(term);
         if (term && !titleHit && !noteHit && groups.length === 0) continue;
-        // "Spawns only" is a filter on the update, not just on the block: an
-        // update with no spawn entry has nothing to say here and should go.
-        if (s.onlySpawns && !unconf.length) continue;
-
         const count = groups.reduce((a, g) => a + g.names.length, 0);
         pkgCount += count;
         const key = pkg.build + '|' + it.title;
@@ -1353,7 +1345,7 @@ class Component extends DCLogic {
       // Changes whose originating update is not itemised on this page still
       // belong to the build. They get one collapsed entry per package rather
       // than being dropped — losing them would misrepresent what the build did.
-      let loose = s.showChanges && !s.onlyStarred && !s.onlySpawns
+      let loose = s.showChanges && !s.onlyStarred
         ? (s.changesByBuild[pkg.build] || []) : [];
       if (s.onlyPinned) loose = loose.filter((c) => this.hasPinned(c));
       if (term && loose.length) {
@@ -1481,21 +1473,6 @@ class Component extends DCLogic {
       iconBtnStyle: this.btn(s.showIcons, blue),
       toggleOnlyPinned: () => this.setState((st) => ({ onlyPinned: !st.onlyPinned })),
       pinnedBtnStyle: this.btn(s.onlyPinned, gold),
-      // Filtering to spawns and then finding a collapsed block would look
-      // broken, so switching it on also switches the layer on, expands every
-      // unconfirmed block (dropping stale per-block overrides, as toggleAllSub
-      // does) and opens the surviving updates.
-      toggleOnlySpawns: () => this.setState((st) => {
-        if (st.onlySpawns) return { onlySpawns: false };
-        const sub = {};
-        Object.keys(st.subOpen).forEach((k) => { if (!k.endsWith('|unc')) sub[k] = st.subOpen[k]; });
-        return {
-          onlySpawns: true, showUnconf: true, allUnconfOpen: true, subOpen: sub,
-          allClosed: false, overrides: {},
-        };
-      }),
-      spawnsBtnStyle: this.btn(s.onlySpawns, UNCONF_COLOR),
-      spawnsLabel: '◇ Spawns ' + spawnTotal,
       themeWrapStyle: {
         display: 'inline-flex', border: '1px solid var(--border-3)',
         borderRadius: 'var(--r-ctl)', overflow: 'hidden', flex: 'none',

@@ -14,7 +14,9 @@ research in this document:
   header already runs to ~570px there.
 - **Spawns are not a separate layer.** They are `unconfirmed` entries carrying
   `kind: "spawn"`, with a `◇ Spawns` filter in the top bar, exactly as the
-  feature-4 section proposes.
+  feature-4 section proposes. (The filter was removed on 2026-08-20 — three
+  entries did not earn the width, and it wrapped the top row. The `kind` tag
+  stays, so it is easy to restore.)
 - **The block header reads *Unlisted* when every entry is `confirmed`.** Calling
   the Fenkenstrain hellhound additions "unconfirmed" would be a lie: Jagex
   published them. They are in this layer because they created no entity.

@@ -189,7 +189,7 @@ exactly why it survives every regeneration.
 ```js
 unconfirmed: [
   {
-    kind: "spawn",                 // optional; drives the Spawns filter
+    kind: "spawn",                 // optional; tags a monster-spawn entry
     confidence: "likely",          // confirmed | likely | possible | unknown
     text: "Green dragons added west of the Dark Warriors' Fortress …",
     entities: ["Green dragon"],    // linked, and honoured by "Pinned only"
@@ -214,12 +214,13 @@ badge is what tells them apart:
 **Spawn counts are today's wiki figures**, from `bucket("locline")`, and are
 labelled `N today` on every row. The 2005 patch notes say "more", never how many.
 
-### The Spawns filter
+### Where the spawn entries came from
 
-`◇ Spawns` in the top bar narrows the page to updates that add spawns of an
-existing monster. Switching it on also switches the layer on and expands every
-unconfirmed block — filtering down to two updates and finding them collapsed
-would look broken. On today's data it leaves build #290–291.
+There was a `◇ Spawns` button in the top bar that narrowed the page to updates
+adding spawns of an existing monster. It was removed: with three entries it
+earned none of the width it took, and it wrapped the type-filter bulk actions
+onto a second row. `kind: "spawn"` is still carried on the entries, so the
+filter is a small thing to restore if the layer ever grows.
 
 Scanning both datasets over the whole window turned up exactly one update that
 documents this (Creature of Fenkenstrain, 31 January 2005) — of 242 change rows

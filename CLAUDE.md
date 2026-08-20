@@ -63,7 +63,7 @@ full. Keep it that way.
    `tools/build-changes-data.py` writes **only** `update-notes-data.js` and `changes-data.js`;
    it reads `updates-data.js` but never writes it. Keep that boundary.
 5. **Below 700px the header is deliberately *not* sticky.** The SHOW row wraps into a ~570px
-   header at phone widths (it was ~460px before the theme toggle, the Spawns filter and two more
+   header at phone widths (it was ~460px before the theme toggle and two more
    detail chips); pinned, that eats most of the viewport. `stickyStyle` switches to
    `position:relative` there and lets it scroll away — navigation survives because the rail is
    sticky independently. `state.narrow` drives this and is set in `componentDidMount` via
